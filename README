@@ -1,0 +1,8 @@
+This project is licensed under the GPLv3. See COPYING for details.
+Copyright 2011 Elliot Wolk
+
+Requires: libpanel-applet2-dev
+e.g.: sudo apt-get install libpanel-applet2-dev
+
+configure with --prefix=/usr to install properly
+e.g.: ./configure --prefix=/usr
