@@ -3,8 +3,8 @@ INCLUDES=-I. -I$(srcdir) \
 	-DGNOMEICONDIR=\""$(prefix)/share/pixmaps"\"
 	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\"
 
-bin_PROGRAMS=tp-batt-stat-applet
+bin_PROGRAMS=tpbattstat-applet
 
-tp-batt-stat-applet_SOURCES=tp-batt-stat-applet.c
+tpbattstat-applet_SOURCES=tpbattstat-applet.c
 
-tp-batt-stat-applet_LDADD=$(GNOME_APPLETS_LIBS)
+tpbattstat-applet_LDADD=$(GNOME_APPLETS_LIBS)

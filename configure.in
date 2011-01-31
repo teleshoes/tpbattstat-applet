@@ -1,5 +1,5 @@
-AC_INIT(src/tp-batt-stat-applet.c)
-AM_INIT_AUTOMAKE(tp-batt-stat-applet, 0.1)
+AC_INIT(src/tpbattstat-applet.c)
+AM_INIT_AUTOMAKE(tpbattstat-applet, 0.1)
 
 AC_PROG_CC
 AC_HEADER_STDC

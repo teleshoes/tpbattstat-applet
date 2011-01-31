@@ -1,6 +1,6 @@
 <oaf_info>
 <oaf_server iid="OAFIID:TPBattStatApplet_Factory" type="exe"
-            location="@BINDIR@/tp-batt-stat-applet">
+            location="@BINDIR@/tpbattstat-applet">
 
         <oaf_attribute name="repo_ids" type="stringv">
                 <item value="IDL:Bonobo/GenericFactory:1.0"/>
