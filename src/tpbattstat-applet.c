@@ -48,6 +48,7 @@
 #include <panel-applet.h>
 #include <panel-applet-gconf.h>
 #include "battery-info.c"
+#include "prefs.c"
 
 static void
 log (char *msg)
