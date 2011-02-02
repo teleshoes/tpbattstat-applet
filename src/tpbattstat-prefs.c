@@ -82,7 +82,6 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
     else
         prefs->chargeBracketsPrefBattery = 0;
 
-    desktop_log("cargaafaf");
     if(valueExists(applet, "charge_brackets"))
     {
         GSList *list = panel_applet_gconf_get_list(
