@@ -23,8 +23,6 @@
 
 #include "tpbattstat-prefs.h"
 
-G_BEGIN_DECLS
-
 #define smapi_dir "/sys/devices/platform/smapi"
 
 enum BatteryState { IDLE, CHARGING, DISCHARGING };
@@ -54,7 +52,5 @@ int perhaps_force_discharge(BatteryStatus *status,
 int perhaps_inhibit_charge(BatteryStatus *status,
         enum ChargeStrategy strategy, int threshold,
         const int brackets[], int bracketsSize, int bracketsPrefBat);
-
-G_END_DECLS
 
 #endif /* TPBATTSTAT_BATTINFO_H */
