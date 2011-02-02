@@ -190,9 +190,7 @@ start_update(TPBattStat *tpbattstat)
 
     currentDelay = tpbattstat->prefs->delay;
     if(currentDelay <= 0)
-    {
-        currentDelay = 3000;
-    }
+        currentDelay = 1000;
     update(tpbattstat);
     timer = g_timeout_add (currentDelay, (GSourceFunc) update, tpbattstat);
 
@@ -228,6 +226,7 @@ tpbattstat_applet_fill (PanelApplet *applet,
     tpbattstat->status->bat1 = malloc(sizeof(Battery));
 
     tpbattstat->prefs = malloc(sizeof(Prefs));
+    load_prefs(tpbattstat->applet, tpbattstat->prefs);
 
     start_update(tpbattstat);
 	
