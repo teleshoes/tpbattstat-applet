@@ -19,15 +19,23 @@
  *************************************************************************/
 #include <panel-applet-gconf.h>
 
-#include "tpbattstat-applet.h"
-#include "tpbattstat-battinfo.h"
 #include "tpbattstat-prefs.h"
+
+
+gboolean
+valueExists (PanelApplet *applet, const char *key)
+{
+    GConfValue *val = panel_applet_gconf_get_value(applet, key, NULL);
+    gboolean exists = val != NULL;
+    g_free(val);
+    return exists;
+}
 
 void
 load_prefs (PanelApplet *applet, Prefs *prefs)
 {
-    int delay = panel_applet_gconf_get_int(applet, 'delay', NULL);
-    if(delay != NULL)
+    int delay = panel_applet_gconf_get_int(applet, "delay", NULL);
+    if(valueExists(applet, "delay"))
         prefs->delay = delay;
 
     char *dischargeStrategy =
@@ -44,8 +52,8 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
     }
 
     int dischargeLeapfrogThreshold = panel_applet_gconf_get_int(
-        applet, 'discharge_leapfrog_threshold', NULL);
-    if(dischargeLeapfrogThreshold != NULL)
+        applet, "discharge_leapfrog_threshold", NULL);
+    if(dischargeLeapfrogThreshold > 0)
         prefs->dischargeLeapfrogThreshold = dischargeLeapfrogThreshold;
 
     char *chargeStrategy =
@@ -64,17 +72,18 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
     }
 
     int chargeLeapfrogThreshold = panel_applet_gconf_get_int(
-        applet, 'charge_leapfrog_threshold', NULL);
-    if(chargeLeapfrogThreshold != NULL)
+        applet, "charge_leapfrog_threshold", NULL);
+    if(chargeLeapfrogThreshold > 0)
         prefs->chargeLeapfrogThreshold = chargeLeapfrogThreshold;
 
     int chargeBracketsPrefBattery = panel_applet_gconf_get_int(
-        applet, 'charge_brackets_pref_bat', NULL);
-    if(chargeBracketsPrefBat != NULL)
+        applet, "charge_brackets_pref_bat", NULL);
+    if(chargeBracketsPrefBattery > 0)
         prefs->chargeBracketsPrefBattery = chargeBracketsPrefBattery;
+    else
+        prefs->chargeBracketsPrefBattery = 0;
 
-    if(gconf_client_get(applet, "panel_applet_gconf_get_value",
-          "charge_brackets", NULL) != NULL)
+    if(valueExists(applet, "charge_brackets"))
     {
         GSList *list = panel_applet_gconf_get_list(
             applet, "charge_brackets", GCONF_VALUE_INT, NULL);
@@ -90,7 +99,7 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
         GSList *bracket = list;
         for(i=0; i<len; i++)
         {
-            prefs->chargeBrackets[i] = *(bracket->data);
+            prefs->chargeBrackets[i] = GPOINTER_TO_INT(bracket->data);
             bracket = bracket->next;
         }
 

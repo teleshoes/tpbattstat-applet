@@ -48,8 +48,9 @@
 #include <panel-applet.h>
 
 #include "tpbattstat-applet.h"
-#include "tpbattstat-battinfo.h"
-#include "tpbattstat-prefs.h"
+
+#include "tpbattstat-battinfo.c"
+#include "tpbattstat-prefs.c"
 
 void
 desktop_log (char *msg)

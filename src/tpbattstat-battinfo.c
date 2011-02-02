@@ -127,7 +127,7 @@ get_battery(Battery *bat, int battery_id)
             read_battery_prop(battery_id, "state");
 }
 
-static void
+void
 get_battery_status(BatteryStatus* status)
 {
     status->ac_connected = 
@@ -136,7 +136,7 @@ get_battery_status(BatteryStatus* status)
     get_battery(status->bat1, 1);
 }
 
-static int
+int
 perhaps_force_discharge(BatteryStatus *status,
         enum DischargeStrategy strategy, int leapfrogThreshold)
 {
@@ -232,7 +232,7 @@ ensure_charging(int battery, BatteryStatus* status)
     }
 }
 
-static int
+int
 perhaps_inhibit_charge(BatteryStatus *status,
         enum ChargeStrategy strategy, int leapfrogThreshold,
         const int brackets[], int bracketsSize, int bracketsPrefBat)
