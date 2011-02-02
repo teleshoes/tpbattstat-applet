@@ -41,11 +41,11 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
         panel_applet_gconf_get_string(applet, "discharge_strategy", NULL);
     if(dischargeStrategy != NULL)
     {
-        if(strcmp(dischargeStrategy, "SYSTEM") == 0)
+        if(strcasecmp(dischargeStrategy, "SYSTEM") == 0)
             prefs->dischargeStrategy = DISCHARGE_SYSTEM;
-        else if(strcmp(dischargeStrategy, "LEAPFROG") == 0)
+        else if(strcasecmp(dischargeStrategy, "LEAPFROG") == 0)
             prefs->dischargeStrategy = DISCHARGE_LEAPFROG;
-        else if(strcmp(dischargeStrategy, "CHASING") == 0)
+        else if(strcasecmp(dischargeStrategy, "CHASING") == 0)
             prefs->dischargeStrategy = DISCHARGE_CHASING;
         g_free(dischargeStrategy);
     }
@@ -59,13 +59,13 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
         panel_applet_gconf_get_string(applet, "charge_strategy", NULL);
     if(chargeStrategy != NULL)
     {
-        if(strcmp(chargeStrategy, "SYSTEM") == 0)
+        if(strcasecmp(chargeStrategy, "SYSTEM") == 0)
             prefs->chargeStrategy = CHARGE_SYSTEM;
-        else if(strcmp(chargeStrategy, "LEAPFROG") == 0)
+        else if(strcasecmp(chargeStrategy, "LEAPFROG") == 0)
             prefs->chargeStrategy = CHARGE_LEAPFROG;
-        else if(strcmp(chargeStrategy, "CHASING") == 0)
+        else if(strcasecmp(chargeStrategy, "CHASING") == 0)
             prefs->chargeStrategy = CHARGE_CHASING;
-        else if(strcmp(chargeStrategy, "BRACKETS") == 0)
+        else if(strcasecmp(chargeStrategy, "BRACKETS") == 0)
             prefs->chargeStrategy = CHARGE_BRACKETS;
         g_free(chargeStrategy);
     }
@@ -88,7 +88,7 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
             applet, "charge_brackets", GCONF_VALUE_INT, NULL);
 
         int len = g_slist_length(list);
-
+        
         if(prefs->chargeBrackets != NULL)
             g_free(prefs->chargeBrackets);
         prefs->chargeBrackets = malloc(sizeof(int) * len);

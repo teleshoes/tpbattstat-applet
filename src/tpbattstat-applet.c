@@ -145,7 +145,7 @@ update (TPBattStat *tpbattstat)
     if(newDelay > 0 && newDelay != currentDelay)
     {
         start_update(tpbattstat);
-        return 0;
+        return FALSE;
     }
 
     get_battery_status(tpbattstat->status);
