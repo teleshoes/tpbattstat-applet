@@ -7,7 +7,7 @@ $(server_DATA):	$(server_in_files)
 	sed -e "s|\@BINDIR\@|$(bindir)|" $< > $@
 
 pixmapdir = $(datadir)/pixmaps
-pixmap_DATA = myicon.png myicon24.png
+pixmap_DATA = myicon.svg
 
 EXTRA_DIST = \
 	$(pixmap_DATA) \
