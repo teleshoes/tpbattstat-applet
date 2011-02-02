@@ -27,7 +27,6 @@ valueExists (PanelApplet *applet, const char *key)
 {
     GConfValue *val = panel_applet_gconf_get_value(applet, key, NULL);
     gboolean exists = val != NULL;
-    g_free(val);
     return exists;
 }
 

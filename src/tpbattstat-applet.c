@@ -55,8 +55,8 @@
 void
 desktop_log (char *msg)
 {
-    char *cmd = malloc( sizeof(char) * (strlen(msg) + 32) );
-    sprintf(cmd, "echo `date`: \"%s\" >> ~/Desktop/out", msg);
+    char *cmd = malloc(256);
+    sprintf(cmd, "echo `date`: \"%s\" >> /home/wolke/Desktop/out", msg);
     system(cmd);
     g_free(cmd);
 } 

@@ -26,8 +26,7 @@
 #include "tpbattstat-applet.h"
 #include "tpbattstat-battinfo.h"
 
-G_BEGIN_DECLS
-#define SCHEMA_DIR "/schemas/apps/tpbattstat-applet/prefs"
+#define SCHEMA_DIR "/schemas/apps/tpbattstat_applet/prefs"
 
 enum DischargeStrategy {
     DISCHARGE_SYSTEM, /*
@@ -91,5 +90,5 @@ typedef struct {
 
 void load_prefs (PanelApplet *applet, Prefs *prefs);
 void initialize_prefs (PanelApplet *applet);
-G_END_DECLS
+
 #endif /* TPBATTSTAT_PREFS_H */
