@@ -46,32 +46,28 @@
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 #include <panel-applet.h>
-#include <panel-applet-gconf.h>
-#include "battery-info.c"
-#include "prefs.c"
 
-static void
-log (char *msg)
+#include "tpbattstat-applet.h"
+#include "tpbattstat-battinfo.h"
+#include "tpbattstat-prefs.h"
+
+void
+desktop_log (char *msg)
 {
     char *cmd = malloc( sizeof(char) * (strlen(msg) + 32) );
     sprintf(cmd, "echo `date`: \"%s\" >> ~/Desktop/out", msg);
     system(cmd);
     g_free(cmd);
-}
+} 
 
-typedef struct {
-    GtkLabel *label;
-    BatteryStatus *status;
-} TPBattStat;
-
-static void
+void
 verb_statistics (BonoboUIComponent *ui_container,
                gpointer           user_data,
                const              char *cname)
 {
     system("gnome-power-statistics &");
 }
-static const char context_menu_xml [] =
+const char context_menu_xml [] =
     "<popup name=\"button3\">\n"
     "   <menuitem name=\"Properties Item\" "
     "             verb=\"Statistics\" "
@@ -79,7 +75,7 @@ static const char context_menu_xml [] =
     "          pixtype=\"stock\" "
     "          pixname=\"gtk-properties\"/>\n"
     "</popup>\n";
-static const BonoboUIVerb context_menu_verbs [] = {
+const BonoboUIVerb context_menu_verbs [] = {
         BONOBO_UI_VERB ("Statistics", verb_statistics),
         BONOBO_UI_VERB_END
 };
@@ -88,10 +84,10 @@ static const BonoboUIVerb context_menu_verbs [] = {
 
 
 
-static int timer = -1;
+int timer = -1;
 
-static int i = 0;
-static char *
+int i = 0;
+char *
 get_battery_status_markup (BatteryStatus *status)
 {
     char *bat0color;
@@ -119,7 +115,7 @@ get_battery_status_markup (BatteryStatus *status)
 
     if(strlen(status->msg) > 0)
     {
-      log(status->msg);
+      desktop_log(status->msg);
       g_free(status->msg);
     }
 
@@ -140,16 +136,34 @@ get_battery_status_markup (BatteryStatus *status)
     return markup;
 }
 
-static gboolean
+int currentDelay;
+
+gboolean
 update (TPBattStat *tpbattstat)
 {
+    int newDelay = tpbattstat->prefs->delay;
+    if(newDelay > 0 && newDelay != currentDelay)
+    {
+        start_update(tpbattstat);
+        return 0;
+    }
+
     get_battery_status(tpbattstat->status);
+
+    load_prefs(tpbattstat->applet, tpbattstat->prefs);
+
     tpbattstat->status->msg = "\0";
     perhaps_inhibit_charge(
-            tpbattstat->status, chargeStrategy, chargeThreshold,
-            chargeBrackets, chargeBracketsSize, chargeBracketsPrefBattery);
+            tpbattstat->status,
+            tpbattstat->prefs->chargeStrategy,
+            tpbattstat->prefs->chargeLeapfrogThreshold,
+            tpbattstat->prefs->chargeBrackets,
+            tpbattstat->prefs->chargeBracketsSize,
+            tpbattstat->prefs->chargeBracketsPrefBattery);
     perhaps_force_discharge(
-            tpbattstat->status, dischargeStrategy, dischargeThreshold);
+            tpbattstat->status,
+            tpbattstat->prefs->dischargeStrategy,
+            tpbattstat->prefs->dischargeLeapfrogThreshold);
 
     char *markup = get_battery_status_markup(tpbattstat->status);
     gtk_label_set_markup(tpbattstat->label, markup);
@@ -158,7 +172,7 @@ update (TPBattStat *tpbattstat)
     return TRUE;
 }
 
-static gboolean
+gboolean
 stop_update ()
 {
     if(timer != -1)
@@ -169,19 +183,24 @@ stop_update ()
     return TRUE;
 }
 
-static gboolean
+gboolean
 start_update(TPBattStat *tpbattstat)
 {
     stop_update ();
 
+    currentDelay = tpbattstat->prefs->delay;
+    if(currentDelay <= 0)
+    {
+        currentDelay = 3000;
+    }
     update(tpbattstat);
-    timer = g_timeout_add (delay, (GSourceFunc) update, tpbattstat);
+    timer = g_timeout_add (currentDelay, (GSourceFunc) update, tpbattstat);
 
     return TRUE;
 }
 
 
-static gboolean
+gboolean
 tpbattstat_applet_fill (PanelApplet *applet,
    const gchar *iid,
    gpointer data)
@@ -189,7 +208,11 @@ tpbattstat_applet_fill (PanelApplet *applet,
 	if (strcmp (iid, "OAFIID:TPBattStatApplet") != 0)
 		return FALSE;
 
+    initialize_prefs(applet);
+    
     TPBattStat *tpbattstat = g_new0(TPBattStat, 1);
+    tpbattstat->applet = applet;
+
     tpbattstat->label = (GtkLabel*) gtk_label_new("<Status Unread>");
 	gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(tpbattstat->label));
 	gtk_widget_show_all (GTK_WIDGET (applet));
@@ -203,6 +226,8 @@ tpbattstat_applet_fill (PanelApplet *applet,
     tpbattstat->status = malloc(sizeof(BatteryStatus));
     tpbattstat->status->bat0 = malloc(sizeof(Battery));
     tpbattstat->status->bat1 = malloc(sizeof(Battery));
+
+    tpbattstat->prefs = malloc(sizeof(Prefs));
 
     start_update(tpbattstat);
 	
