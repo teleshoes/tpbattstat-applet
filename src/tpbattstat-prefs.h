@@ -23,9 +23,6 @@
 
 #include <panel-applet.h>
 
-#include "tpbattstat-applet.h"
-#include "tpbattstat-battinfo.h"
-
 #define SCHEMA_DIR "/schemas/apps/tpbattstat_applet/prefs"
 
 enum DischargeStrategy {
