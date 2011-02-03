@@ -34,6 +34,7 @@ typedef struct {
     BatteryStatus *status;
     Prefs *prefs;
     int currentDelay;
+    int timer;
 } TPBattStat;
 
 
