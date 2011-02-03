@@ -136,13 +136,12 @@ get_battery_status_markup (BatteryStatus *status)
     return markup;
 }
 
-int currentDelay;
 
 gboolean
 update (TPBattStat *tpbattstat)
 {
     int newDelay = tpbattstat->prefs->delay;
-    if(newDelay > 0 && newDelay != currentDelay)
+    if(newDelay > 0 && newDelay != tpbattstat->currentDelay)
     {
         start_update(tpbattstat);
         return FALSE;
@@ -188,11 +187,14 @@ start_update(TPBattStat *tpbattstat)
 {
     stop_update ();
 
-    currentDelay = tpbattstat->prefs->delay;
-    if(currentDelay <= 0)
-        currentDelay = 1000;
+    tpbattstat->currentDelay = tpbattstat->prefs->delay;
+    if(tpbattstat->currentDelay <= 0)
+        tpbattstat->currentDelay = 1000;
     update(tpbattstat);
-    timer = g_timeout_add (currentDelay, (GSourceFunc) update, tpbattstat);
+    timer = g_timeout_add (
+        tpbattstat->currentDelay,
+        (GSourceFunc) update,
+        tpbattstat);
 
     return TRUE;
 }

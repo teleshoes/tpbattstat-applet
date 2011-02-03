@@ -33,6 +33,7 @@ typedef struct {
     PanelApplet *applet;
     BatteryStatus *status;
     Prefs *prefs;
+    int currentDelay;
 } TPBattStat;
 
 
