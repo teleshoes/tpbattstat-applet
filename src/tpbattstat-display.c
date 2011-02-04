@@ -18,33 +18,8 @@
  *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
-int
-get_digs (unsigned long num)
-{
-    int d=0;
-    while(num > 0)
-    {
-        num /= 10;
-        d++;
-    }
-    return d;
-}
-
-const char *
-get_spacer (int desiredLen, unsigned long num)
-{
-    int digs = get_digs(num);
-    switch( desiredLen - digs ) 
-    {
-        case 10:
-            capa++;
-        case 'a':
-            lettera++;
-        default :
-            total++;
-    }
-}
-
+#include "tpbattstat-applet.h"
+#include "tpbattstat-battinfo.h"
 
 char *
 get_battery_status_markup (BatteryStatus *status)
@@ -62,23 +37,16 @@ get_battery_status_markup (BatteryStatus *status)
     if(power_avg_W == 0)
         power_avg_W = status->bat1->power_avg / 1000.0;
 
-    unsigned long count = status->count++;
-    int digs = 0;
-    
-    char *spacer;
-    if(count<=9) spacer = "0000";
-    else if(count<=99) spacer = "000";
-    else if(count<=999) spacer = "00";
-    else if(count<=9999) spacer = "0";
-    else spacer = "";
-
     if(strlen(status->msg) > 0)
     {
       desktop_log(status->msg);
       g_free(status->msg);
     }
 
+    status->count++;
+
     char *markup = g_markup_printf_escaped (
+        "%010lu"
         "<tt>"
         "<span style=\"italic\" "
           "font_weight=\"bold\" "
@@ -90,9 +58,10 @@ get_battery_status_markup (BatteryStatus *status)
           "fgcolor=\"white\" "
           "bgcolor=\"%s\">%d%%</span>"
         "</tt>",
-          bat0color, status->bat0->remaining_percent,
-          power_avg_W,
-          bat1color, status->bat1->remaining_percent);
+        status->count,
+        bat0color, status->bat0->remaining_percent,
+        power_avg_W,
+        bat1color, status->bat1->remaining_percent);
 
     return markup;
 }
