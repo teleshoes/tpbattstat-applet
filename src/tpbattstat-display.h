@@ -22,7 +22,18 @@
 #define TPBATTSTAT_DISPLAY_H
 
 #include <panel-applet.h>
+#include <gtk/gtklabel.h>
+#include <gtk/gtkbox.h>
+#include <gtk/gtkimage.h>
 
-void update_display (TPBattStat *tpbattstat);
+#include "tpbattstat-battinfo.h"
+
+typedef struct {
+    GtkLabel *label;
+} HUD;
+
+void update_display (HUD *hud, BatteryStatus *status);
+
+void init_display (HUD *hud, PanelApplet *applet);
 
 #endif /* TPBATTSTAT_DISPLAY_H */

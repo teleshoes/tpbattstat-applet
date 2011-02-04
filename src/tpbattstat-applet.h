@@ -25,18 +25,18 @@
 #include <gtk/gtklabel.h>
 
 #include "tpbattstat-battinfo.h"
+#include "tpbattstat-display.h"
 #include "tpbattstat-prefs.h"
 
 
 typedef struct {
-    GtkLabel *label;
+    HUD *hud;
     PanelApplet *applet;
     BatteryStatus *status;
     Prefs *prefs;
     int currentDelay;
     int timer;
 } TPBattStat;
-
 
 void desktop_log (char *msg);
 

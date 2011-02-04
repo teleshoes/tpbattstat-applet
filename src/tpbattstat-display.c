@@ -18,8 +18,8 @@
  *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
-#include "tpbattstat-applet.h"
 #include "tpbattstat-battinfo.h"
+#include "tpbattstat-display.h"
 
 char *
 get_battery_status_markup (BatteryStatus *status)
@@ -67,9 +67,18 @@ get_battery_status_markup (BatteryStatus *status)
 }
 
 void
-update_display (TPBattStat *tpbattstat)
+update_display (HUD *hud, BatteryStatus *status)
 {
-    char *markup = get_battery_status_markup(tpbattstat->status);
-    gtk_label_set_markup(tpbattstat->label, markup);
+    char *markup = get_battery_status_markup(status);
+    gtk_label_set_markup(hud->label, markup);
     g_free(markup);
 }
+
+void
+init_display (HUD *hud, PanelApplet *applet)
+{
+    hud->label = (GtkLabel*) gtk_label_new("<Status Unread>");
+	gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(hud->label));
+	gtk_widget_show_all (GTK_WIDGET (applet));
+}
+

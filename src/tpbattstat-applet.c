@@ -21,9 +21,6 @@
 #include <string.h>
 
 #include <panel-applet.h>
-#include <gtk/gtklabel.h>
-#include <gtk/gtkbox.h>
-#include <gtk/gtkimage.h>
 #include <gtk/gtk.h>
 #include <gtk/gtkstock.h>
 
@@ -45,6 +42,9 @@
 #include <glib.h>
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
+#include <gtk/gtklabel.h>
+#include <gtk/gtkbox.h>
+#include <gtk/gtkimage.h>
 #include <panel-applet.h>
 
 #include "tpbattstat-applet.h"
@@ -111,7 +111,7 @@ update (TPBattStat *tpbattstat)
             tpbattstat->prefs->dischargeStrategy,
             tpbattstat->prefs->dischargeLeapfrogThreshold);
 
-    update_display(tpbattstat);
+    update_display(tpbattstat->hud, tpbattstat->status);
 
     return TRUE;
 }
@@ -158,10 +158,8 @@ tpbattstat_applet_fill (PanelApplet *applet,
     TPBattStat *tpbattstat = g_new0(TPBattStat, 1);
     tpbattstat->applet = applet;
 
-    tpbattstat->label = (GtkLabel*) gtk_label_new("<Status Unread>");
-	gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(tpbattstat->label));
-	gtk_widget_show_all (GTK_WIDGET (applet));
-
+    tpbattstat->hud = malloc(sizeof(HUD));
+    init_display(tpbattstat->hud, applet);
 
     panel_applet_setup_menu (PANEL_APPLET (applet),
 	                         context_menu_xml,
