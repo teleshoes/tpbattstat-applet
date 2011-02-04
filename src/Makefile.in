@@ -75,7 +75,7 @@ INCLUDES = -I. -I$(srcdir) 	$(GNOME_APPLETS_CFLAGS) 	-DGNOMEICONDIR=\""$(prefix)
 
 bin_PROGRAMS = tpbattstat-applet
 
-tpbattstat-applet_SOURCES = tpbattstat-applet.c tpbattstat-prefs.c tpbattstat-battinfo.c
+tpbattstat-applet_SOURCES = tpbattstat-applet.c tpbattstat-battinfo.c tpbattstat-display.c tpbattstat-applet.c
 
 tpbattstat-applet_LDADD = $(GNOME_APPLETS_LIBS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -87,7 +87,7 @@ DEFS = @DEFS@ -I. -I$(srcdir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-tpbattstat-applet_OBJECTS =  tpbattstat-applet.o tpbattstat-prefs.o tpbattstat-battinfo.o
+tpbattstat-applet_OBJECTS =  tpbattstat-applet.o tpbattstat-battinfo.o tpbattstat-display.o tpbattstat-prefs.o
 tpbattstat-applet_DEPENDENCIES = 
 tpbattstat-applet_LDFLAGS = 
 CFLAGS = @CFLAGS@
