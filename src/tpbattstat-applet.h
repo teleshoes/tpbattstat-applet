@@ -22,12 +22,10 @@
 #define TPBATTSTAT_APPLET_H
 
 #include <panel-applet.h>
-#include <gtk/gtklabel.h>
 
 #include "tpbattstat-battinfo.h"
 #include "tpbattstat-display.h"
 #include "tpbattstat-prefs.h"
-
 
 typedef struct {
     HUD *hud;

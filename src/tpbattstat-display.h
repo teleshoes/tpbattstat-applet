@@ -23,8 +23,6 @@
 
 #include <panel-applet.h>
 #include <gtk/gtklabel.h>
-#include <gtk/gtkbox.h>
-#include <gtk/gtkimage.h>
 
 #include "tpbattstat-battinfo.h"
 

@@ -18,8 +18,11 @@
  *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
-#include "tpbattstat-battinfo.h"
-#include "tpbattstat-display.h"
+#include <gtk/gtk.h>
+//#include <panel-applet.h>
+
+//#include "tpbattstat-battinfo.h"
+//#include "tpbattstat-display.h"
 
 char *
 get_battery_status_markup (BatteryStatus *status)

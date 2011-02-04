@@ -18,6 +18,8 @@
  *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
+#include <stdio.h>
+
 #include "tpbattstat-applet.h"
 #include "tpbattstat-battinfo.h"
 #include "tpbattstat-prefs.h"

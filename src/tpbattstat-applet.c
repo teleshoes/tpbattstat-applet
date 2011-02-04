@@ -18,33 +18,7 @@
  *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
-#include <string.h>
-
-#include <panel-applet.h>
-#include <gtk/gtk.h>
-#include <gtk/gtkstock.h>
-
-#include <glib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
 #include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <signal.h>
-#include <dirent.h>
-#include <string.h>
-#include <time.h>
-#include <glib.h>
-#include <gdk/gdkx.h>
-#include <gtk/gtk.h>
-#include <gtk/gtklabel.h>
-#include <gtk/gtkbox.h>
-#include <gtk/gtkimage.h>
 #include <panel-applet.h>
 
 #include "tpbattstat-applet.h"

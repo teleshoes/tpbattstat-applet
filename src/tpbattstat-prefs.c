@@ -17,10 +17,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
+
+#include <panel-applet.h>
 #include <panel-applet-gconf.h>
 
 #include "tpbattstat-prefs.h"
-
 
 gboolean
 valueExists (PanelApplet *applet, const char *key)
