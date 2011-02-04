@@ -19,10 +19,10 @@
  *************************************************************************/
 
 #include <gtk/gtk.h>
-//#include <panel-applet.h>
+#include <panel-applet.h>
 
-//#include "tpbattstat-battinfo.h"
-//#include "tpbattstat-display.h"
+#include "tpbattstat-battinfo.h"
+#include "tpbattstat-display.h"
 
 char *
 get_battery_status_markup (BatteryStatus *status)
