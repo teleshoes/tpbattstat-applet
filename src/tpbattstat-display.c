@@ -18,40 +18,4 @@
  *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
-#ifndef TPBATTSTAT_BATTINFO_H
-#define TPBATTSTAT_BATTINFO_H
 
-#include "tpbattstat-prefs.h"
-
-#define smapi_dir "/sys/devices/platform/smapi"
-
-enum BatteryState { IDLE, CHARGING, DISCHARGING };
-
-typedef struct {
-    int id;
-    int installed;
-    int force_discharge;
-    int inhibit_charge_minutes;
-    int remaining_percent;
-    int power_avg;
-    enum BatteryState state;
-} Battery;
-
-typedef struct {
-    int ac_connected;
-    Battery *bat0;
-    Battery *bat1;
-    char *msg;
-    unsigned long count;
-} BatteryStatus;
-
-void get_battery_status(BatteryStatus* status);
-
-int perhaps_force_discharge(BatteryStatus *status,
-        enum DischargeStrategy strategy, int threshold);
-
-int perhaps_inhibit_charge(BatteryStatus *status,
-        enum ChargeStrategy strategy, int threshold,
-        const int brackets[], int bracketsSize, int bracketsPrefBat);
-
-#endif /* TPBATTSTAT_BATTINFO_H */

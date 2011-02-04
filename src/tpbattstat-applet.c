@@ -15,7 +15,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with TPBattStatApplet.  If not, see <http://www.gnu.org/licenses/>.
  *************************************************************************/
 
 #include <string.h>
@@ -82,11 +82,34 @@ const BonoboUIVerb context_menu_verbs [] = {
 
 
 
+int
+get_digs (unsigned long num)
+{
+    int d=0;
+    while(num > 0)
+    {
+        num /= 10;
+        d++;
+    }
+    return d;
+}
+
+const char *
+get_spacer (int desiredLen, unsigned long num)
+{
+    int digs = get_digs(num);
+    switch( desiredLen - digs ) 
+    {
+        case 10:
+            capa++;
+        case 'a':
+            lettera++;
+        default :
+            total++;
+    }
+}
 
 
-int timer = -1;
-
-int i = 0;
 char *
 get_battery_status_markup (BatteryStatus *status)
 {
@@ -103,14 +126,14 @@ get_battery_status_markup (BatteryStatus *status)
     if(power_avg_W == 0)
         power_avg_W = status->bat1->power_avg / 1000.0;
 
-    i++;
-    if(i>99999)
-      i=0;
+    unsigned long count = status->count++;
+    int digs = 0;
+    
     char *spacer;
-    if(i<=9) spacer = "0000";
-    else if(i<=99) spacer = "000";
-    else if(i<=999) spacer = "00";
-    else if(i<=9999) spacer = "0";
+    if(count<=9) spacer = "0000";
+    else if(count<=99) spacer = "000";
+    else if(count<=999) spacer = "00";
+    else if(count<=9999) spacer = "0";
     else spacer = "";
 
     if(strlen(status->msg) > 0)
@@ -120,6 +143,7 @@ get_battery_status_markup (BatteryStatus *status)
     }
 
     char *markup = g_markup_printf_escaped (
+        "<tt>"
         "<span style=\"italic\" "
           "font_weight=\"bold\" "
           "fgcolor=\"white\" "
@@ -128,7 +152,8 @@ get_battery_status_markup (BatteryStatus *status)
         "<span style=\"italic\" "
           "font_weight=\"bold\" "
           "fgcolor=\"white\" "
-          "bgcolor=\"%s\">%d%%</span>",
+          "bgcolor=\"%s\">%d%%</span>"
+        "</tt>",
           bat0color, status->bat0->remaining_percent,
           power_avg_W,
           bat1color, status->bat1->remaining_percent);
@@ -172,12 +197,12 @@ update (TPBattStat *tpbattstat)
 }
 
 gboolean
-stop_update ()
+stop_update (TPBattStat *tpbattstat)
 {
-    if(timer != -1)
-        g_source_remove (timer);
+    if(tpbattstat->timer != -1)
+        g_source_remove (tpbattstat->timer);
 
-    timer = -1;
+    tpbattstat->timer = -1;
 
     return TRUE;
 }
@@ -185,13 +210,13 @@ stop_update ()
 gboolean
 start_update(TPBattStat *tpbattstat)
 {
-    stop_update ();
+    stop_update (tpbattstat);
 
     tpbattstat->currentDelay = tpbattstat->prefs->delay;
     if(tpbattstat->currentDelay <= 0)
         tpbattstat->currentDelay = 1000;
     update(tpbattstat);
-    timer = g_timeout_add (
+    tpbattstat->timer = g_timeout_add (
         tpbattstat->currentDelay,
         (GSourceFunc) update,
         tpbattstat);
@@ -224,6 +249,7 @@ tpbattstat_applet_fill (PanelApplet *applet,
 	                         applet);	
     
     tpbattstat->status = malloc(sizeof(BatteryStatus));
+    tpbattstat->status->count = 0;
     tpbattstat->status->bat0 = malloc(sizeof(Battery));
     tpbattstat->status->bat1 = malloc(sizeof(Battery));
 
