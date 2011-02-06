@@ -20,6 +20,6 @@
         </oaf_attribute>
         <oaf_attribute name="name" type="string" value="TPBattStat Applet"/>
         <oaf_attribute name="description" type="string" value="Status of ThinkPad batteries"/>
-        <oaf_attribute name="panel:icon" type="string" value="@DATADIR@/pixmaps/tpbattstat-applet/tpbattstat-applet.svg"/>
+        <oaf_attribute name="panel:icon" type="string" value="@PIXMAPDIR@/tpbattstat-applet/tpbattstat-applet.svg"/>
 </oaf_server>
 </oaf_info>
