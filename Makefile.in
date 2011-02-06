@@ -76,9 +76,44 @@ serverdir = $(libdir)/bonobo/servers
 server_in_files = TPBattStatApplet_Factory.server.in
 server_DATA = $(server_in_files:.server.in=.server)
 
-pixmapdir = $(datadir)/pixmaps
-pixmap_DATA = myicon.svg
-
+pixmapdir = $(datadir)/pixmaps/tpbattstat-applet
+pixmap_DATA = myicon.svg \
+  icons/idle/0.svg \
+  icons/idle/10.svg \
+  icons/idle/20.svg \
+  icons/idle/30.svg \
+  icons/idle/40.svg \
+  icons/idle/50.svg \
+  icons/idle/60.svg \
+  icons/idle/70.svg \
+  icons/idle/80.svg \
+  icons/idle/90.svg \
+  icons/idle/100.svg \
+  \
+  icons/charging/0.svg \
+  icons/charging/10.svg \
+  icons/charging/20.svg \
+  icons/charging/30.svg \
+  icons/charging/40.svg \
+  icons/charging/50.svg \
+  icons/charging/60.svg \
+  icons/charging/70.svg \
+  icons/charging/80.svg \
+  icons/charging/90.svg \
+  icons/charging/100.svg \
+  \
+  icons/discharging/0.svg \
+  icons/discharging/10.svg \
+  icons/discharging/20.svg \
+  icons/discharging/30.svg \
+  icons/discharging/40.svg \
+  icons/discharging/50.svg \
+  icons/discharging/60.svg \
+  icons/discharging/70.svg \
+  icons/discharging/80.svg \
+  icons/discharging/90.svg \
+  icons/discharging/100.svg
+  
 EXTRA_DIST =  	$(pixmap_DATA) 	TPBattStatApplet_Factory.server.in
 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -117,9 +152,11 @@ install-pixmapDATA: $(pixmap_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(pixmapdir)
 	@list='$(pixmap_DATA)'; for p in $$list; do \
 	  if test -f $(srcdir)/$$p; then \
+        mkdir -p `dirname $(DESTDIR)$(pixmapdir)/$$p`; \
 	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pixmapdir)/$$p"; \
 	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pixmapdir)/$$p; \
 	  else if test -f $$p; then \
+        mkdir -p `dirname $(DESTDIR)$(pixmapdir)/$$p`; \
 	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(pixmapdir)/$$p"; \
 	    $(INSTALL_DATA) $$p $(DESTDIR)$(pixmapdir)/$$p; \
 	  fi; fi; \
@@ -127,9 +164,7 @@ install-pixmapDATA: $(pixmap_DATA)
 
 uninstall-pixmapDATA:
 	@$(NORMAL_UNINSTALL)
-	list='$(pixmap_DATA)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(pixmapdir)/$$p; \
-	done
+	rm -rf $(DESTDIR)$(pixmapdir); \
 
 install-serverDATA: $(server_DATA)
 	@$(NORMAL_INSTALL)
