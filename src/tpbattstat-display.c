@@ -19,10 +19,71 @@
  *************************************************************************/
 
 #include <gtk/gtk.h>
+#include <gtk/gtkbox.h>
+#include <gtk/gtkwidget.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gtk/gtkimage.h>
+
 #include <panel-applet.h>
 
 #include "tpbattstat-battinfo.h"
 #include "tpbattstat-display.h"
+
+GdkPixbuf *
+createIcon (const char *basedir, const char *file, int width, int height)
+{
+    int len = strlen(pixmap_dir) + 1 + strlen(basedir) + 1 + strlen(file) + 1;
+    char *filepath = malloc(len * sizeof(char));
+    strcpy(filepath, pixmap_dir);
+    strcat(filepath, "/");
+    strcat(filepath, basedir);
+    strcat(filepath, "/");
+    strcat(filepath, file);
+
+    GdkPixbuf *pixbuf =	gdk_pixbuf_new_from_file(filepath, NULL);
+    g_free(filepath);
+    
+    if(pixbuf != NULL)
+    {
+      pixbuf = gdk_pixbuf_scale_simple(
+        pixbuf,
+        width,
+        height,
+        GDK_INTERP_BILINEAR);
+    }
+
+    return pixbuf;
+}
+
+PercentIconSet *
+createPercentIconSet (const char *basedir)
+{
+    int width = 12;
+    int height = 24;
+    PercentIconSet *percentIconSet = malloc(sizeof(PercentIconSet));
+    percentIconSet->per0 = createIcon(basedir, "0.svg", width, height);
+    percentIconSet->per10 = createIcon(basedir, "10.svg", width, height);
+    percentIconSet->per20 = createIcon(basedir, "20.svg", width, height);
+    percentIconSet->per30 = createIcon(basedir, "30.svg", width, height);
+    percentIconSet->per40 = createIcon(basedir, "40.svg", width, height);
+    percentIconSet->per50 = createIcon(basedir, "50.svg", width, height);
+    percentIconSet->per60 = createIcon(basedir, "60.svg", width, height);
+    percentIconSet->per70 = createIcon(basedir, "70.svg", width, height);
+    percentIconSet->per80 = createIcon(basedir, "80.svg", width, height);
+    percentIconSet->per90 = createIcon(basedir, "90.svg", width, height);
+    percentIconSet->per100 = createIcon(basedir, "100.svg", width, height);
+    return percentIconSet;
+}
+
+StatusIconSet *
+createStatusIconSet ()
+{
+    StatusIconSet *statusIconSet = malloc(sizeof(StatusIconSet));
+    statusIconSet->idle = createPercentIconSet("icons/idle");
+    statusIconSet->charging = createPercentIconSet("icons/charging");
+    statusIconSet->discharging = createPercentIconSet("icons/discharging");
+    return statusIconSet;
+}
 
 char *
 get_battery_status_markup (BatteryStatus *status)
@@ -49,7 +110,12 @@ get_battery_status_markup (BatteryStatus *status)
     status->count++;
 
     char *markup = g_markup_printf_escaped (
-        "%010lu"
+        "<tt><small><small><small><small>%d\n%4.1f\n%d</small></small></small></small></tt>",
+        status->bat0->remaining_percent,
+        power_avg_W,
+        status->bat1->remaining_percent);
+
+/*        "%010lu"
         "<tt>"
         "<span style=\"italic\" "
           "font_weight=\"bold\" "
@@ -65,8 +131,48 @@ get_battery_status_markup (BatteryStatus *status)
         bat0color, status->bat0->remaining_percent,
         power_avg_W,
         bat1color, status->bat1->remaining_percent);
-
+*/
     return markup;
+}
+
+
+GdkPixbuf *
+choose_image (StatusIconSet *statusIconSet, Battery *battery)
+{
+    PercentIconSet *percentIconSet;
+    if(battery->state == CHARGING)
+        percentIconSet = statusIconSet->charging;
+    else if(battery->state == DISCHARGING)
+        percentIconSet = statusIconSet->discharging;
+    else
+        percentIconSet = statusIconSet->idle;
+
+    GdkPixbuf *pixbuf;
+    int per = battery->remaining_percent;
+    if(per > 98)
+      pixbuf = percentIconSet->per100;
+    else if(per > 90)
+      pixbuf = percentIconSet->per90;
+    else if(per > 80)
+      pixbuf = percentIconSet->per80;
+    else if(per > 70)
+      pixbuf = percentIconSet->per70;
+    else if(per > 60)
+      pixbuf = percentIconSet->per60;
+    else if(per > 50)
+      pixbuf = percentIconSet->per50;
+    else if(per > 40)
+      pixbuf = percentIconSet->per40;
+    else if(per > 30)
+      pixbuf = percentIconSet->per30;
+    else if(per > 20)
+      pixbuf = percentIconSet->per20;
+    else if(per > 10)
+      pixbuf = percentIconSet->per10;
+    else if(per > 0)
+      pixbuf = percentIconSet->per0;
+
+    return pixbuf;
 }
 
 void
@@ -74,14 +180,33 @@ update_display (HUD *hud, BatteryStatus *status)
 {
     char *markup = get_battery_status_markup(status);
     gtk_label_set_markup(hud->label, markup);
+    gtk_image_set_from_pixbuf(
+        hud->bat0img, choose_image(hud->statusIconSet, status->bat0));
+    gtk_image_set_from_pixbuf(
+        hud->bat1img, choose_image(hud->statusIconSet, status->bat1));
+    gtk_widget_set_size_request(hud->bat0img, 12, 24);
+    gtk_widget_set_size_request(hud->bat1img, 12, 24);
     g_free(markup);
 }
 
 void
 init_display (HUD *hud, PanelApplet *applet)
 {
+    GtkWidget *hbox = gtk_hbox_new(TRUE, 1);
     hud->label = (GtkLabel*) gtk_label_new("<Status Unread>");
-	gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(hud->label));
-	gtk_widget_show_all (GTK_WIDGET (applet));
+    hud->bat0img = gtk_image_new_from_pixbuf (createIcon("", "none.svg", 12, 12));
+    hud->bat1img = gtk_image_new_from_pixbuf (createIcon("", "none.svg", 12, 12));
+    hud->statusIconSet = createStatusIconSet();
+
+    gtk_box_pack_start(GTK_BOX(hbox), hud->bat0img, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), hud->label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), hud->bat1img, TRUE, TRUE, 0);
+
+    gtk_widget_set_size_request(hud->bat0img, 12, 24);
+    gtk_widget_set_size_request(hud->label, 12, 12);
+    gtk_widget_set_size_request(hud->bat1img, 12, 24);
+    gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(hbox));
+	
+    gtk_widget_show_all (GTK_WIDGET (applet));
 }
 

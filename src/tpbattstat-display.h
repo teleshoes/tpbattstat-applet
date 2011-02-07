@@ -22,12 +22,40 @@
 #define TPBATTSTAT_DISPLAY_H
 
 #include <panel-applet.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtklabel.h>
+#include <gtk/gtkimage.h>
 
 #include "tpbattstat-battinfo.h"
 
+#define pixmap_dir "/usr/share/pixmaps/tpbattstat-applet"
+
+typedef struct {
+   GdkPixbuf *per0; 
+   GdkPixbuf *per10; 
+   GdkPixbuf *per20; 
+   GdkPixbuf *per30; 
+   GdkPixbuf *per40; 
+   GdkPixbuf *per50; 
+   GdkPixbuf *per60; 
+   GdkPixbuf *per70; 
+   GdkPixbuf *per80; 
+   GdkPixbuf *per90; 
+   GdkPixbuf *per100; 
+} PercentIconSet;
+
+typedef struct {
+  PercentIconSet *idle;
+  PercentIconSet *charging;
+  PercentIconSet *discharging;
+} StatusIconSet;
+
+
 typedef struct {
     GtkLabel *label;
+    GtkImage *bat0img;
+    GtkImage *bat1img;
+    StatusIconSet *statusIconSet;
 } HUD;
 
 void update_display (HUD *hud, BatteryStatus *status);
