@@ -75,6 +75,10 @@ INCLUDES = -I. -I$(srcdir) 	$(GNOME_APPLETS_CFLAGS) 	-DGNOMEICONDIR=\""$(prefix)
 
 bin_PROGRAMS = tpbattstat-applet
 
+apparmor_dir = /etc/apparmor.d
+
+apparmor_in_files = apparmor.in
+
 tpbattstat-applet_SOURCES = tpbattstat-applet.c tpbattstat-battinfo.c tpbattstat-display.c tpbattstat-applet.c
 
 tpbattstat-applet_LDADD = $(GNOME_APPLETS_LIBS)
@@ -114,7 +118,6 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-
 mostlyclean-binPROGRAMS:
 
 clean-binPROGRAMS:
@@ -128,16 +131,26 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+      for a in "$(apparmor_in_files)"; do \
+        o=`echo "$(bindir)/$$p" | sed -e 's|/|.|g' -e 's|^.||'`; \
+        echo "cat $$a | sed -e 's|\@BINDIR\@|$(bindir)|' > $$o"; \
+              cat $$a | sed -e 's|\@BINDIR\@|$(bindir)|' > $$o; \
+        echo "$(INSTALL_PROGRAM) $$o $(DESTDIR)$(apparmor_dir)"; \
+        $(INSTALL_DATA) $$o $(DESTDIR)$(apparmor_dir); \
+      done; \
 	  if test -f $$p; then \
 	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+                $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+                $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	  else :; fi; \
 	done
 
 uninstall-binPROGRAMS:
 	@$(NORMAL_UNINSTALL)
 	list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+      rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+      rm -f $(apparmor_dir)/`echo $(DESTDIR)$(bindir)/$$p | sed -e 's|/|.|g' -e 's|^.||'`; \
 	done
 
 .c.o:

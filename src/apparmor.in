@@ -1,0 +1,6 @@
+@BINDIR@/tpbattstat-applet flags=(complain) {
+  /sys/devices/platform/smapi/BAT0/inhibit_charge_minutes w
+  /sys/devices/platform/smapi/BAT0/force_discharge w
+  /sys/devices/platform/smapi/BAT1/inhibit_charge_minutes w
+  /sys/devices/platform/smapi/BAT1/force_discharge w
+}
