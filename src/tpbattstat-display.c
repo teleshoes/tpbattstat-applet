@@ -32,9 +32,11 @@
 GdkPixbuf *
 createIcon (const char *basedir, const char *file, int width, int height)
 {
-    int len = strlen(pixmap_dir) + 1 + strlen(basedir) + 1 + strlen(file) + 1;
+    int len = strlen(PIXMAP_DIR) + 1 +
+      strlen(basedir) + 1 +
+      strlen(file) + 1;
     char *filepath = malloc(len * sizeof(char));
-    strcpy(filepath, pixmap_dir);
+    strcpy(filepath, PIXMAP_DIR);
     strcat(filepath, "/");
     strcat(filepath, basedir);
     strcat(filepath, "/");
@@ -58,21 +60,19 @@ createIcon (const char *basedir, const char *file, int width, int height)
 PercentIconSet *
 createPercentIconSet (const char *basedir)
 {
-    int width = 12;
-    int height = 24;
-    PercentIconSet *percentIconSet = malloc(sizeof(PercentIconSet));
-    percentIconSet->per0 = createIcon(basedir, "0.svg", width, height);
-    percentIconSet->per10 = createIcon(basedir, "10.svg", width, height);
-    percentIconSet->per20 = createIcon(basedir, "20.svg", width, height);
-    percentIconSet->per30 = createIcon(basedir, "30.svg", width, height);
-    percentIconSet->per40 = createIcon(basedir, "40.svg", width, height);
-    percentIconSet->per50 = createIcon(basedir, "50.svg", width, height);
-    percentIconSet->per60 = createIcon(basedir, "60.svg", width, height);
-    percentIconSet->per70 = createIcon(basedir, "70.svg", width, height);
-    percentIconSet->per80 = createIcon(basedir, "80.svg", width, height);
-    percentIconSet->per90 = createIcon(basedir, "90.svg", width, height);
-    percentIconSet->per100 = createIcon(basedir, "100.svg", width, height);
-    return percentIconSet;
+    PercentIconSet *ret = malloc(sizeof(PercentIconSet));
+    ret->per0 = createIcon(basedir, "0.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per10 = createIcon(basedir, "10.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per20 = createIcon(basedir, "20.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per30 = createIcon(basedir, "30.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per40 = createIcon(basedir, "40.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per50 = createIcon(basedir, "50.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per60 = createIcon(basedir, "60.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per70 = createIcon(basedir, "70.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per80 = createIcon(basedir, "80.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per90 = createIcon(basedir, "90.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    ret->per100 = createIcon(basedir, "100.svg", IMAGE_WIDTH, IMAGE_HEIGHT);
+    return ret;
 }
 
 StatusIconSet *
@@ -184,8 +184,8 @@ update_display (HUD *hud, BatteryStatus *status)
         hud->bat0img, choose_image(hud->statusIconSet, status->bat0));
     gtk_image_set_from_pixbuf(
         hud->bat1img, choose_image(hud->statusIconSet, status->bat1));
-    gtk_widget_set_size_request(hud->bat0img, 12, 24);
-    gtk_widget_set_size_request(hud->bat1img, 12, 24);
+    gtk_widget_set_size_request(hud->bat0img, IMAGE_WIDTH, IMAGE_HEIGHT);
+    gtk_widget_set_size_request(hud->bat1img, IMAGE_WIDTH, IMAGE_HEIGHT);
     g_free(markup);
 }
 
@@ -202,9 +202,7 @@ init_display (HUD *hud, PanelApplet *applet)
     gtk_box_pack_start(GTK_BOX(hbox), hud->label, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), hud->bat1img, TRUE, TRUE, 0);
 
-    gtk_widget_set_size_request(hud->bat0img, 12, 24);
-    gtk_widget_set_size_request(hud->label, 12, 12);
-    gtk_widget_set_size_request(hud->bat1img, 12, 24);
+    gtk_widget_set_size_request(hud->label, 24, 24);
     gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(hbox));
 	
     gtk_widget_show_all (GTK_WIDGET (applet));

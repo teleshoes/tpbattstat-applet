@@ -28,7 +28,9 @@
 
 #include "tpbattstat-battinfo.h"
 
-#define pixmap_dir "/usr/share/pixmaps/tpbattstat-applet"
+#define PIXMAP_DIR "/usr/share/pixmaps/tpbattstat-applet"
+#define IMAGE_HEIGHT 24
+#define IMAGE_WIDTH 24
 
 typedef struct {
    GdkPixbuf *per0; 
