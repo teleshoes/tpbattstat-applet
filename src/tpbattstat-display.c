@@ -123,14 +123,21 @@ get_battery_status_markup (BatteryStatus *status)
     else
         size = "small";
 
+    char *update_indicator;
+    if(status->count % 2 == 0)
+        update_indicator = "`";
+    else
+        update_indicator = "";
+
     char *markup = g_markup_printf_escaped (
         "<span size='%s'>%d^%d</span>"
         "\n"
-        "<span size='xx-small'>    %4.1f</span>",
+        "<span size='xx-small'>    %4.1f%s</span>",
         size,
         bat0rem,
-        power_avg_W,
-        bat1rem);
+        bat1rem,
+        update_indicator,
+        power_avg_W);
 
     return markup;
 }
