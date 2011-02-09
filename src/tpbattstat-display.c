@@ -109,11 +109,21 @@ get_battery_status_markup (BatteryStatus *status)
 
     status->count++;
 
+    int bat0rem = status->bat0->remaining_percent;
+    int bat1rem = status->bat1->remaining_percent;
+
+    const char *size;
+    if(bat0rem == 100 && bat1rem == 100)
+        size = "xx-small";
+    else
+        size = "x-small";
+
     char *markup = g_markup_printf_escaped (
-        "<tt><small><small><small><small><small>%d\n%4.1f\n%d</small></small></small></small></small></tt>",
-        status->bat0->remaining_percent,
+        "<span size='%s'>%d^%d\n  %4.1f</span>",
+        size,
+        bat0rem,
         power_avg_W,
-        status->bat1->remaining_percent);
+        bat1rem);
 
     return markup;
 }
@@ -177,9 +187,18 @@ init_display (HUD *hud, PanelApplet *applet)
 {
     GtkWidget *hbox = gtk_hbox_new(TRUE, 1);
     hud->label = (GtkLabel*) gtk_label_new("<Status Unread>");
-    hud->bat0img = gtk_image_new_from_pixbuf (createIcon("icons", "none.svg", 12, 12));
-    hud->bat1img = gtk_image_new_from_pixbuf (createIcon("icons", "none.svg", 12, 12));
+    hud->bat0img = gtk_image_new_from_pixbuf (
+      createIcon("icons", "none.svg", IMAGE_WIDTH, IMAGE_HEIGHT));
+    hud->bat1img = gtk_image_new_from_pixbuf (
+      createIcon("icons", "none.svg", IMAGE_WIDTH, IMAGE_HEIGHT));
+    
     hud->statusIconSet = createStatusIconSet();
+
+    gtk_widget_set_size_request(GTK_WIDGET(hud->bat0img),
+      IMAGE_WIDTH, IMAGE_HEIGHT);
+    gtk_widget_set_size_request(GTK_WIDGET(hud->label), 35, 24);
+    gtk_widget_set_size_request(GTK_WIDGET(hud->bat1img),
+      IMAGE_WIDTH, IMAGE_HEIGHT);
 
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(hud->bat0img),
       TRUE, TRUE, 0);
@@ -188,7 +207,6 @@ init_display (HUD *hud, PanelApplet *applet)
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(hud->bat1img),
       TRUE, TRUE, 0);
 
-    gtk_widget_set_size_request(GTK_WIDGET(hud->label), 24, 24);
     gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(hbox));
 	
     gtk_widget_show_all (GTK_WIDGET (applet));
