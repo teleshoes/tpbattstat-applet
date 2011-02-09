@@ -23,8 +23,6 @@
 
 #include "tpbattstat-prefs.h"
 
-#define smapi_dir "/sys/devices/platform/smapi"
-
 enum BatteryState { IDLE, CHARGING, DISCHARGING };
 
 typedef struct {

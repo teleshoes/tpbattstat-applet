@@ -27,88 +27,30 @@
 int
 read_battery_prop(int battery_id, char *property)
 {
-    int buflen = 256;
-    char *buf = malloc(buflen);
-
-    if(battery_id < 0)
-        sprintf(buf, "%s/%s", smapi_dir, property);
-    else
-        sprintf(buf, "%s/BAT%d/%s", smapi_dir, battery_id, property);
-
-    FILE *f = fopen(buf, "r");
+    char *cmd = malloc(strlen(property) + 24 + 1);
+    sprintf(cmd, "smapi-battaccess -g %d '%s'", battery_id, property);
+    FILE *p = popen(cmd, "r");
+    g_free(cmd);
+    if (p == NULL)
+        return -1;
     
-    if(f == NULL)
-    {
-        buf[0] = '\0';
-    }
-    else
-    {
-        char *str = fgets(buf, buflen, f);
-        fclose(f);
-        if(str == NULL)
-        {
-            buf[0] = '\0';
-        }
-    }
-    
-    //chomp
-    int i;
-    for(i=0; i<buflen-1; i++)
-    {
-        if(buf[i] == '\n' || buf[i] == '\0')
-            break;
-    }
-    buf[i] = '\0';
+    char *buf = malloc(256);
+    fgets(buf, sizeof(buf), p);
+    pclose(p);
 
-    int res;
-    if(strcmp(property, "state") == 0)
-    {
-        if(strcmp(buf, "charging") == 0)
-            res = CHARGING;
-        else if(strcmp(buf, "discharging") == 0)
-            res = DISCHARGING;
-        else
-            res = IDLE;
-    }
-    else
-      res = atoi(buf);
-    
+    int res = atoi(buf);
     g_free(buf);
     return res;
 }
 
-int
+void
 write_battery_prop(int battery_id, char *property, char *value)
 {
-    int buflen = 256;
-    char *buf = malloc(buflen);
-
-    if(battery_id < 0)
-        sprintf(buf, "%s/%s", smapi_dir, property);
-    else
-        sprintf(buf, "%s/BAT%d/%s", smapi_dir, battery_id, property);
-
-    FILE *f = fopen(buf, "w");
-    if(f == NULL)
-    {
-        char *cmd = malloc(buflen+256);
-        sprintf(cmd, "gksudo chmod a+w %s", buf);
-        FILE *p = popen(cmd, "r");
-        pclose(p);
-
-        f = fopen(buf, "w");
-    }
-    
-    if(f == NULL)
-    {
-        return;
-    }
-    else
-    {
-        fprintf(f, "%s", value);
-        fclose(f);
-    }
-    g_free(buf);
+    char *cmd = malloc(strlen(property) + strlen(value) + 27 + 1);
+    sprintf(cmd, "smapi-battaccess -s %d '%s' '%s'", battery_id, property);
+    FILE *p = popen(cmd, "r");
+    g_free(cmd);
+    pclose(p);
 }
 
 void
