@@ -105,7 +105,6 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
 
         g_slist_free(list);
     }
-
 }
 
 void

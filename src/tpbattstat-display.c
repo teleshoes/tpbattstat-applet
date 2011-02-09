@@ -110,28 +110,11 @@ get_battery_status_markup (BatteryStatus *status)
     status->count++;
 
     char *markup = g_markup_printf_escaped (
-        "<tt><small><small><small><small>%d\n%4.1f\n%d</small></small></small></small></tt>",
+        "<tt><small><small><small><small><small>%d\n%4.1f\n%d</small></small></small></small></small></tt>",
         status->bat0->remaining_percent,
         power_avg_W,
         status->bat1->remaining_percent);
 
-/*        "%010lu"
-        "<tt>"
-        "<span style=\"italic\" "
-          "font_weight=\"bold\" "
-          "fgcolor=\"white\" "
-          "bgcolor=\"%s\">%d%%</span>"
-        "<small> %4.1fW </small>"
-        "<span style=\"italic\" "
-          "font_weight=\"bold\" "
-          "fgcolor=\"white\" "
-          "bgcolor=\"%s\">%d%%</span>"
-        "</tt>",
-        status->count,
-        bat0color, status->bat0->remaining_percent,
-        power_avg_W,
-        bat1color, status->bat1->remaining_percent);
-*/
     return markup;
 }
 
@@ -180,12 +163,12 @@ update_display (HUD *hud, BatteryStatus *status)
 {
     char *markup = get_battery_status_markup(status);
     gtk_label_set_markup(hud->label, markup);
-//    gtk_image_set_from_pixbuf(
-//        hud->bat0img, choose_image(hud->statusIconSet, status->bat0));
-//    gtk_image_set_from_pixbuf(
-//        hud->bat1img, choose_image(hud->statusIconSet, status->bat1));
-//    gtk_widget_set_size_request(hud->bat0img, IMAGE_WIDTH, IMAGE_HEIGHT);
-//    gtk_widget_set_size_request(hud->bat1img, IMAGE_WIDTH, IMAGE_HEIGHT);
+    gtk_image_set_from_pixbuf(
+        hud->bat0img, choose_image(hud->statusIconSet, status->bat0));
+    gtk_image_set_from_pixbuf(
+        hud->bat1img, choose_image(hud->statusIconSet, status->bat1));
+    gtk_widget_set_size_request(hud->bat0img, IMAGE_WIDTH, IMAGE_HEIGHT);
+    gtk_widget_set_size_request(hud->bat1img, IMAGE_WIDTH, IMAGE_HEIGHT);
     g_free(markup);
 }
 
@@ -194,14 +177,16 @@ init_display (HUD *hud, PanelApplet *applet)
 {
     GtkWidget *hbox = gtk_hbox_new(TRUE, 1);
     hud->label = (GtkLabel*) gtk_label_new("<Status Unread>");
-//    hud->bat0img = gtk_image_new_from_pixbuf (createIcon("", "none.svg", 12, 12));
-//    hud->bat1img = gtk_image_new_from_pixbuf (createIcon("", "none.svg", 12, 12));
-//    hud->statusIconSet = createStatusIconSet();
+    hud->bat0img = gtk_image_new_from_pixbuf (createIcon("icons", "none.svg", 12, 12));
+    hud->bat1img = gtk_image_new_from_pixbuf (createIcon("icons", "none.svg", 12, 12));
+    hud->statusIconSet = createStatusIconSet();
 
-//    gtk_box_pack_start(GTK_BOX(hbox), hud->bat0img, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(hud->bat0img),
+      TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(hud->label),
       TRUE, TRUE, 0);
-//    gtk_box_pack_start(GTK_BOX(hbox), hud->bat1img, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(hud->bat1img),
+      TRUE, TRUE, 0);
 
     gtk_widget_set_size_request(GTK_WIDGET(hud->label), 24, 24);
     gtk_container_add (GTK_CONTAINER (applet), GTK_WIDGET(hbox));

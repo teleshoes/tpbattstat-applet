@@ -71,7 +71,6 @@ update (TPBattStat *tpbattstat)
     get_battery_status(tpbattstat->status);
 
     load_prefs(tpbattstat->applet, tpbattstat->prefs);
-
     tpbattstat->status->msg = "";
     perhaps_inhibit_charge(
             tpbattstat->status,
@@ -146,6 +145,7 @@ tpbattstat_applet_fill (PanelApplet *applet,
     tpbattstat->status->bat1 = malloc(sizeof(Battery));
 
     tpbattstat->prefs = malloc(sizeof(Prefs));
+    tpbattstat->prefs->chargeBrackets = NULL;
     load_prefs(tpbattstat->applet, tpbattstat->prefs);
 
     start_update(tpbattstat);

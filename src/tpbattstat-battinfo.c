@@ -47,7 +47,8 @@ void
 write_battery_prop(int battery_id, char *property, char *value)
 {
     char *cmd = malloc(strlen(property) + strlen(value) + 27 + 1);
-    sprintf(cmd, "smapi-battaccess -s %d '%s' '%s'", battery_id, property);
+    sprintf(cmd, "smapi-battaccess -s %d '%s' '%s'",
+      battery_id, property, value);
     FILE *p = popen(cmd, "r");
     g_free(cmd);
     pclose(p);
