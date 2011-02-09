@@ -123,7 +123,7 @@ get_battery_status_markup (BatteryStatus *status)
     else
         size = "small";
 
-    char *update_indicator;
+    const char *update_indicator;
     if(status->count % 2 == 0)
         update_indicator = "`";
     else
