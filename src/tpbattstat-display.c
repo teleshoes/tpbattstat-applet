@@ -115,11 +115,15 @@ get_battery_status_markup (BatteryStatus *status)
     const char *size;
     if(bat0rem == 100 && bat1rem == 100)
         size = "xx-small";
-    else
+    else if(bat0rem == 100 || bat1rem == 100)
         size = "x-small";
+    else
+        size = "small";
 
     char *markup = g_markup_printf_escaped (
-        "<span size='%s'>%d^%d\n  %4.1f</span>",
+        "<span size='%s'>%d^%d</span>"
+        "\n"
+        "<span size='xx-small'>    %4.1f</span>",
         size,
         bat0rem,
         power_avg_W,
