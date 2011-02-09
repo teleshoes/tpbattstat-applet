@@ -79,6 +79,9 @@ StatusIconSet *
 createStatusIconSet ()
 {
     StatusIconSet *statusIconSet = malloc(sizeof(StatusIconSet));
+    statusIconSet->none = createIcon("icons", "none.svg",
+      IMAGE_WIDTH, IMAGE_HEIGHT);
+
     statusIconSet->idle = createPercentIconSet("icons/idle");
     statusIconSet->charging = createPercentIconSet("icons/charging");
     statusIconSet->discharging = createPercentIconSet("icons/discharging");
@@ -136,6 +139,9 @@ get_battery_status_markup (BatteryStatus *status)
 GdkPixbuf *
 choose_image (StatusIconSet *statusIconSet, Battery *battery)
 {
+    if(battery == NULL || battery->installed != 1)
+        return statusIconSet->none;
+
     PercentIconSet *percentIconSet;
     if(battery->state == CHARGING)
         percentIconSet = statusIconSet->charging;
@@ -146,28 +152,30 @@ choose_image (StatusIconSet *statusIconSet, Battery *battery)
 
     GdkPixbuf *pixbuf;
     int per = battery->remaining_percent;
-    if(per > 98)
+    if(per >= 98)
       pixbuf = percentIconSet->per100;
-    else if(per > 90)
+    else if(per >= 90)
       pixbuf = percentIconSet->per90;
-    else if(per > 80)
+    else if(per >= 80)
       pixbuf = percentIconSet->per80;
-    else if(per > 70)
+    else if(per >= 70)
       pixbuf = percentIconSet->per70;
-    else if(per > 60)
+    else if(per >= 60)
       pixbuf = percentIconSet->per60;
-    else if(per > 50)
+    else if(per >= 50)
       pixbuf = percentIconSet->per50;
-    else if(per > 40)
+    else if(per >= 40)
       pixbuf = percentIconSet->per40;
-    else if(per > 30)
+    else if(per >= 30)
       pixbuf = percentIconSet->per30;
-    else if(per > 20)
+    else if(per >= 20)
       pixbuf = percentIconSet->per20;
-    else if(per > 10)
+    else if(per >= 10)
       pixbuf = percentIconSet->per10;
-    else if(per > 0)
+    else if(per >= 0)
       pixbuf = percentIconSet->per0;
+    else
+      pixbuf = statusIconSet->none;
 
     return pixbuf;
 }
@@ -181,8 +189,8 @@ update_display (HUD *hud, BatteryStatus *status)
         hud->bat0img, choose_image(hud->statusIconSet, status->bat0));
     gtk_image_set_from_pixbuf(
         hud->bat1img, choose_image(hud->statusIconSet, status->bat1));
-    gtk_widget_set_size_request(hud->bat0img, IMAGE_WIDTH, IMAGE_HEIGHT);
-    gtk_widget_set_size_request(hud->bat1img, IMAGE_WIDTH, IMAGE_HEIGHT);
+    gtk_widget_set_size_request(GTK_WIDGET(hud->bat0img), IMAGE_WIDTH, IMAGE_HEIGHT);
+    gtk_widget_set_size_request(GTK_WIDGET(hud->bat1img), IMAGE_WIDTH, IMAGE_HEIGHT);
     g_free(markup);
 }
 
@@ -191,13 +199,11 @@ init_display (HUD *hud, PanelApplet *applet)
 {
     GtkWidget *hbox = gtk_hbox_new(TRUE, 1);
     hud->label = (GtkLabel*) gtk_label_new("<Status Unread>");
-    hud->bat0img = gtk_image_new_from_pixbuf (
-      createIcon("icons", "none.svg", IMAGE_WIDTH, IMAGE_HEIGHT));
-    hud->bat1img = gtk_image_new_from_pixbuf (
-      createIcon("icons", "none.svg", IMAGE_WIDTH, IMAGE_HEIGHT));
     
     hud->statusIconSet = createStatusIconSet();
-
+    hud->bat0img = gtk_image_new_from_pixbuf(hud->statusIconSet->none);
+    hud->bat1img = gtk_image_new_from_pixbuf(hud->statusIconSet->none);
+    
     gtk_widget_set_size_request(GTK_WIDGET(hud->bat0img),
       IMAGE_WIDTH, IMAGE_HEIGHT);
     gtk_widget_set_size_request(GTK_WIDGET(hud->label), 35, 24);

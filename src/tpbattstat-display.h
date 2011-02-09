@@ -47,6 +47,7 @@ typedef struct {
 } PercentIconSet;
 
 typedef struct {
+  GdkPixbuf *none; 
   PercentIconSet *idle;
   PercentIconSet *charging;
   PercentIconSet *discharging;
