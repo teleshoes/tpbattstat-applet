@@ -3,6 +3,7 @@
 @BINDIR@/smapi-battaccess {
   #include <abstractions/base>
 
+  /sys/devices/platform/smapi/* r,
   /sys/devices/platform/smapi/BAT0/* r,
   /sys/devices/platform/smapi/BAT1/* r,
 

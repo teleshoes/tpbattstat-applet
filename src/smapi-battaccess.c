@@ -37,19 +37,14 @@ read_battery_prop(int battery_id, const char *property)
         sprintf(buf, "%s/BAT%d/%s", smapi_dir, battery_id, property);
 
     FILE *f = fopen(buf, "r");
-    
-    if(f == NULL)
-    {
-        buf[0] = '\0';
-    }
+    if(f == NULL){
+        buf[0] = '\0';}
     else
     {
         char *str = fgets(buf, buflen, f);
         fclose(f);
         if(str == NULL)
-        {
             buf[0] = '\0';
-        }
     }
     
     //chomp
@@ -81,7 +76,7 @@ read_battery_prop(int battery_id, const char *property)
 void
 write_battery_prop(int battery_id, const char *property, const char *value)
 {
-    int buflen = strlen(smapi_dir) + strlen(property) + 5 + 1;
+    int buflen = 256;
     char *buf = malloc(buflen);
 
     if(battery_id < 0)
@@ -103,8 +98,7 @@ int main( int argc, const char* argv[] )
     if((argc < 4) ||
        (argc == 4 && strcmp(argv[1], "-g") != 0) ||
        (argc == 5 && strcmp(argv[1], "-s") != 0) ||
-       (argc > 5) ||
-       (strcmp(argv[2], "0") != 0 && strcmp(argv[2], "1") != 0)
+       (argc > 5)
     )
     {
         fprintf(stderr,
