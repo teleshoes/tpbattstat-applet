@@ -78,41 +78,10 @@ server_DATA = $(server_in_files:.server.in=.server)
 
 pixmapdir = $(datadir)/pixmaps/tpbattstat-applet
 pixmap_DATA = tpbattstat-applet.svg \
-  icons/idle/0.svg \
-  icons/idle/10.svg \
-  icons/idle/20.svg \
-  icons/idle/30.svg \
-  icons/idle/40.svg \
-  icons/idle/50.svg \
-  icons/idle/60.svg \
-  icons/idle/70.svg \
-  icons/idle/80.svg \
-  icons/idle/90.svg \
-  icons/idle/100.svg \
-  \
-  icons/charging/0.svg \
-  icons/charging/10.svg \
-  icons/charging/20.svg \
-  icons/charging/30.svg \
-  icons/charging/40.svg \
-  icons/charging/50.svg \
-  icons/charging/60.svg \
-  icons/charging/70.svg \
-  icons/charging/80.svg \
-  icons/charging/90.svg \
-  icons/charging/100.svg \
-  \
-  icons/discharging/0.svg \
-  icons/discharging/10.svg \
-  icons/discharging/20.svg \
-  icons/discharging/30.svg \
-  icons/discharging/40.svg \
-  icons/discharging/50.svg \
-  icons/discharging/60.svg \
-  icons/discharging/70.svg \
-  icons/discharging/80.svg \
-  icons/discharging/90.svg \
-  icons/discharging/100.svg
+  icons/none.svg \
+  icons/idle/*.svg \
+  icons/charging/*.svg \
+  icons/discharging/*.svg
   
 EXTRA_DIST =  	$(pixmap_DATA) 	TPBattStatApplet_Factory.server.in
 
