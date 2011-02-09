@@ -46,15 +46,11 @@ read_battery_prop(int battery_id, char *property)
 void
 write_battery_prop(int battery_id, char *property, char *value)
 {
-char *buf = malloc(256);
-sprintf(buf, "write: %d %s %s", battery_id, property, value);
-desktop_log(buf);
     char *cmd = malloc(strlen(property) + strlen(value) + 27 + 1);
     sprintf(cmd, "smapi-battaccess -s %d '%s' '%s'", battery_id, property);
     FILE *p = popen(cmd, "r");
     g_free(cmd);
     pclose(p);
-desktop_log("finished write");
 }
 
 void
@@ -80,18 +76,14 @@ get_battery_status(BatteryStatus* status)
 {
     status->ac_connected = 
             read_battery_prop(-1, "ac_connected");
-    desktop_log("pre0");
     get_battery(status->bat0, 0);
-    desktop_log("pre1");
     get_battery(status->bat1, 1);
-    desktop_log("post1");
 }
 
 int
 perhaps_force_discharge(BatteryStatus *status,
         enum DischargeStrategy strategy, int leapfrogThreshold)
 {
-desktop_log("pre_force");
     int discharge0 = status->bat0->state == DISCHARGING;
     int discharge1 = status->bat1->state == DISCHARGING;
     
@@ -141,31 +133,21 @@ desktop_log("pre_force");
     int prevforce0 = status->bat0->force_discharge;
     int prevforce1 = status->bat1->force_discharge;
  
-desktop_log("about to enter");
     if(prevforce0 != force0 || prevforce1 != force1)
     {
-char *msg = malloc(256);
-sprintf(msg, "|%d| |%d| |%d|", status->ac_connected, force0, force1);
-desktop_log(msg);
-desktop_log("entered");
         char *buf = malloc(16);
         if(prevforce0 != force0)
         {
-desktop_log("prebuf0");
             sprintf(buf, "%d", force0);
-desktop_log("postbuf0");
             write_battery_prop(0, "force_discharge", buf);
         }
         if(prevforce1 != force1)
         {
-desktop_log("prebuf1");
             sprintf(buf, "%d", force1);
-desktop_log("postbuf1");
             write_battery_prop(1, "force_discharge", buf);
         }
         g_free(buf);
     }
-desktop_log("post_force");
 }
 
 /* Uninhibit charging the chosen battery, and inhibit the other battery if:
@@ -199,7 +181,6 @@ perhaps_inhibit_charge(BatteryStatus *status,
         enum ChargeStrategy strategy, int leapfrogThreshold,
         const int brackets[], int bracketsSize, int bracketsPrefBat)
 {
-desktop_log("pre_inhibit");
     int never_inhibit =
         !status->ac_connected ||
         !status->bat0->installed ||
@@ -253,6 +234,5 @@ desktop_log("pre_inhibit");
             }
         }
     }
-desktop_log("post_inhibit");
 }
 
