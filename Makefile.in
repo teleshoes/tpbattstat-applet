@@ -374,6 +374,10 @@ installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 $(server_DATA):	$(server_in_files)
+	echo gconftool --recursive-unset /schemas/apps/tpbattstat_applet; \
+	gconftool --recursive-unset /schemas/apps/tpbattstat_applet; \
+	echo gconftool --install-schema-file $(srcdir)/tpbattstat-applet.schemas; \
+	gconftool --install-schema-file $(srcdir)/tpbattstat-applet.schemas; \
 	sed -e "s|\@PIXMAPDIR\@|$(pixmapdir)|" \
         -e "s|\@BINDIR\@|$(bindir)|" $< > $@
 
