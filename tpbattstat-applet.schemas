@@ -100,5 +100,81 @@
     </long>
   </locale>
 </schema>
+
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/display_power_avg</key>
+  <owner>tpbattstat_applet</owner>
+  <type>bool</type>
+  <default>true</default>
+  <locale name="C">
+    <short>Display power average in watts</short>
+    <long>
+      If true, power draining or charging average over the last minute
+        is displayed in watts. Only one battery can charge or discharge
+        at a time, so the wattage is for the charging/discharging battery,
+        if there is one, or 0.0 if there isnt.
+      If false, power average isnt displayed
+    </long>
+  </locale>
+</schema>
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/display_colored_text</key>
+  <owner>tpbattstat_applet</owner>
+  <type>bool</type>
+  <default>true</default>
+  <locale name="C">
+    <short>Display colored text</short>
+    <long>
+      If true, red text is used for a discharging battery,
+        green for a charging battery, and no color specified for idle.
+      If false, no color is specified.
+    </long>
+  </locale>
+</schema>
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/display_icons</key>
+  <owner>tpbattstat_applet</owner>
+  <type>bool</type>
+  <default>true</default>
+  <locale name="C">
+    <short>Display icons</short>
+    <long>
+      If true, icons are displayed per other settings.
+      If false, no icons are displayed, just text
+    </long>
+  </locale>
+</schema>
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/display_only_one_icon</key>
+  <owner>tpbattstat_applet</owner>
+  <type>bool</type>
+  <default>false</default>
+  <locale name="C">
+    <short>Display a single icon with approximate power remaining</short>
+    <long>
+      Has no effect if display_icons is false.
+      If true, only one battery icon is displayed when icons are displayed.
+        The single icon uses the power remaining in mAh of both batteries,
+        divided by the last full capacity in mAh of both batteries.
+      If false, two battery icons are displayed when icons are displayed.
+    </long>
+  </locale>
+</schema>
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/display_blinking_indicator</key>
+  <owner>tpbattstat_applet</owner>
+  <type>bool</type>
+  <default>false</default>
+  <locale name="C">
+    <short>Append a backtick char on every other update</short>
+    <long>
+      If true, every other update to the display has a '`' at the 
+        end of the text. This is to reassure you, at a glance, that the
+        update is being refreshed.
+      If false, it is never appended.
+    </long>
+  </locale>
+</schema>
+
 </schemalist>
 </gconfschemafile>

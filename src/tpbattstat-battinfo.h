@@ -32,6 +32,9 @@ typedef struct {
     int inhibit_charge_minutes;
     int remaining_percent;
     int power_avg;
+    int remaining_capacity;
+    int last_full_capacity;
+    int design_capacity;
     enum BatteryState state;
 } Battery;
 

@@ -27,6 +27,7 @@
 #include <gtk/gtkimage.h>
 
 #include "tpbattstat-battinfo.h"
+#include "tpbattstat-prefs.h"
 
 #define PIXMAP_DIR "/usr/share/pixmaps/tpbattstat-applet"
 #define IMAGE_HEIGHT 24
@@ -61,7 +62,7 @@ typedef struct {
     StatusIconSet *statusIconSet;
 } HUD;
 
-void update_display (HUD *hud, BatteryStatus *status);
+void update_display (HUD *hud, BatteryStatus *status, Prefs *prefs);
 
 void init_display (HUD *hud, PanelApplet *applet);
 

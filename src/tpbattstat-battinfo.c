@@ -68,6 +68,12 @@ get_battery(Battery *bat, int battery_id)
             read_battery_prop(battery_id, "remaining_percent");
     bat->power_avg =
             read_battery_prop(battery_id, "power_avg");
+    bat->remaining_capacity =
+            read_battery_prop(battery_id, "remaining_capacity");
+    bat->last_full_capacity =
+            read_battery_prop(battery_id, "last_full_capacity");
+    bat->design_capacity =
+            read_battery_prop(battery_id, "design_capacity");
     bat->state =
             read_battery_prop(battery_id, "state");
 }

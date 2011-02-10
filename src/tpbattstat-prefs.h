@@ -83,6 +83,12 @@ typedef struct {
     int chargeBracketsPrefBattery;
     int *chargeBrackets;
     int chargeBracketsSize;
+
+    int displayPowerAvg;
+    int displayColoredText;
+    int displayIcons;
+    int displayOnlyOneIcon;
+    int displayBlinkingIndicator;
 } Prefs;
 
 void load_prefs (PanelApplet *applet, Prefs *prefs);

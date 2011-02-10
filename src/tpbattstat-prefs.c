@@ -105,6 +105,31 @@ load_prefs (PanelApplet *applet, Prefs *prefs)
 
         g_slist_free(list);
     }
+
+    int displayPowerAvg = panel_applet_gconf_get_bool(
+      applet, "display_power_avg", NULL);
+    if(valueExists(applet, "display_power_avg"))
+        prefs->displayPowerAvg = displayPowerAvg;
+
+    int displayColoredText = panel_applet_gconf_get_bool(
+      applet, "display_colored_text", NULL);
+    if(valueExists(applet, "display_colored_text"))
+        prefs->displayColoredText = displayColoredText;
+
+    int displayIcons = panel_applet_gconf_get_bool(
+      applet, "display_icons", NULL);
+    if(valueExists(applet, "display_icons"))
+        prefs->displayIcons = displayIcons;
+
+    int displayOnlyOneIcon = panel_applet_gconf_get_bool(
+      applet, "display_only_one_icon", NULL);
+    if(valueExists(applet, "display_only_one_icon"))
+        prefs->displayOnlyOneIcon = displayOnlyOneIcon;
+
+    int displayBlinkingIndicator = panel_applet_gconf_get_bool(
+      applet, "display_blinking_indicator", NULL);
+    if(valueExists(applet, "display_blinking_indicator"))
+        prefs->displayBlinkingIndicator = displayBlinkingIndicator;
 }
 
 void

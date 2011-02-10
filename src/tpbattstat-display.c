@@ -28,6 +28,7 @@
 
 #include "tpbattstat-battinfo.h"
 #include "tpbattstat-display.h"
+#include "tpbattstat-prefs.h"
 
 GdkPixbuf *
 createIcon (const char *basedir, const char *file, int width, int height)
@@ -89,21 +90,8 @@ createStatusIconSet ()
 }
 
 char *
-get_battery_status_markup (BatteryStatus *status)
+get_battery_status_markup (BatteryStatus *status, Prefs *prefs)
 {
-    char *bat0color;
-    if(status->bat0->state == IDLE)             bat0color = "black";
-    else if(status->bat0->state == CHARGING)    bat0color = "green";
-    else if(status->bat0->state == DISCHARGING) bat0color = "red";
-    char *bat1color;
-    if(status->bat1->state == IDLE)             bat1color = "black";
-    else if(status->bat1->state == CHARGING)    bat1color = "green";
-    else if(status->bat1->state == DISCHARGING) bat1color = "red";
-
-    float power_avg_W = status->bat0->power_avg / 1000.0;
-    if(power_avg_W == 0)
-        power_avg_W = status->bat1->power_avg / 1000.0;
-
     if(strlen(status->msg) > 0)
     {
       desktop_log(status->msg);
@@ -115,6 +103,51 @@ get_battery_status_markup (BatteryStatus *status)
     int bat0rem = status->bat0->remaining_percent;
     int bat1rem = status->bat1->remaining_percent;
 
+    char *bat0display;
+    if(prefs->displayColoredText && status->bat0->state != IDLE)
+    {
+        const char *color;
+        if(status->bat0->state == CHARGING)
+            color = "green";
+        else if(status->bat0->state == DISCHARGING)
+            color = "red";
+        else
+            color = "white";
+
+        bat0display = malloc(26 + strlen(color) + 3 + 1);
+        sprintf(bat0display,
+          "<span foreground='%s'>%d</span>",
+          color,
+          bat0rem);
+    }
+    else
+    {
+        bat0display = malloc(3 + 1);
+        sprintf(bat0display, "%d", bat0rem);
+    }
+    char *bat1display;
+    if(prefs->displayColoredText && status->bat1->state != IDLE)
+    {
+        const char *color;
+        if(status->bat1->state == CHARGING)
+            color = "green";
+        else if(status->bat1->state == DISCHARGING)
+            color = "red";
+        else
+            color = "white";
+
+        bat1display = malloc(26 + strlen(color) + 3 + 1);
+        sprintf(bat1display,
+          "<span foreground='%s'>%d</span>",
+          color,
+          bat1rem);
+    }
+    else
+    {
+        bat1display = malloc(3 + 1);
+        sprintf(bat1display, "%d", bat1rem);
+    }
+
     const char *size;
     if(bat0rem == 100 && bat1rem == 100)
         size = "xx-small";
@@ -123,63 +156,96 @@ get_battery_status_markup (BatteryStatus *status)
     else
         size = "small";
 
-    const char *update_indicator;
-    if(status->count % 2 == 0)
-        update_indicator = "`";
+    const char *sep;
+    if(prefs->displayBlinkingIndicator && status->count % 2 == 0)
+        sep = "<span foreground='blue'>^</span>";
     else
-        update_indicator = "";
+        sep = "^";
 
-    char *markup = g_markup_printf_escaped (
-        "<span size='%s'>%d^%d</span>"
-        "\n"
-        "<span size='xx-small'>    %4.1f%s</span>",
-        size,
-        bat0rem,
-        bat1rem,
-        update_indicator,
-        power_avg_W);
+    char *power_avg = malloc(64);
+    if(prefs->displayPowerAvg)
+    {
+        int pow0 = status->bat0->power_avg;
+        int pow1 = status->bat1->power_avg;
+        int powActive = 0;
+        if(powActive != 0 && status->bat0->state != IDLE)
+            powActive = pow0;
+        if(powActive != 0 && status->bat1->state != IDLE)
+            powActive = pow1;
+        if(pow0 != 0)
+            powActive = pow0;
+        if(pow1 != 0)
+            powActive = pow1;
+
+        float power_avg_W = powActive / 1000.0;
+
+        sprintf(power_avg,
+          "\n<span size='xx-small'>   %4.1fW</span>",
+          power_avg_W);
+    }
+    else
+        sprintf(power_avg, "");
+
+
+    char *markup = malloc(
+      21 +
+      strlen(size) +
+      strlen(bat0display) +
+      strlen(sep) +
+      strlen(bat1display) +
+      strlen(power_avg) +
+      1);
+    sprintf(markup,
+      "<span size='%s'>%s%s%s</span>%s",
+      size,
+      bat0display,
+      sep,
+      bat1display,
+      power_avg);
+
+    g_free(power_avg);
 
     return markup;
 }
 
 
 GdkPixbuf *
-choose_image (StatusIconSet *statusIconSet, Battery *battery)
+choose_image (StatusIconSet *statusIconSet,
+    int installed, int remaining_percent, enum BatteryState state)
 {
-    if(battery == NULL || battery->installed != 1)
+    if(installed != 1)
         return statusIconSet->none;
 
     PercentIconSet *percentIconSet;
-    if(battery->state == CHARGING)
+    if(state == CHARGING)
         percentIconSet = statusIconSet->charging;
-    else if(battery->state == DISCHARGING)
+    else if(state == DISCHARGING)
         percentIconSet = statusIconSet->discharging;
     else
         percentIconSet = statusIconSet->idle;
 
     GdkPixbuf *pixbuf;
-    int per = battery->remaining_percent;
-    if(per >= 98)
+    if(remaining_percent >= 98)
       pixbuf = percentIconSet->per100;
-    else if(per >= 90)
+    else if(remaining_percent >= 90)
       pixbuf = percentIconSet->per90;
-    else if(per >= 80)
+    else if(remaining_percent >= 80)
       pixbuf = percentIconSet->per80;
-    else if(per >= 70)
+    else if(remaining_percent >= 70)
       pixbuf = percentIconSet->per70;
-    else if(per >= 60)
+    else if(remaining_percent >= 60)
       pixbuf = percentIconSet->per60;
-    else if(per >= 50)
+    else if(remaining_percent >= 50)
       pixbuf = percentIconSet->per50;
-    else if(per >= 40)
+    else if(remaining_percent >= 40)
       pixbuf = percentIconSet->per40;
-    else if(per >= 30)
+    else if(remaining_percent >= 30)
       pixbuf = percentIconSet->per30;
-    else if(per >= 20)
+    else if(remaining_percent >= 20)
       pixbuf = percentIconSet->per20;
-    else if(per >= 10)
+    else if(remaining_percent >= 10)
       pixbuf = percentIconSet->per10;
-    else if(per >= 0)
+    else if(remaining_percent >= 0)
       pixbuf = percentIconSet->per0;
     else
       pixbuf = statusIconSet->none;
@@ -188,17 +254,79 @@ choose_image (StatusIconSet *statusIconSet, Battery *battery)
 }
 
 void
-update_display (HUD *hud, BatteryStatus *status)
+update_display (HUD *hud, BatteryStatus *status, Prefs *prefs)
 {
-    char *markup = get_battery_status_markup(status);
+    char *markup = get_battery_status_markup(status, prefs);
     gtk_label_set_markup(hud->label, markup);
-    gtk_image_set_from_pixbuf(
-        hud->bat0img, choose_image(hud->statusIconSet, status->bat0));
-    gtk_image_set_from_pixbuf(
-        hud->bat1img, choose_image(hud->statusIconSet, status->bat1));
-    gtk_widget_set_size_request(GTK_WIDGET(hud->bat0img), IMAGE_WIDTH, IMAGE_HEIGHT);
-    gtk_widget_set_size_request(GTK_WIDGET(hud->bat1img), IMAGE_WIDTH, IMAGE_HEIGHT);
     g_free(markup);
+    if(prefs->displayIcons && prefs->displayOnlyOneIcon)
+    {
+        gtk_widget_set_visible(GTK_WIDGET(hud->bat0img), 1);
+        gtk_widget_set_visible(GTK_WIDGET(hud->bat1img), 0);
+        int installed = status->bat0->installed;
+        if(installed != 1)
+            installed = status->bat1->installed;
+        enum BatteryState state = status->bat0->state;
+        if(state == IDLE)
+            state = status->bat1->state;
+        int cap_total = 0;
+        int cap_rem = 0;
+        if(status->bat0->installed && status->bat0->remaining_capacity > 0)
+        {
+            int cap = status->bat0->last_full_capacity;
+            int rem = status->bat0->remaining_capacity;
+            if(cap <= 0 || cap < rem)
+                cap = status->bat0->design_capacity;
+            if(cap > 0 && cap >= rem)
+            {
+                cap_total += cap;
+                cap_rem += rem;
+            }
+        } 
+        if(status->bat1->installed && status->bat1->remaining_capacity > 0)
+        {
+            int cap = status->bat1->last_full_capacity;
+            int rem = status->bat1->remaining_capacity;
+            if(cap <= 0 || cap < rem)
+                cap = status->bat1->design_capacity;
+            if(cap > 0 && cap >= rem)
+            {
+                cap_total += cap;
+                cap_rem += rem;
+            }
+        }
+        int rem_per = 100 * cap_rem / cap_total;
+
+        gtk_image_set_from_pixbuf(
+            hud->bat0img,
+            choose_image(
+              hud->statusIconSet,
+              installed,
+              rem_per,
+              state));
+    }
+    else if(prefs->displayIcons && !prefs->displayOnlyOneIcon)
+    {
+        gtk_widget_set_visible(GTK_WIDGET(hud->bat0img), 1);
+        gtk_widget_set_visible(GTK_WIDGET(hud->bat1img), 1);
+        gtk_image_set_from_pixbuf(
+            hud->bat0img,
+            choose_image(hud->statusIconSet,
+              status->bat0->installed,
+              status->bat0->remaining_percent,
+              status->bat0->state));
+        gtk_image_set_from_pixbuf(
+            hud->bat1img,
+            choose_image(hud->statusIconSet,
+              status->bat1->installed,
+              status->bat1->remaining_percent,
+              status->bat1->state));
+    }
+    else
+    {
+        gtk_widget_set_visible(GTK_WIDGET(hud->bat0img), 0);
+        gtk_widget_set_visible(GTK_WIDGET(hud->bat1img), 0);
+    }
 }
 
 void

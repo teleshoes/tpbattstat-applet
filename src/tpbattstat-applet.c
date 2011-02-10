@@ -84,7 +84,7 @@ update (TPBattStat *tpbattstat)
             tpbattstat->prefs->dischargeStrategy,
             tpbattstat->prefs->dischargeLeapfrogThreshold);
 
-    update_display(tpbattstat->hud, tpbattstat->status);
+    update_display(tpbattstat->hud, tpbattstat->status, tpbattstat->prefs);
 
     return TRUE;
 }
