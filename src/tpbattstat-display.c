@@ -336,8 +336,10 @@ init_display (HUD *hud, PanelApplet *applet)
     hud->label = (GtkLabel*) gtk_label_new("<Status Unread>");
     
     hud->statusIconSet = createStatusIconSet();
-    hud->bat0img = gtk_image_new_from_pixbuf(hud->statusIconSet->none);
-    hud->bat1img = gtk_image_new_from_pixbuf(hud->statusIconSet->none);
+    hud->bat0img = GTK_IMAGE(
+        gtk_image_new_from_pixbuf(hud->statusIconSet->none));
+    hud->bat1img = GTK_IMAGE(
+        gtk_image_new_from_pixbuf(hud->statusIconSet->none));
     
     gtk_widget_set_size_request(GTK_WIDGET(hud->bat0img),
       IMAGE_WIDTH, IMAGE_HEIGHT);
