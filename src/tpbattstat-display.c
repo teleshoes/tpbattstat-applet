@@ -108,15 +108,15 @@ get_battery_status_markup (BatteryStatus *status, Prefs *prefs)
     {
         const char *color;
         if(status->bat0->state == CHARGING)
-            color = "green";
+            color = "#60FF60";
         else if(status->bat0->state == DISCHARGING)
-            color = "red";
+            color = "#FF6060";
         else
             color = "white";
 
-        bat0display = malloc(26 + strlen(color) + 3 + 1);
+        bat0display = malloc(33 + strlen(color) + 3 + 1);
         sprintf(bat0display,
-          "<span foreground='%s'>%d</span>",
+          "<b><span foreground='%s'>%d</span></b>",
           color,
           bat0rem);
     }
@@ -130,15 +130,15 @@ get_battery_status_markup (BatteryStatus *status, Prefs *prefs)
     {
         const char *color;
         if(status->bat1->state == CHARGING)
-            color = "green";
+            color = "#60FF60";
         else if(status->bat1->state == DISCHARGING)
-            color = "red";
+            color = "#FF6060";
         else
             color = "white";
 
-        bat1display = malloc(26 + strlen(color) + 3 + 1);
+        bat1display = malloc(33 + strlen(color) + 3 + 1);
         sprintf(bat1display,
-          "<span foreground='%s'>%d</span>",
+          "<b><span foreground='%s'>%d</span></b>",
           color,
           bat1rem);
     }

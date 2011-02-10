@@ -166,12 +166,12 @@
   <type>bool</type>
   <default>false</default>
   <locale name="C">
-    <short>Append a backtick char on every other update</short>
+    <short>Add a flashing indicator</short>
     <long>
-      If true, every other update to the display has a '`' at the 
-        end of the text. This is to reassure you, at a glance, that the
-        update is being refreshed.
-      If false, it is never appended.
+      If true, the color of the separator alternates on each update.
+        This is to reassure you, at a glance, that the ui is being
+        refreshed.
+      If false, the color of the separator is constant.
     </long>
   </locale>
 </schema>
