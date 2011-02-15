@@ -3,6 +3,8 @@ Copyright 2011 Elliot Wolk
 
 Requires: libpanel-applet2-dev
 e.g.: sudo apt-get install libpanel-applet2-dev
+tp_smapi
+see: http://www.thinkwiki.org/wiki/Tp_smapi#Installation_from_source
 
 configure with --prefix=/usr to install properly
 e.g.: ./configure --prefix=/usr
