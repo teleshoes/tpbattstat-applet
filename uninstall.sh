@@ -4,7 +4,7 @@ NAME=tpbattstat-applet
 BIN_DIR=/usr/bin
 ICON_DIR=/usr/share/pixmaps
 
-sudo rm $BIN_DIR/$NAME
+sudo rm $BIN_DIR/$NAME.py
 sudo rm -rf $ICON_DIR/$NAME
 
 sudo ./smapi-battaccess/uninstall-smapi-battaccess.sh
