@@ -23,6 +23,10 @@ echo installing $NAME to $BIN_DIR
 echo
 sudo cp $NAME $BIN_DIR
 
+echo cleanup binary and objects
+echo
+rm $NAME *.o
+
 cd ../
 
 cd smapi-battaccess
