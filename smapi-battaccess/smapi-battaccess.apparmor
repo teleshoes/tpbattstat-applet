@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-@BINDIR@/smapi-battaccess {
+/usr/bin/smapi-battaccess {
   #include <abstractions/base>
 
   /sys/devices/platform/smapi/* r,
