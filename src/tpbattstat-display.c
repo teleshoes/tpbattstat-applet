@@ -39,8 +39,11 @@ createIcon (const char *basedir, const char *file, int width, int height)
     char *filepath = malloc(len * sizeof(char));
     strcpy(filepath, PIXMAP_DIR);
     strcat(filepath, "/");
-    strcat(filepath, basedir);
-    strcat(filepath, "/");
+    if(strlen(basedir) > 0)
+    {
+      strcat(filepath, basedir);
+      strcat(filepath, "/");
+    }
     strcat(filepath, file);
 
     GdkPixbuf *pixbuf =	gdk_pixbuf_new_from_file(filepath, NULL);
@@ -80,12 +83,12 @@ StatusIconSet *
 createStatusIconSet ()
 {
     StatusIconSet *statusIconSet = malloc(sizeof(StatusIconSet));
-    statusIconSet->none = createIcon("icons", "none.svg",
+    statusIconSet->none = createIcon("", "none.svg",
       IMAGE_WIDTH, IMAGE_HEIGHT);
 
-    statusIconSet->idle = createPercentIconSet("icons/idle");
-    statusIconSet->charging = createPercentIconSet("icons/charging");
-    statusIconSet->discharging = createPercentIconSet("icons/discharging");
+    statusIconSet->idle = createPercentIconSet("idle");
+    statusIconSet->charging = createPercentIconSet("charging");
+    statusIconSet->discharging = createPercentIconSet("discharging");
     return statusIconSet;
 }
 
