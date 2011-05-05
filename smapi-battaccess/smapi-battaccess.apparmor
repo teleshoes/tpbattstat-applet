@@ -1,0 +1,14 @@
+#include <tunables/global>
+
+@BINDIR@/smapi-battaccess {
+  #include <abstractions/base>
+
+  /sys/devices/platform/smapi/* r,
+  /sys/devices/platform/smapi/BAT0/* r,
+  /sys/devices/platform/smapi/BAT1/* r,
+
+  /sys/devices/platform/smapi/BAT0/inhibit_charge_minutes w,
+  /sys/devices/platform/smapi/BAT0/force_discharge w,
+  /sys/devices/platform/smapi/BAT1/inhibit_charge_minutes w,
+  /sys/devices/platform/smapi/BAT1/force_discharge w,
+}
