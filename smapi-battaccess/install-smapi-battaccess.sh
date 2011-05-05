@@ -1,18 +1,25 @@
 #!/bin/sh
-NAME=smapi-battaccess
+SMAPI_BA=smapi-battaccess
 BIN_DIR=/usr/bin
 APPARMOR_DIR=/etc/apparmor.d
+APPARMOR_PROFILE=`echo $BIN_DIR/$SMAPI_BA | sed 's/^\///' | sed 's/\//./g'`
 
-echo compiling $NAME.c to $NAME
-gcc $NAME.c -o $NAME
-echo install $NAME to $BIN_DIR
-cp $NAME $BIN_DIR
+echo compiling $SMAPI_BA.c to $SMAPI_BA
+echo
+gcc $SMAPI_BA.c -o $SMAPI_BA
+
+echo install $SMAPI_BA to $BIN_DIR
+echo
+rm -f $BIN_DIR/$SMAPI_BA
+cp $SMAPI_BA $BIN_DIR
+
 echo remove binary
-rm $NAME
-echo making $NAME have setuid, i.e.: chmod u+s
-chmod u+s $BIN_DIR/$NAME
+echo
+rm $SMAPI_BA
 
-#e.g.: usr.bin.smapi-battaccess
-APPARMOR_PROFILE=`echo $BIN_DIR/$NAME | sed 's/^\///' | sed 's/\//./g'`
+echo making $SMAPI_BA have setuid, i.e.: chmod u+s
+echo
+chmod u+s $BIN_DIR/$SMAPI_BA
+
 echo installing apparmor profile $APPARMOR_DIR/$APPARMOR_PROFILE
-cp $NAME.apparmor $APPARMOR_DIR/$APPARMOR_PROFILE
+cp $SMAPI_BA.apparmor $APPARMOR_DIR/$APPARMOR_PROFILE
