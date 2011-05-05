@@ -23,15 +23,23 @@ echo installing $NAME to $BIN_DIR
 echo
 sudo cp $NAME $BIN_DIR
 
+cd ../
+
+cd smapi-battaccess
 echo compiling and installing smapi-battaccess
 echo
-sudo ./smapi-battaccess/install-smapi-battaccess.sh
+sudo ./install-smapi-battaccess.sh
 
+cd ../
+
+cd icons
 echo copying icons
 echo
 sudo rm -rf $ICON_DIR/$NAME/
 sudo mkdir $ICON_DIR/$NAME/
-sudo cp -ar icons/* $ICON_DIR/$NAME/
+sudo cp -ar * $ICON_DIR/$NAME/
+
+cd ../
 
 echo installing gconf schemas
 echo
