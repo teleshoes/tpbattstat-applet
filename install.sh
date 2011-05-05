@@ -3,6 +3,7 @@
 NAME=tpbattstat-applet
 BIN_DIR=/usr/bin
 ICON_DIR=/usr/share/pixmaps
+SERVER_DIR=/usr/lib/bonobo/servers
 
 DEPS=libpanelapplet-2.0
 CFLAGS=`pkg-config --cflags $DEPS`
@@ -49,3 +50,6 @@ echo installing gconf schemas
 echo
 gconftool-2 --install-schema-file tpbattstat-applet.schemas
 
+echo installing bonobo server
+echo
+sudo cp TPBattStatApplet_Factory.server $SERVER_DIR

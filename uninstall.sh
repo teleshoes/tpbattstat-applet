@@ -10,3 +10,5 @@ sudo rm -rf $ICON_DIR/$NAME
 sudo ./smapi-battaccess/uninstall-smapi-battaccess.sh
 
 gconftool-2 --recursive-unset /schemas/apps/tpbattstat_applet
+
+sudo rm $SERVER_DIR TPBattStatApplet_Factory.server
