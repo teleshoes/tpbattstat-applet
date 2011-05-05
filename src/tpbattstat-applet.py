@@ -42,21 +42,21 @@ class BattStatus():
     self.ac_connected = smapi_get(-1, 'ac_connected')
     self.batt0 = BattInfo(0)
     self.batt1 = BattInfo(1)
-  def ensure_charging(self, batt_id)
+  def ensure_charging(self, batt_id):
     previnhib0 = self.batt0.inhibit_charge_minutes
     previnhib1 = self.batt1.inhibit_charge_minutes
     charge0 = self.batt0.state == State.CHARGING
     charge1 = self.batt1.state == State.CHARGING
-    if batt_id == 0 and (previnhib0 or (!charge0 and !previnhib1)):
+    if batt_id == 0 and (previnhib0 or (not charge0 and not previnhib1)):
       smapi_set(0, 'inhibit_charge_minutes', '0')
       smapi_set(1, 'inhibit_charge_minutes', '1')
-    elif batt_id == 1 and (previnhib1 or (!charge1 and !previnhib0)):
+    elif batt_id == 1 and (previnhib1 or (not charge1 and not previnhib0)):
       smapi_set(1, 'inhibit_charge_minutes', '0')
       smapi_set(0, 'inhibit_charge_minutes', '1')
   def perhaps_inhibit_charge(self, strat, leapfrogThreshold, \
     brackets, bracketsPrefBattId):
-    never_inhibit = !self.ac_connected or \
-      !self.batt0.installed or !self.batt1.installed or \
+    never_inhibit = not self.ac_connected or \
+      not self.batt0.installed or not self.batt1.installed or \
       start == ChargeStrategy.SYSTEM
     charge0 = self.batt0.state == State.CHARGING
     charge1 = self.batt1.state == State.CHARGING
@@ -80,8 +80,8 @@ class BattStatus():
     elif strat == ChargeStrategy.BRACKETS:
       prefBat = bracketsPrefBattId
       unprefBat = 1 - prefBat
-      percentPref = prefBat == 0 ? per0 : per1
-      percentUnpref = unprefBat == 0 ? per0 : per1
+      percentPref = per0 if prefBat == 0 else per1
+      percentUnpref = per0 if unprefBat == 0 else per1
       for bracket in brackets:
         if percentPref < bracket:
           ensure_charging(prefBat)
@@ -145,7 +145,7 @@ class BattInfo():
       self.state = State.DISCHARGING
     elif state == 'idle':
       self.state = State.IDLE
-    else
+    else:
       self.state = None
 
 def smapi_get(batt_id, prop):
