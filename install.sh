@@ -1,14 +1,15 @@
 #!/bin/sh
 
 NAME=tpbattstat-applet
-BIN_DIR=/usr/bin
+LIB_INSTALL_DIR=/usr/lib/$NAME
 ICON_DIR=/usr/share/pixmaps
 SERVER_DIR=/usr/lib/bonobo/servers
 
 cd src
-echo copying $NAME.py to $BIN_DIR
+echo copying $NAME.py to $LIB_INSTALL_DIR
 echo
-sudo cp $NAME.py $BIN_DIR
+sudo mkdir -p $LIB_INSTALL_DIR
+sudo cp *.py $LIB_INSTALL_DIR
 cd ../
 
 cd smapi-battaccess

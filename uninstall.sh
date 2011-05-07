@@ -1,11 +1,11 @@
 #!/bin/sh
 
 NAME=tpbattstat-applet
-BIN_DIR=/usr/bin
+LIB_INSTALL_DIR=/usr/lib/$NAME
 ICON_DIR=/usr/share/pixmaps
 SERVER_DIR=/usr/lib/bonobo/servers
 
-sudo rm $BIN_DIR/$NAME.py
+sudo rm -rf $LIB_INSTALL_DIR
 sudo rm -rf $ICON_DIR/$NAME
 
 sudo ./smapi-battaccess/uninstall-smapi-battaccess.sh
