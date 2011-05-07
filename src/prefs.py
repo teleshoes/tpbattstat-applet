@@ -84,7 +84,7 @@ class Prefs():
   def applySchema(self, key):
     try:
       schemaname = SCHEMA_DIR + '/' + key
-      keyname = self.gconf_root_key + key
+      keyname = self.gconf_root_key + '/' + key
       p = Popen(['gconftool', '--apply-schema', schemaname, keyname])
       p.wait()
     except:
