@@ -31,7 +31,7 @@ class Prefs():
     self.client = gconf.client_get_default()
     self.gconf_root_key = applet.get_preferences_key()
     if self.gconf_root_key == None:
-      self.gconf_root_key = '/apps/tpbattstat_applet'
+      self.gconf_root_key = '/apps/tpbattstat_applet/prefs'
       for schema in self.getAllKeysInSchema(SCHEMA_DIR):
         self.applySchema(schema)
     else:
@@ -78,7 +78,7 @@ class Prefs():
   def applySchema(self, key):
     try:
       schemaname = SCHEMA_DIR + '/' + key
-      keyname = self.gconf_root_key + '/prefs/' + key
+      keyname = self.gconf_root_key + key
       p = Popen(['gconftool', '--apply-schema', schemaname, keyname])
       p.wait()
     except:
@@ -86,25 +86,25 @@ class Prefs():
       print >> sys.stderr, msg
       return -1
   def gconfGetInt(self, key, default):
-    val = self.client.get_int(self.gconf_root_key + '/prefs/' + key)
+    val = self.client.get_int(self.gconf_root_key + '/' + key)
     if val == None:
       return default
     else:
       return val
   def gconfGetStr(self, key, default):
-    val = self.client.get_string(self.gconf_root_key + '/prefs/' + key)
+    val = self.client.get_string(self.gconf_root_key + '/' + key)
     if val == None:
       return default
     else:
       return val
   def gconfGetBool(self, key, default):
-    val = self.client.get_bool(self.gconf_root_key + '/prefs/' + key)
+    val = self.client.get_bool(self.gconf_root_key + '/' + key)
     if val == None:
       return default
     else:
       return val
   def gconfGetIntList(self, key, default):
-    val = self.client.get_list(self.gconf_root_key + '/prefs/' + key, 'int')
+    val = self.client.get_list(self.gconf_root_key + '/' + key, 'int')
     if val == None or val == []:
       return default
     else:

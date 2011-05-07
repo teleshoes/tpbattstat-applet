@@ -22,36 +22,39 @@
 import pygtk
 pygtk.require('2.0')
 
+from gui import Gui
 from prefs import Prefs
 from battstatus import BattStatus
 import sys
-import gtk, gtk.gdk, gobject
+import gtk
+import gobject
 import gnomeapplet
 
 class TPBattStatApplet():
   def __init__(self, applet):
     self.applet = applet
-    self.battStatus = BattStatus()
-    self.label = gtk.Label("")
-    self.applet.add(self.label)
+
+    self.prefs = Prefs(self.applet)
+    self.battStatus = BattStatus(self.prefs)
+    self.gui = Gui(self.prefs, self.battStatus)
+
+    self.applet.add(self.gui.getGtkWidget())
     self.applet.set_background_widget(self.applet)
-    self.delay = 0
-    self.i = 0
-#    self.prefs = Prefs(applet)
-    gobject.timeout_add_seconds(2, self.update)
-    self.update()
     self.applet.show_all()
-        
+    
+    self.prevDelay = -1
+    self.update()
+
   def update(self):
+    self.prefs.update()
     self.battStatus.update()
-    self.label.set_text(str(self.i)
-      + "-" + self.battStatus.batt0.remaining_percent
-      + "-" + self.battStatus.batt1.remaining_percent)
-    self.i = self.i + 1
-#    self.prefs.update()
-    return True
-
-
+    self.gui.update()
+    if self.prefs.delay != self.prevDelay:
+      self.prevDelay = self.prefs.delay
+      gobject.timeout_add(self.prefs.delay, self.update)
+      return False
+    else:
+      return True
 
 def TPBattStatAppletFactory(applet, iid):
   TPBattStatApplet(applet)

@@ -19,9 +19,6 @@
 # along with TPBattStatApplet. If not, see <http://www.gnu.org/licenses/>.
 ##########################################################################
 
-import pygtk
-pygtk.require('2.0')
-
 import sys
 from subprocess import Popen, PIPE
 
@@ -47,6 +44,7 @@ def smapi_get(batt_id, prop):
 
 def smapi_set(batt_id, prop, val):
   try:
+    print "setting BAT" + str(batt_id) + "/" + prop + " => " + val
     p = Popen([SMAPI_BATTACCESS, '-s', str(batt_id), prop, val])
     p.wait()
   except:
@@ -54,92 +52,122 @@ def smapi_set(batt_id, prop, val):
     print >> sys.stderr, msg
 
 class BattStatus():
-  def __init__(self):
+  def __init__(self, prefs):
+    self.prefs = prefs
     self.batt0 = BattInfo(0)
     self.batt1 = BattInfo(1)
+  def getBattInfo(self, batt_id):
+    if batt_id == 0:
+      return self.batt0
+    elif batt_id == 1:
+      return self.batt1
+    else:
+      return None
+  def isACConnected(self):
+    return self.ac_connected == '1'
   def update(self):
     self.ac_connected = smapi_get(-1, 'ac_connected')
     self.batt0.update()
     self.batt1.update()
+    self.perhaps_inhibit_charge()
+    self.perhaps_force_discharge()
+  def isEitherInstalled(self):
+    return self.batt0.isInstalled() or self.batt1.isInstalled()
+  def isEitherCharging(self):
+    return self.batt0.isCharging() or self.batt1.isCharging()
+  def isEitherDischarging(self):
+    return self.batt0.isDischarging() or self.batt1.isDischarging()
+  def getTotalRemainingPercent(self):
+    rem_cap = 0
+    max_cap = 0
+    if self.batt0.isInstalled():
+      rem_cap = rem_cap + int(self.batt0.remaining_capacity)
+      max_cap = max_cap + int(self.batt0.last_full_capacity)
+    if self.batt1.isInstalled():
+      rem_cap = rem_cap + int(self.batt1.remaining_capacity)
+      max_cap = max_cap + int(self.batt1.last_full_capacity)
+    return int(100 * (float(rem_cap) / float(max_cap)))
+
   def ensure_charging(self, batt_id):
-    previnhib0 = self.batt0.inhibit_charge_minutes
-    previnhib1 = self.batt1.inhibit_charge_minutes
-    charge0 = self.batt0.state == State.CHARGING
-    charge1 = self.batt1.state == State.CHARGING
+    previnhib0 = self.batt0.isChargeInhibited()
+    previnhib1 = self.batt1.isChargeInhibited()
+    charge0 = self.batt0.isCharging()
+    charge1 = self.batt1.isCharging()
     if batt_id == 0 and (previnhib0 or (not charge0 and not previnhib1)):
       smapi_set(0, 'inhibit_charge_minutes', '0')
       smapi_set(1, 'inhibit_charge_minutes', '1')
     elif batt_id == 1 and (previnhib1 or (not charge1 and not previnhib0)):
       smapi_set(1, 'inhibit_charge_minutes', '0')
       smapi_set(0, 'inhibit_charge_minutes', '1')
-  def perhaps_inhibit_charge(self, strat, leapfrogThreshold, \
-    brackets, bracketsPrefBattId):
-    never_inhibit = not self.ac_connected or \
-      not self.batt0.installed or not self.batt1.installed or \
-      start == ChargeStrategy.SYSTEM
-    charge0 = self.batt0.state == State.CHARGING
-    charge1 = self.batt1.state == State.CHARGING
+
+  def perhaps_inhibit_charge(self):
+    never_inhibit = (not self.isACConnected or
+      not self.batt0.isInstalled() or not self.batt1.isInstalled())
+    charge0 = self.batt0.isCharging()
+    charge1 = self.batt1.isCharging()
     per0 = self.batt0.remaining_percent
     per1 = self.batt1.remaining_percent
-    if never_inhibit:
-      if self.batt0.inhibit_charge_minutes:
+    if never_inhibit or self.prefs.charge_strategy == ChargeStrategy.SYSTEM:
+      if self.batt0.isChargeInhibited():
         smapi_set(0, 'inhibit_charge_minutes', '0')
-      if self.batt1.inhibit_charge_minutes:
+      if self.batt1.isChargeInhibited():
         smapi_set(1, 'inhibit_charge_minutes', '0')
-    elif strat == ChargeStrategy.LEAPFROG:
-      if per1 - per0 > leapfrogThreshold:
-        ensure_charging(1)
-      elif per0 - per1 > leapfrogThreshold:
-        ensure_charging(0)
-    elif strat == ChargeStrategy.CHASING:
+    elif self.prefs.charge_strategy == ChargeStrategy.LEAPFROG:
+      if per1 - per0 > self.prefs.charge_leapfrog_threshold:
+        self.ensure_charging(1)
+      elif per0 - per1 > self.prefs.charge_leapfrog_threshold:
+        self.ensure_charging(0)
+    elif self.prefs.charge_strategy == ChargeStrategy.CHASING:
       if per1 > per0:
         ensure_charging(0)
       elif per0 > per1:
         ensure_charging(1)
-    elif strat == ChargeStrategy.BRACKETS:
-      prefBat = bracketsPrefBattId
+    elif self.prefs.charge_strategy == ChargeStrategy.BRACKETS:
+      prefBat = self.prefs.charge_brackets_pref_battery
       unprefBat = 1 - prefBat
       percentPref = per0 if prefBat == 0 else per1
       percentUnpref = per0 if unprefBat == 0 else per1
-      for bracket in brackets:
+      for bracket in self.prefs.charge_brackets:
         if percentPref < bracket:
-          ensure_charging(prefBat)
+          self.ensure_charging(prefBat)
           break
         elif percentUnpref < bracket:
-          ensure_charging(unprefBat)
+          self.ensure_charging(unprefBat)
           break
 
-  def perhaps_force_discharge(self, strat, leapfrogThreshold):
-    should_force = ac_connected and batt0.installed and batt1.installed
-    dis0 = self.batt0.state == State.DISCHARGING
-    dis1 = self.batt1.state == State.DISCHARGING
+  def perhaps_force_discharge(self):
+    should_force = (self.isACConnected() and
+      self.batt0.isInstalled() and self.batt1.isInstalled())
+    dis0 = self.batt0.isDischarging()
+    dis1 = self.batt1.isDischarging()
     per0 = self.batt0.remaining_percent
     per1 = self.batt1.remaining_percent
-    force0 = 0
-    force1 = 1
-    if should_force and strat == DischargeStrategy.LEAPFROG:
-      if dis0:
-        if per1 - per0 > leapfrogThreshold:
-          force1 = 1
-        elif per0 > leapfrogThreshold:
-          force0 = 1
-      elif dis1:
-        if per0 - per1 > leapfrogThreshold:
-          force0 = 1
-        elif per1 > leapfrogThreshold:
-          force1 = 1
-      elif per0 > leapfrogThreshold and per0 > per1:
-        force0 = 1
-      elif per1 > leapfrogThreshold and per1 > per0:
-        force1 = 1
-    elif should_force and strat == DischargeStrategy.CHASING:
-      if per0 > per1:
-        force0 = 1
-      elif per1 > per0:
-        force1 = 1
+    force0 = False
+    force1 = False
+    if should_force:
+      if self.prefs.discharge_strategy == DischargeStrategy.LEAPFROG:
+        if dis0:
+          if per1 - per0 > leapfrogThreshold:
+            force1 = True
+          elif per0 > leapfrogThreshold:
+            force0 = True
+        elif dis1:
+          if per0 - per1 > leapfrogThreshold:
+            force0 = True
+          elif per1 > leapfrogThreshold:
+            force1 = True
+        elif per0 > leapfrogThreshold and per0 > per1:
+          force0 = True
+        elif per1 > leapfrogThreshold and per1 > per0:
+          force1 = True
+      elif self.prefs.discharge_strategy == DischargeStrategy.CHASING:
+        if per0 > per1:
+          force0 = True
+        elif per1 > per0:
+          force1 = True
 
-    prevforce0 = self.batt0.force_discharge
-    prevforce1 = self.batt1.force_discharge
+    prevforce0 = self.batt0.isForceDischarge()
+    prevforce1 = self.batt1.isForceDischarge()
 
     if prevforce0 != force0 or prevforce1 != force1:
       smapi_set(0, 'force_discharge', str(force0))
@@ -149,6 +177,16 @@ class BattStatus():
 class BattInfo():
   def __init__(self, batt_id):
     self.batt_id = batt_id
+  def isInstalled(self):
+    return self.installed == '1'
+  def isCharging(self):
+    return self.state == State.CHARGING
+  def isDischarging(self):
+    return self.state == State.DISCHARGING
+  def isChargeInhibited(self):
+    return int(self.inhibit_charge_minutes) > 0
+  def isForceDischarge(self):
+    return self.force_discharge == '1'
   def update(self):
     self.installed = smapi_get(self.batt_id, 'installed')
     self.force_discharge = smapi_get(self.batt_id, 'force_discharge')
@@ -160,11 +198,11 @@ class BattInfo():
     self.last_full_capacity = smapi_get(self.batt_id, 'last_full_capacity')
     self.design_capacity = smapi_get(self.batt_id, 'design_capacity')
     state = smapi_get(self.batt_id, 'state')
-    if state == 'charging':
+    if state == '1':
       self.state = State.CHARGING
-    elif state == 'discharging':
+    elif state == '2':
       self.state = State.DISCHARGING
-    elif state == 'idle':
+    elif state == '0':
       self.state = State.IDLE
     else:
       self.state = None
