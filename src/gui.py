@@ -131,7 +131,7 @@ class Gui():
     else:
       powavg = pow1
     powavgW = float(powavg / 100) / 10.0
-    return '\n<span size="xx-small">  ' + str(powavgW) + 'W</span>'
+    return '\n<span size="xx-small">' + str(powavgW) + 'W</span>'
 
   def updateLabel(self):
     self.label.set_markup(
