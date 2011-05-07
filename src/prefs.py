@@ -36,7 +36,7 @@ class Prefs():
         self.applySchema(schema)
     else:
       applet.add_preferences(SCHEMA_DIR)
-   def update(self):
+  def update(self):
     self.delay = self.gconfGetInt(
         'delay', 1000)
     self.discharge_strategy = self.gconfGetStr(
