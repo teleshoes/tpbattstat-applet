@@ -19,18 +19,11 @@
 # along with TPBattStatApplet. If not, see <http://www.gnu.org/licenses/>.
 ##########################################################################
 
+from prefs import DischargeStrategy, ChargeStrategy, State
 import sys
 from subprocess import Popen, PIPE
 
 SMAPI_BATTACCESS = '/usr/bin/smapi-battaccess'
-
-def enum(*sequential, **named):
-  enums = dict(zip(sequential, range(len(sequential))), **named)
-  return type('Enum', (), enums)
-
-State = enum('CHARGING', 'DISCHARGING', 'IDLE')
-DischargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING')
-ChargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING', 'BRACKETS')
 
 def smapi_get(batt_id, prop):
   try:
@@ -101,28 +94,29 @@ class BattStatus():
       smapi_set(0, 'inhibit_charge_minutes', '1')
 
   def perhaps_inhibit_charge(self):
-    never_inhibit = (not self.isACConnected or
+    should_not_inhibit = (not self.isACConnected or
       not self.batt0.isInstalled() or not self.batt1.isInstalled())
     charge0 = self.batt0.isCharging()
     charge1 = self.batt1.isCharging()
-    per0 = self.batt0.remaining_percent
-    per1 = self.batt1.remaining_percent
-    if never_inhibit or self.prefs.charge_strategy == ChargeStrategy.SYSTEM:
+    per0 = int(self.batt0.remaining_percent)
+    per1 = int(self.batt1.remaining_percent)
+    strategy = self.prefs.charge_strategy
+    if should_not_inhibit or strategy == ChargeStrategy.SYSTEM:
       if self.batt0.isChargeInhibited():
         smapi_set(0, 'inhibit_charge_minutes', '0')
       if self.batt1.isChargeInhibited():
         smapi_set(1, 'inhibit_charge_minutes', '0')
-    elif self.prefs.charge_strategy == ChargeStrategy.LEAPFROG:
+    elif strategy == ChargeStrategy.LEAPFROG:
       if per1 - per0 > self.prefs.charge_leapfrog_threshold:
         self.ensure_charging(1)
       elif per0 - per1 > self.prefs.charge_leapfrog_threshold:
         self.ensure_charging(0)
-    elif self.prefs.charge_strategy == ChargeStrategy.CHASING:
+    elif strategy == ChargeStrategy.CHASING:
       if per1 > per0:
         ensure_charging(0)
       elif per0 > per1:
         ensure_charging(1)
-    elif self.prefs.charge_strategy == ChargeStrategy.BRACKETS:
+    elif strategy == ChargeStrategy.BRACKETS:
       prefBat = self.prefs.charge_brackets_pref_battery
       unprefBat = 1 - prefBat
       percentPref = per0 if prefBat == 0 else per1
@@ -136,42 +130,46 @@ class BattStatus():
           break
 
   def perhaps_force_discharge(self):
-    should_force = (self.isACConnected() and
+    should_force = (not self.isACConnected() and
       self.batt0.isInstalled() and self.batt1.isInstalled())
     dis0 = self.batt0.isDischarging()
     dis1 = self.batt1.isDischarging()
-    per0 = self.batt0.remaining_percent
-    per1 = self.batt1.remaining_percent
+    per0 = int(self.batt0.remaining_percent)
+    per1 = int(self.batt1.remaining_percent)
     force0 = False
     force1 = False
-    if should_force:
-      if self.prefs.discharge_strategy == DischargeStrategy.LEAPFROG:
-        if dis0:
-          if per1 - per0 > leapfrogThreshold:
-            force1 = True
-          elif per0 > leapfrogThreshold:
-            force0 = True
-        elif dis1:
-          if per0 - per1 > leapfrogThreshold:
-            force0 = True
-          elif per1 > leapfrogThreshold:
-            force1 = True
-        elif per0 > leapfrogThreshold and per0 > per1:
-          force0 = True
-        elif per1 > leapfrogThreshold and per1 > per0:
+    strategy = self.prefs.discharge_strategy
+    if not should_force or strategy == DischargeStrategy.SYSTEM:
+      force0 = False
+      force1 = False
+    elif strategy == DischargeStrategy.LEAPFROG:
+      leapfrogThreshold = self.prefs.discharge_leapfrog_threshold
+      if dis0:
+        if per1 - per0 > leapfrogThreshold:
           force1 = True
-      elif self.prefs.discharge_strategy == DischargeStrategy.CHASING:
-        if per0 > per1:
+        elif per0 > leapfrogThreshold:
           force0 = True
-        elif per1 > per0:
+      elif dis1:
+        if per0 - per1 > leapfrogThreshold:
+          force0 = True
+        elif per1 > leapfrogThreshold:
           force1 = True
+      elif per0 > leapfrogThreshold and per0 > per1:
+        force0 = True
+      elif per1 > leapfrogThreshold and per1 > per0:
+        force1 = True
+    elif strategy == DischargeStrategy.CHASING:
+      if per0 > per1:
+        force0 = True
+      elif per1 > per0:
+        force1 = True
 
     prevforce0 = self.batt0.isForceDischarge()
     prevforce1 = self.batt1.isForceDischarge()
 
     if prevforce0 != force0 or prevforce1 != force1:
-      smapi_set(0, 'force_discharge', str(force0))
-      smapi_set(1, 'force_discharge', str(force1))
+      smapi_set(0, 'force_discharge', '1' if force0 else '0')
+      smapi_set(1, 'force_discharge', '1' if force1 else '0')
 
 
 class BattInfo():

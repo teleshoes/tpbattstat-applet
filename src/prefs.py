@@ -26,6 +26,14 @@ import gconf
 
 SCHEMA_DIR = '/schemas/apps/tpbattstat_applet/prefs'
 
+def enum(*sequential, **named):
+  enums = dict(zip(sequential, range(len(sequential))), **named)
+  return type('Enum', (), enums)
+
+State = enum('CHARGING', 'DISCHARGING', 'IDLE')
+DischargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING')
+ChargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING', 'BRACKETS')
+
 class Prefs():
   def __init__(self, applet):
     self.client = gconf.client_get_default()
@@ -39,12 +47,10 @@ class Prefs():
   def update(self):
     self.delay = self.gconfGetInt(
         'delay', 1000)
-    self.discharge_strategy = self.gconfGetStr(
-        'discharge_strategy', 'leapfrog')
+    self.discharge_strategy = self.gconfGetDischargeStrategy()
     self.discharge_leapfrog_threshold = self.gconfGetInt(
         'discharge_leapfrog_threshold', 5)
-    self.charge_strategy = self.gconfGetStr(
-        'charge_strategy', 'brackets')
+    self.charge_strategy = self.gconfGetChargeStrategy()
     self.charge_leapfrog_threshold = self.gconfGetInt(
         'charge_leapfrog_threshold', 10)
     self.charge_brackets_pref_battery = self.gconfGetInt(
@@ -109,4 +115,26 @@ class Prefs():
       return default
     else:
       return val
+  def gconfGetChargeStrategy(self):
+    strat = self.gconfGetStr('charge_strategy', 'brackets').upper()
+    if strat == 'SYSTEM':
+      return ChargeStrategy.SYSTEM
+    elif strat == 'LEAPFROG':
+      return ChargeStrategy.LEAPFROG
+    elif strat == 'CHASING':
+      return ChargeStrategy.CHASING
+    elif strat == 'BRACKETS':
+      return ChargeStrategy.BRACKETS
+    else:
+      return None
+  def gconfGetDischargeStrategy(self):
+    strat = self.gconfGetStr('discharge_strategy', 'leapfrog').upper()
+    if strat == 'SYSTEM':
+      return DischargeStrategy.SYSTEM
+    elif strat == 'LEAPFROG':
+      return DischargeStrategy.LEAPFROG
+    elif strat == 'CHASING':
+      return DischargeStrategy.CHASING
+    else:
+      return None
 
