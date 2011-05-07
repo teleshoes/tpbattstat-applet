@@ -124,13 +124,13 @@ class Gui():
   def getPowerAvgMarkup(self):
     if not self.prefs.display_power_avg:
       return ''
-    pow0 = self.battStatus.batt0.power_avg
-    pow1 = self.battStatus.batt1.power_avg
+    pow0 = int(self.battStatus.batt0.power_avg)
+    pow1 = int(self.battStatus.batt1.power_avg)
     if pow0 != 0:
       powavg = pow0
     else:
       powavg = pow1
-    powavgW = float(int(powavg) / 100) / 10.0
+    powavgW = float(powavg / 100) / 10.0
     return '\n<span size="xx-small">  ' + str(powavgW) + 'W</span>'
 
   def updateLabel(self):
