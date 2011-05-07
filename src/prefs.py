@@ -61,7 +61,7 @@ class Prefs():
         'display_only_one_icon', False)
     self.display_blinking_indicator = self.gconfGetBool(
         'display_blinking_indicator', False)
- def getAllKeysInSchema(self, keydir):
+  def getAllKeysInSchema(self, keydir):
     try:
       p = Popen(['gconftool', '--recursive-list', keydir], stdout=PIPE)
       (stdout, _) = p.communicate()
