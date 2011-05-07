@@ -36,7 +36,32 @@ class Prefs():
         self.applySchema(schema)
     else:
       applet.add_preferences(SCHEMA_DIR)
-  def getAllKeysInSchema(self, keydir):
+   def update(self):
+    self.delay = self.gconfGetInt(
+        'delay', 1000)
+    self.discharge_strategy = self.gconfGetStr(
+        'discharge_strategy', 'leapfrog')
+    self.discharge_leapfrog_threshold = self.gconfGetInt(
+        'discharge_leapfrog_threshold', 5)
+    self.charge_strategy = self.gconfGetStr(
+        'charge_strategy', 'brackets')
+    self.charge_leapfrog_threshold = self.gconfGetInt(
+        'charge_leapfrog_threshold', 10)
+    self.charge_brackets_pref_battery = self.gconfGetInt(
+        'charge_brackets_pref_battery', 0)
+    self.charge_brackets = self.gconfGetIntList(
+        'charge_brackets', [10,20,80,90,95,100])
+    self.display_power_avg = self.gconfGetBool(
+        'display_power_avg', True)
+    self.display_colored_text = self.gconfGetBool(
+        'display_colored_text', True)
+    self.display_icons = self.gconfGetBool(
+        'display_icons', True)
+    self.display_only_one_icon = self.gconfGetBool(
+        'display_only_one_icon', False)
+    self.display_blinking_indicator = self.gconfGetBool(
+        'display_blinking_indicator', False)
+ def getAllKeysInSchema(self, keydir):
     try:
       p = Popen(['gconftool', '--recursive-list', keydir], stdout=PIPE)
       (stdout, _) = p.communicate()
@@ -84,29 +109,4 @@ class Prefs():
       return default
     else:
       return val
-  def update(self):
-    self.delay = self.gconfGetInt(
-        'delay', 1000)
-    self.discharge_strategy = self.gconfGetStr(
-        'discharge_strategy', 'leapfrog')
-    self.discharge_leapfrog_threshold = self.gconfGetInt(
-        'discharge_leapfrog_threshold', 5)
-    self.charge_strategy = self.gconfGetStr(
-        'charge_strategy', 'brackets')
-    self.charge_leapfrog_threshold = self.gconfGetInt(
-        'charge_leapfrog_threshold', 10)
-    self.charge_brackets_pref_battery = self.gconfGetInt(
-        'charge_brackets_pref_battery', 0)
-    self.charge_brackets = self.gconfGetIntList(
-        'charge_brackets', [10,20,80,90,95,100])
-    self.display_power_avg = self.gconfGetBool(
-        'display_power_avg', True)
-    self.display_colored_text = self.gconfGetBool(
-        'display_colored_text', True)
-    self.display_icons = self.gconfGetBool(
-        'display_icons', True)
-    self.display_only_one_icon = self.gconfGetBool(
-        'display_only_one_icon', False)
-    self.display_blinking_indicator = self.gconfGetBool(
-        'display_blinking_indicator', False)
 
