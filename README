@@ -1,17 +1,16 @@
 This project is licensed under the GPLv3. See COPYING for details.
 Copyright 2011 Elliot Wolk
 
-Requires: libpanel-applet2-dev
-e.g.: sudo apt-get install libpanel-applet2-dev
+Requires:
 tp_smapi
 see: http://www.thinkwiki.org/wiki/Tp_smapi#Installation_from_source
 
-configure with --prefix=/usr to install properly
-e.g.: ./configure --prefix=/usr
+pygtk v2.0 or higher
+e.g.: sudo apt-get install python-gnome2
 
 
 Here is an example script to install the latest on Ubuntu 10.10
-sudo apt-get install libpanel-applet2-dev git build-essential
+sudo apt-get install git python-gnome2
 cd /tmp
 git clone git://github.com/teleshoes/tpbattstat-applet.git
 cd tpbattstat-applet
