@@ -94,7 +94,7 @@ class BattStatus():
       smapi_set(0, 'inhibit_charge_minutes', '1')
 
   def perhaps_inhibit_charge(self):
-    should_not_inhibit = (not self.isACConnected or
+    should_not_inhibit = (not self.isACConnected() or
       not self.batt0.isInstalled() or not self.batt1.isInstalled())
     charge0 = self.batt0.isCharging()
     charge1 = self.batt1.isCharging()
