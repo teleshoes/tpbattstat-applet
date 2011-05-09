@@ -20,6 +20,8 @@
 ##########################################################################
 
 from battstatus import State
+from gconfgui import GconfGui
+from prefs import SCHEMA_DIR
 import gtk
 import gtk.gdk
 import gnomeapplet
@@ -44,6 +46,7 @@ class Gui():
     self.resetLayout()
     self.create_menu()
 
+    self.gconfGui = None
     self.applet.connect("change-orient", self.resetLayout)
   def getGtkWidget(self):
     return self.container
@@ -206,13 +209,34 @@ class Gui():
     dialog.show_all()
 
   def showPreferencesDialog(self, *arguments, **keywords):
+    if self.gconfGui != None and self.gconfGui.get_visible():
+      return
+    self.gconfGui = GconfGui(self.prefs.gconf_root_key, SCHEMA_DIR,[
+      ('delay', 'delay', None, None, (0, None, 100, 1000), None),
+      ('discharge_strategy', 'discharge_strategy', None, None, None,
+        ['system', 'leapfrog', 'chasing']),
+      ('discharge_leapfrog_threshold', 'discharge_leapfrog_threshold',
+        None, None, (0, 100, 5, 20), None),
+      ('charge_strategy', 'charge_strategy', None, None, None,
+        ['system', 'leapfrog', 'chasing', 'brackets']),
+      ('charge_leapfrog_threshold', 'charge_leapfrog_threshold',
+        None, None, (0, 100, 5, 20), None),
+      ('charge_brackets_pref_battery', 'charge_brackets_pref_battery',
+        None, None, None, ['0','1']),
+      ('charge_brackets', 'charge_brackets', None, None,
+        (0, 100, 5, 20), None),
+      ('display_power_avg', 'display_power_avg', None, None, None, None),
+      ('display_colored_text', 'display_colored_text',
+        None, None, None, None),
+      ('display_icons', 'display_icons', None, None, None, None),
+      ('display_only_one_icon', 'display_only_one_icon',
+        None, None, None, None),
+      ('display_blinking_indicator', 'display_blinking_indicator',
+        None, None, None, None),
+    ])
     dialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
     dialog.set_title('TPBattStatApplet Preferences')
-    label = gtk.Label()
-    label.set_markup("""
-       <span size='x-large'>prefs arent here yet</span>
-       """)
-    dialog.add(label)
+    dialog.add(self.gconfGui)
     dialog.show_all()
 
   def showStatisticsDialog(self, *arguments, **keywords):

@@ -36,7 +36,7 @@ class TPBattStatApplet():
 
     self.prefs = Prefs(self.applet)
     self.battStatus = BattStatus(self.prefs)
-    self.gui = Gui(self.prefs, self.battStatus)
+    self.gui = Gui(self.applet, self.prefs, self.battStatus)
 
     self.applet.add(self.gui.getGtkWidget())
     self.applet.set_background_widget(self.applet)
