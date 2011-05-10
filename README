@@ -14,7 +14,7 @@ Here is an example script to install on Ubuntu 10.10
 #tpsmapi
 sudo aptitude install tp-smapi-source 
 sudo module-assistant prepare tp-smapi 
-sudo module-assistant auto-install tp-smapi 
+sudo module-assistant -f auto-install tp-smapi 
 sudo modprobe tp-smapi
 #prereq libs and git
 sudo apt-get install git python-gnome2
