@@ -29,6 +29,7 @@ cd tpbattstat-applet
 sudo rm -rf /tmp/tpbattstat-applet
 echo
 echo restart gnome-panel and apparmor
+killall gnome-panel
 gnome-panel --replace & #restarts gnome-panel so you can add it to the panel
 sudo /etc/init.d/apparmor reload #loads the smapi-battaccess scripts profile.
 ##########################################
