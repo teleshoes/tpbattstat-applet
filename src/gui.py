@@ -121,16 +121,16 @@ class Gui():
           state = State.IDLE
         self.batt0img.set_from_pixbuf(
           self.selectPixbuf(installed, state, percent))
-        self.batt0img.set_visible(True)
-        self.batt1img.set_visible(False)
+        self.batt0img.set_child_visible(True)
+        self.batt1img.set_child_visible(False)
       else:
         self.batt0img.set_from_pixbuf(self.selectPixbufByBattId(0))
         self.batt1img.set_from_pixbuf(self.selectPixbufByBattId(1))
-        self.batt0img.set_visible(True)
-        self.batt1img.set_visible(True)
+        self.batt0img.set_child_visible(True)
+        self.batt1img.set_child_visible(True)
     else:
-      self.batt0img.set_visible(False)
-      self.batt1img.set_visible(False)
+      self.batt0img.set_child_visible(False)
+      self.batt1img.set_child_visible(False)
 
   def getBattMarkup(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
@@ -209,7 +209,7 @@ class Gui():
     dialog.show_all()
 
   def showPreferencesDialog(self, *arguments, **keywords):
-    if self.gconfGui != None and self.gconfGui.get_visible():
+    if self.gconfGui != None and self.gconfGui.get_window() != None:
       return
     self.gconfGui = GconfGui(self.prefs.gconf_root_key, SCHEMA_DIR,[
       ('delay', 'delay', None, None, (0, None, 100, 1000), None),
