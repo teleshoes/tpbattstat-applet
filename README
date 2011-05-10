@@ -16,17 +16,14 @@ sudo aptitude install tp-smapi-source
 sudo module-assistant prepare tp-smapi 
 sudo module-assistant auto-install tp-smapi 
 sudo modprobe tp-smapi
-
 #prereq libs and git
 sudo apt-get install git python-gnome2
-
 #git clone and build
 cd /tmp
 git clone git://github.com/teleshoes/tpbattstat-applet.git
 cd tpbattstat-applet
 ./install.sh
 sudo rm -rf /tmp/tpbattstat-applet
-
 #restart gnome-panel and apparmor
 gnome-panel --replace & #restarts gnome-panel so you can add it to the panel
 sudo /etc/init.d/apparmor reload #loads the smapi-battaccess scripts profile.
