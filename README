@@ -7,6 +7,7 @@ see: http://www.thinkwiki.org/wiki/Tp_smapi#Installation_from_source
 
 pygtk v2.0 or higher
 e.g.: sudo apt-get install python-gnome2
+newer pygtk packages have 'gnomeapplet' in python-gnomeapplet
 
 
 Here is an example script to install on Ubuntu 10.10
@@ -19,7 +20,9 @@ sudo module-assistant auto-install tp-smapi
 sudo modprobe tp-smapi
 echo
 echo installing git and prereq libs...
-sudo apt-get install git python-gnome2
+sudo apt-get install git
+sudo apt-get install python-gnome2
+sudo apt-get install python-gnomeapplet
 echo
 echo git clone and build...
 cd /tmp
