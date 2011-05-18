@@ -35,9 +35,9 @@ DischargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING')
 ChargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING', 'BRACKETS')
 
 class Prefs():
-  def __init__(self, applet):
+  def __init__(self, gconf_root_key):
     self.client = gconf.client_get_default()
-    self.gconf_root_key = applet.get_preferences_key()
+    self.gconf_root_key = gconf_root_key
     if self.gconf_root_key == None:
       self.gconf_root_key = '/apps/tpbattstat_applet/prefs'
       for schema in self.getAllKeysInSchema(SCHEMA_DIR):

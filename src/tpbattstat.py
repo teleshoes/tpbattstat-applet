@@ -34,7 +34,7 @@ class TPBattStatApplet():
   def __init__(self, applet):
     self.applet = applet
 
-    self.prefs = Prefs(self.applet)
+    self.prefs = Prefs(self.applet.get_preferences_key())
     self.battStatus = BattStatus(self.prefs)
     self.gui = Gui(self.applet, self.prefs, self.battStatus)
 
@@ -61,7 +61,7 @@ def TPBattStatAppletFactory(applet, iid):
   return True
 
 def main():
-  if len(sys.argv) == 2 and sys.argv[1] == "run-in-window":  
+  if len(sys.argv) == 2 and sys.argv[1] == "run-in-window":
     print "running in window"
     main_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     main_window.set_title("TPBattStatApplet")
