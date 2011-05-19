@@ -30,6 +30,15 @@ echo installing gconf schemas
 echo
 gconftool-2 --install-schema-file tpbattstat-applet.schemas
 
+echo applying schemas to the default key dir {not-in-gnome-panel}
+PREFS_DIR=/apps/tpbattstat_applet/prefs
+SCHEMA_DIR=/schemas$PREFS_DIR
+SCHEMAS=`gconftool-2 -a $SCHEMA_DIR | \
+         sed 's/^ \([a-zA-Z0-9_]\+\) = .*$/\1/'`
+for s in $SCHEMAS; do
+  gconftool-2 --apply-schema $SCHEMA_DIR/$s $PREFS_DIR/$s
+done
+
 echo installing bonobo server
 echo
 sudo cp TPBattStatApplet_Factory.server $SERVER_DIR
