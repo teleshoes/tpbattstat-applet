@@ -40,8 +40,6 @@ class Prefs():
     self.gconf_root_key = gconf_root_key
     if self.gconf_root_key == None:
       self.gconf_root_key = '/apps/tpbattstat_applet/prefs'
-      for schema in self.getAllKeysInSchema(SCHEMA_DIR):
-        self.applySchema(schema)
   def update(self):
     self.delay = self.gconfGetInt(
         'delay', 1000)
@@ -65,30 +63,6 @@ class Prefs():
         'display_only_one_icon', False)
     self.display_blinking_indicator = self.gconfGetBool(
         'display_blinking_indicator', False)
-  def getAllKeysInSchema(self, keydir):
-    try:
-      p = Popen(['gconftool', '--recursive-list', keydir], stdout=PIPE)
-      (stdout, _) = p.communicate()
-      schemas = []
-      for schema in re.findall('[a-zA-Z0-9_]+ = Schema ', stdout):
-        m = re.match('(.*) = Schema ', schema)
-        schema = m.group(1)
-        schemas.append(schema)
-      return schemas
-    except:
-      msg = 'Could not list keys in ' + keydir
-      print >> sys.stderr, msg
-      return -1      
-  def applySchema(self, key):
-    try:
-      schemaname = SCHEMA_DIR + '/' + key
-      keyname = self.gconf_root_key + '/' + key
-      p = Popen(['gconftool', '--apply-schema', schemaname, keyname])
-      p.wait()
-    except:
-      msg = 'Could not apply schema for key ' + key
-      print >> sys.stderr, msg
-      return -1
   def gconfGetInt(self, key, default):
     val = self.client.get_int(self.gconf_root_key + '/' + key)
     if val == None:
