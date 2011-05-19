@@ -99,17 +99,42 @@ class DzenPrinter():
       powavg = pow1
     powavgW = float(powavg / 100) / 10.0
     return str(powavgW) + 'W'
-
+  def getTopLength(self):
+    bat0 = self.battStatus.getBattInfo(0).remaining_percent
+    bat1 = self.battStatus.getBattInfo(1).remaining_percent
+    return len(bat0) + len(bat1) + 1
+  def raiseMarkup(self, markup):
+    return "^p(;-8)" + markup + "^p(;8)"
+  def lowerMarkup(self, markup):
+    return "^p(;3)" + markup + "^p(;-3)"
+  def twoTextRows(self, top, bot):
+    if len(bot) == 0:
+      return top
+    for i in range(0, 6-self.getTopLength()):
+      top = ' ' + top
+    top = self.raiseMarkup(top)
+    bot = self.lowerMarkup(bot)
+    return (''
+     + '^ib(1)'
+     + '^p(_LOCK_X)'
+     + bot
+     + '^p(_UNLOCK_X)'
+     + top
+     + '^ib(0)'
+     )
   def getDzenMarkup(self):
     self.counter = self.counter + 1
-
+    
     return (""
       + self.getJointImage()
       + self.getBattImageMarkup(0)
-      + self.getBattPercentMarkup(0)
-      + self.getSeparatorMarkup()
-      + self.getBattPercentMarkup(1)
-      + self.getPowerAvgMarkup()
+      + self.twoTextRows(""
+          + self.getBattPercentMarkup(0)
+          + self.getSeparatorMarkup()
+          + self.getBattPercentMarkup(1)
+          ,
+          self.getPowerAvgMarkup()
+        )
       + self.getBattImageMarkup(1)
       )
 

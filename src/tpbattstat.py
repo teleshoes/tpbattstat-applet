@@ -80,7 +80,6 @@ def main():
     prefs.update()
     battStatus.update()
     print printer.getDzenMarkup()
-    print 'ok'
   else:
     gnomeapplet.bonobo_factory(
       "OAFIID:TPBattStatApplet_Factory", 
