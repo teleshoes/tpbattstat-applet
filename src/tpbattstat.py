@@ -23,7 +23,7 @@ import pygtk
 pygtk.require('2.0')
 
 from gui import Gui
-from prefs import Prefs
+from prefs import Prefs, SCHEMA_DIR
 from battstatus import BattStatus
 from dzenprinter import DzenPrinter
 import sys
@@ -39,6 +39,7 @@ class TPBattStatApplet():
     self.battStatus = BattStatus(self.prefs)
     self.gui = Gui(self.applet, self.prefs, self.battStatus)
 
+    self.applet.add_preferences(SCHEMA_DIR)
     self.applet.add(self.gui.getGtkWidget())
     self.applet.set_background_widget(self.applet)
     self.applet.show_all()

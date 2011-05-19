@@ -42,8 +42,6 @@ class Prefs():
       self.gconf_root_key = '/apps/tpbattstat_applet/prefs'
       for schema in self.getAllKeysInSchema(SCHEMA_DIR):
         self.applySchema(schema)
-    else:
-      applet.add_preferences(SCHEMA_DIR)
   def update(self):
     self.delay = self.gconfGetInt(
         'delay', 1000)
