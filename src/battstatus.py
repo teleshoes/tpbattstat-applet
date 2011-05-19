@@ -37,7 +37,7 @@ def smapi_get(batt_id, prop):
 
 def smapi_set(batt_id, prop, val):
   try:
-    print "setting BAT" + str(batt_id) + "/" + prop + " => " + val
+    print >> sys.stderr, "setting BAT" + str(batt_id) + "/" + prop + " => " + val
     p = Popen([SMAPI_BATTACCESS, '-s', str(batt_id), prop, val])
     p.wait()
   except:
