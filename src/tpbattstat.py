@@ -25,6 +25,7 @@ pygtk.require('2.0')
 from gui import Gui
 from prefs import Prefs
 from battstatus import BattStatus
+from dzenprinter import DzenPrinter
 import sys
 import gtk
 import gobject
@@ -66,12 +67,20 @@ def main():
     main_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     main_window.set_title("TPBattStatApplet")
     main_window.connect("destroy", gtk.main_quit) 
-    app = gnomeapplet.Applet()
-    TPBattStatAppletFactory(app, None)
-    app.reparent(main_window)
+    applet = gnomeapplet.Applet()
+    TPBattStatAppletFactory(applet, None)
+    applet.reparent(main_window)
     main_window.show_all()
     gtk.main()
     sys.exit()
+  elif len(sys.argv) == 2 and sys.argv[1] == "--dzen":
+    prefs = Prefs(None)
+    battStatus = BattStatus(prefs)
+    printer = DzenPrinter(prefs, battStatus)
+    prefs.update()
+    battStatus.update()
+    print printer.getDzenMarkup()
+    print 'ok'
   else:
     gnomeapplet.bonobo_factory(
       "OAFIID:TPBattStatApplet_Factory", 
