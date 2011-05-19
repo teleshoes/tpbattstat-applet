@@ -26,7 +26,7 @@ import gtk
 import gtk.gdk
 import gnomeapplet
 
-IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet'
+IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/svg'
 IMAGE_HEIGHT = 24
 IMAGE_WIDTH = 24
 
