@@ -45,7 +45,7 @@ class DzenPrinter():
     elif state == State.DISCHARGING:
       img = img + "/discharging"
     else:
-      imgs = img + "/idle"
+      img = img + "/idle"
 
     img = img + "/" + str(percent / 10 * 10) + ".xpm"
     return img
