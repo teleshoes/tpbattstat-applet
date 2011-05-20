@@ -64,7 +64,11 @@ class DzenPrinter():
       return ''
   def getBattImageMarkup(self, batt_id):
     if self.prefs.display_icons and not self.prefs.display_only_one_icon:
-        return "^i(" + self.selectImageByBattId(batt_id) + ")"
+        return (""
+          + "^p(;-4)"
+          + "^i(" + self.selectImageByBattId(batt_id) + ")"
+          + "^p(;4)"
+          )
     else:
       return ''
   def getBattPercentMarkup(self, batt_id):
