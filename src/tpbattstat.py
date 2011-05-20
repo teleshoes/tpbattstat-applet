@@ -30,36 +30,53 @@ import sys
 import gtk
 import gobject
 import gnomeapplet
+import time
 
 class TPBattStatApplet():
-  def __init__(self, applet):
+  def __init__(self, applet, mode="gtk"):
     self.applet = applet
+    self.mode = mode
 
-    self.prefs = Prefs(self.applet.get_preferences_key())
+    if self.applet == None:
+      gconf_root_key = None
+    else:
+      gconf_root_key = self.applet.get_preferences_key()
+    self.prefs = Prefs(gconf_root_key)
     self.battStatus = BattStatus(self.prefs)
-    self.gui = Gui(self.applet, self.prefs, self.battStatus)
+    if self.mode == "gtk":
+      self.gui = Gui(self.applet, self.prefs, self.battStatus)
+      self.applet.add_preferences(SCHEMA_DIR)
+      self.applet.add(self.gui.getGtkWidget())
+      self.applet.set_background_widget(self.applet)
+      self.applet.show_all()
+    elif self.mode == "dzen":
+     self.dzenprinter = DzenPrinter(self.prefs, self.battStatus)
 
-    self.applet.add_preferences(SCHEMA_DIR)
-    self.applet.add(self.gui.getGtkWidget())
-    self.applet.set_background_widget(self.applet)
-    self.applet.show_all()
-    
-    self.prevDelay = -1
+  def startUpdate(self):
+    self.curDelay = -1
     self.update()
-
   def update(self):
     self.prefs.update()
     self.battStatus.update()
-    self.gui.update()
-    if self.prefs.delay != self.prevDelay:
-      self.prevDelay = self.prefs.delay
-      gobject.timeout_add(self.prefs.delay, self.update)
+
+    if self.mode == "gtk":
+      self.gui.update()
+    elif self.mode == "dzen":
+      print self.dzenprinter.getDzenMarkup()
+      sys.stdout.flush()
+
+    if self.prefs.delay != self.curDelay:
+      self.curDelay = self.prefs.delay
+      if self.curDelay <= 0:
+        self.curDelay = 1000
+      gobject.timeout_add(self.curDelay, self.update)
       return False
     else:
       return True
 
 def TPBattStatAppletFactory(applet, iid):
-  TPBattStatApplet(applet)
+  tpbattstat = TPBattStatApplet(applet)
+  tpbattstat.startUpdate()
   return True
 
 def main():
@@ -75,12 +92,10 @@ def main():
     gtk.main()
     sys.exit()
   elif len(sys.argv) == 2 and sys.argv[1] == "--dzen":
-    prefs = Prefs(None)
-    battStatus = BattStatus(prefs)
-    printer = DzenPrinter(prefs, battStatus)
-    prefs.update()
-    battStatus.update()
-    print printer.getDzenMarkup()
+    tpbattstat = TPBattStatApplet(None, "dzen")
+    tpbattstat.startUpdate()
+    gtk.main()
+    sys.exit()
   else:
     gnomeapplet.bonobo_factory(
       "OAFIID:TPBattStatApplet_Factory", 
