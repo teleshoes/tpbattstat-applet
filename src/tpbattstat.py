@@ -31,6 +31,7 @@ import gtk
 import gobject
 import gnomeapplet
 import time
+import socket
 
 class TPBattStatApplet():
   def __init__(self, applet, mode="gtk"):
@@ -62,8 +63,12 @@ class TPBattStatApplet():
     if self.mode == "gtk":
       self.gui.update()
     elif self.mode == "dzen":
-      print self.dzenprinter.getDzenMarkup()
-      sys.stdout.flush()
+      try:
+        print self.dzenprinter.getDzenMarkup()
+        sys.stdout.flush()
+      except IOError, e:
+        print >> sys.stderr, "STDOUT is broken, assuming dzen is dead"
+        sys.exit(1)
 
     if self.prefs.delay != self.curDelay:
       self.curDelay = self.prefs.delay
