@@ -59,7 +59,11 @@ class DzenPrinter():
         state = State.DISCHARGING
       else:
         state = State.IDLE
-      return "^i(" + self.selectImage(installed, state, percent) + ")"
+      return (""
+          + "^p(;-4)"
+          + "^i(" + self.selectImage(installed, state, percent) + ")"
+          + "^p(;4)"
+          )
     else:
       return ''
   def getBattImageMarkup(self, batt_id):
