@@ -59,22 +59,20 @@ class DzenPrinter():
         state = State.DISCHARGING
       else:
         state = State.IDLE
-      return (""
-          + "^p(;-4)"
-          + "^i(" + self.selectImage(installed, state, percent) + ")"
-          + "^p(;4)"
-          )
+      return self.getImageMarkup(self.selectImage(installed, state, percent))
     else:
       return ''
   def getBattImageMarkup(self, batt_id):
     if self.prefs.display_icons and not self.prefs.display_only_one_icon:
-        return (""
-          + "^p(;-4)"
-          + "^i(" + self.selectImageByBattId(batt_id) + ")"
-          + "^p(;4)"
-          )
+      return self.getImageMarkup(self.selectImageByBattId(batt_id))
     else:
       return ''
+  def getImageMarkup(self, img):
+    return (""
+      + "^p(;-4)"
+      + "^i(" + img + ")"
+      + "^p(;4)"
+      )
   def getBattPercentMarkup(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
     if not battInfo.isInstalled():
