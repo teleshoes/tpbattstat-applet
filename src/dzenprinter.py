@@ -81,6 +81,8 @@ class DzenPrinter():
       return 'X'
     percent = battInfo.remaining_percent
 
+    if percent == '100':
+      percent = '@@'
     if not self.prefs.display_colored_text or battInfo.state == State.IDLE:
       color = ''
     elif battInfo.state == State.CHARGING:
@@ -119,7 +121,7 @@ class DzenPrinter():
     if len(bot) == 0:
       return top
     for i in range(0, 6-self.getTopLength()):
-      top = ' ' + top
+      top = top + ' '
     top = self.raiseMarkup(top)
     bot = self.lowerMarkup(bot)
     return (''
