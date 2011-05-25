@@ -34,9 +34,10 @@ import time
 import socket
 
 class TPBattStatApplet():
-  def __init__(self, applet, mode="gtk"):
+  def __init__(self, applet, mode="gtk", forceDelay=None):
     self.applet = applet
     self.mode = mode
+    self.forceDelay = forceDelay
 
     if self.applet == None:
       gconf_root_key = None
@@ -58,6 +59,8 @@ class TPBattStatApplet():
     self.update()
   def update(self):
     self.prefs.update()
+    if self.forceDelay != None:
+      self.prefs.delay = self.forceDelay
     self.battStatus.update()
 
     if self.mode == "gtk":
@@ -96,8 +99,11 @@ def main():
     main_window.show_all()
     gtk.main()
     sys.exit()
-  elif len(sys.argv) == 2 and sys.argv[1] == "--dzen":
-    tpbattstat = TPBattStatApplet(None, "dzen")
+  elif (len(sys.argv) == 2 or len(sys.argv) == 3) and sys.argv[1] == "--dzen":
+    if len(sys.argv) == 3:
+      tpbattstat = TPBattStatApplet(None, "dzen", int(sys.argv[2]))
+    else:
+      tpbattstat = TPBattStatApplet(None, "dzen")
     tpbattstat.startUpdate()
     gtk.main()
     sys.exit()
