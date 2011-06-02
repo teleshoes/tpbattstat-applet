@@ -22,9 +22,12 @@
 from battstatus import State
 from prefs import SCHEMA_DIR
 
-IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/xpm'
-IMAGE_HEIGHT = 24
-IMAGE_WIDTH = 24
+IMAGE_HEIGHT = 36
+IMAGE_WIDTH = 36
+IMAGE_DIR = (
+  '/usr/share/pixmaps/tpbattstat-applet/xpm' + 
+  '/' + str(IMAGE_WIDTH) + 'x' + str(IMAGE_HEIGHT)
+  )
 
 class DzenPrinter():
   def __init__(self, prefs, battStatus):
@@ -69,9 +72,9 @@ class DzenPrinter():
       return ''
   def getImageMarkup(self, img):
     return (""
-      + "^p(;-4)"
+      + "^p(;-8)"
       + "^i(" + img + ")"
-      + "^p(;4)"
+      + "^p(;8)"
       )
   def getBattPercentMarkup(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
@@ -112,9 +115,9 @@ class DzenPrinter():
     bat1 = self.battStatus.getBattInfo(1).remaining_percent
     return len(bat0) + len(bat1) + 1
   def raiseMarkup(self, markup):
-    return "^p(;-8)" + markup + "^p(;8)"
+    return "^p(;-10)" + markup + "^p(;10)"
   def lowerMarkup(self, markup):
-    return "^p(;3)" + markup + "^p(;-3)"
+    return "^p(;6)" + markup + "^p(;-6)"
   def twoTextRows(self, top, bot):
     if len(bot) == 0:
       return top
