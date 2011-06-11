@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+#installs tp-smapi from source, compiles it, and patches it to sorta work on
+# w520, w510, t520, etc.
+# {it aborts loading the module unless its in the whitelist}
+
+system "apt-get install tp-smapi-source";
+
+system
+  "echo 'options thinkpad_ec force_io=1' > " .
+  "/etc/modprobe.d/tp_smapi.conf";
+system "modprobe -a tp_smapi hdaps";
+
+my $w520_patch = '
+462a463
+> 		TP_DMI_MATCH("LENOVO", "ThinkPad"),
+';
+
+open FH, "> /tmp/tp_smapi-w520.patch";
+print FH $w520_patch;
+close FH;
+
+system "patch /usr/src/tp-smapi-0.40/thinkpad_ec.c /tmp/tp_smapi-w520.patch";
+
+
+system "module-assistant prepare tp-smapi";
+system "module-assistant auto-install tp-smapi -f";
+system "modprobe tp-smapi";
+
+open FH, '< /etc/modules';
+my @lines = <FH>;
+my @newlines;
+for my $line(@lines){
+  push @newlines, $line if $line !~ /^(tp-smapi|hdaps)\n?$/;
+}
+push @newlines, "tp-smapi\n";
+push @newlines, "hdaps\n";
+close FH;
+
+open FH, '> /etc/modules';
+print FH @newlines;
+close FH;
+
+system "chmod o+w /etc/modules";
+system
+  "echo 'KERNEL==\"event[0-9]*\", " .
+  "ATTRS{phys}==\"hdaps/input1\"," .
+  "ATTRS{modalias}==\"input:b0019v1014p5054e4801-*\",".
+  "SYMLINK+=\"input/hdaps/accelerometer-event\"'".
+  " | sudo tee /etc/udev/rules.d/51-hdaps.rules";
+system "update-initramfs -u";
+
