@@ -79,6 +79,8 @@ class BattStatus():
     if self.batt1.isInstalled():
       rem_cap = rem_cap + int(self.batt1.remaining_capacity)
       max_cap = max_cap + int(self.batt1.last_full_capacity)
+    if max_cap == 0:
+      return 0
     return int(100 * (float(rem_cap) / float(max_cap)))
 
   def ensure_charging(self, batt_id):
