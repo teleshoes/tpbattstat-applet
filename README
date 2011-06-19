@@ -8,10 +8,10 @@ It extends the functionality of tp_smapi, which works on nearly all
 Lenovo/IBM ThinkPads.
 It provides:
  -battery balancing
-   {protecting your main, ultrabay, and/or slice battery from improper
+   {protecting your main, ultrabay, and/or slice battery from unhealthy
     charging/discharging}
- -a nominally pretty configurable display
  -percentages remaining, power consumption in Watts, and charge rate in Watts
+ -a nominally pretty, reasonably configurable display
 
 
 Requires:
