@@ -4,14 +4,17 @@ This project is licensed under the GPLv3. See COPYING for details.
 
 TPBattStat-Applet runs in a standalone gtk window, in the gnome-panel,
 or outputs text suitable for piping to dzen2.
-It extends the functionality of tp_smapi, which works on nearly all
-Lenovo/IBM ThinkPads.
-It provides:
+It extends the functionality of tp_smapi, which provides access to certain
+battery controls on nearly all Lenovo/IBM ThinkPads.
+TPBattStat-Applet provides:
  -battery balancing
    {protecting your main, ultrabay, and/or slice battery from unhealthy
     charging/discharging}
- -percentages remaining, power consumption in Watts, and charge rate in Watts
- -a nominally pretty, reasonably configurable display
+ -percent(s) remaining, image meters, charge/discharge rate in Watts
+ -a nominally pretty, reasonably configurable graphical display
+   {e.g.: can be big, with one image per battery,
+    small, with one image and some text,
+    or tiny, with a little bit of colored text}
 
 
 Requires:
