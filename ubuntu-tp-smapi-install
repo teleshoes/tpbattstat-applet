@@ -22,13 +22,12 @@ open FH, "> /tmp/tp_smapi-w520.patch";
 print FH $w520_patch;
 close FH;
 
-my $srcDir = 'tp-smapi-0.40';
-my $baseSrcDir = '/usr/src';
-if(not -e "$baseSrcDir/$srcDir"){
-  $baseSrcDir = '/usr/src/modules';
+my $srcDir = '/usr/src/modules/tp-smapi';
+if(not -e $srcDir){
+  $srcDir = '/usr/src/tp-smapi-0.40';
 }
 print "\n\n";
-my $ecFile = "$baseSrcDir/$srcDir/thinkpad_ec.c";
+my $ecFile = "$srcDir/thinkpad_ec.c";
 if(-e "$ecFile"){
   system "patch $ecFile /tmp/tp_smapi-w520.patch";
 }else{
