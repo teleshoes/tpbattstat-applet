@@ -22,11 +22,23 @@ open FH, "> /tmp/tp_smapi-w520.patch";
 print FH $w520_patch;
 close FH;
 
-system "patch /usr/src/tp-smapi-0.40/thinkpad_ec.c /tmp/tp_smapi-w520.patch";
-
+my $srcDir = 'tp-smapi-0.40';
+my $baseSrcDir = '/usr/src';
+if(not -e "$baseSrcDir/$srcDir"){
+  $baseSrcDir = '/usr/src/modules';
+}
+print "\n\n";
+my $ecFile = "$baseSrcDir/$srcDir/thinkpad_ec.c";
+if(-e "$ecFile"){
+  system "patch $ecFile /tmp/tp_smapi-w520.patch";
+}else{
+  print "Could not find tp-smapi-source to patch the " .
+    "whitelist for newer Thinkpads, e.g.: W520";
+}
+print "\n\n";
 
 system "module-assistant prepare tp-smapi";
-system "module-assistant auto-install tp-smapi -f";
+system "module-assistant auto-install tp-smapi -f -O";
 system "modprobe tp-smapi";
 
 open FH, '< /etc/modules';
