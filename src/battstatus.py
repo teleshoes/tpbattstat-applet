@@ -58,10 +58,10 @@ class BattStatus():
       return None
   def isACConnected(self):
     return self.ac_connected == '1'
-  def update(self):
+  def update(self, prefs):
     self.ac_connected = smapi_get(-1, 'ac_connected')
-    self.batt0.update()
-    self.batt1.update()
+    self.batt0.update(prefs)
+    self.batt1.update(prefs)
     self.perhaps_inhibit_charge()
     self.perhaps_force_discharge()
   def isEitherInstalled(self):
@@ -187,11 +187,19 @@ class BattInfo():
     return int(self.inhibit_charge_minutes) > 0
   def isForceDischarge(self):
     return self.force_discharge == '1'
-  def update(self):
+  def update(self, prefs):
     self.installed = smapi_get(self.batt_id, 'installed')
-    self.force_discharge = smapi_get(self.batt_id, 'force_discharge')
-    self.inhibit_charge_minutes = smapi_get(
-      self.batt_id, 'inhibit_charge_minutes')
+    dischargeStrategy = prefs.charge_strategy
+    if dischargeStrategy != DischargeStrategy.SYSTEM:
+      self.force_discharge = smapi_get(self.batt_id, 'force_discharge')
+    else:
+      self.force_discharge = 0
+    chargeStrategy = prefs.charge_strategy
+    if chargeStrategy != ChargeStrategy.SYSTEM:
+      self.inhibit_charge_minutes = smapi_get(
+        self.batt_id, 'inhibit_charge_minutes')
+    else:
+      self.inhibit_charge_minutes = 0
     self.remaining_percent = smapi_get(self.batt_id, 'remaining_percent')
     self.power_avg = smapi_get(self.batt_id, 'power_avg')
     self.remaining_capacity = smapi_get(self.batt_id, 'remaining_capacity')

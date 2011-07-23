@@ -61,7 +61,7 @@ class TPBattStatApplet():
     self.prefs.update()
     if self.forceDelay != None:
       self.prefs.delay = self.forceDelay
-    self.battStatus.update()
+    self.battStatus.update(self.prefs)
 
     if self.mode == "gtk":
       self.gui.update()
