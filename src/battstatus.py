@@ -89,11 +89,11 @@ class BattStatus():
     charge0 = self.batt0.isCharging()
     charge1 = self.batt1.isCharging()
     if batt_id == 0 and (previnhib0 or (not charge0 and not previnhib1)):
-      smapi_set(0, 'inhibit_charge_minutes', '0')
       smapi_set(1, 'inhibit_charge_minutes', '1')
+      smapi_set(0, 'inhibit_charge_minutes', '0')
     elif batt_id == 1 and (previnhib1 or (not charge1 and not previnhib0)):
-      smapi_set(1, 'inhibit_charge_minutes', '0')
       smapi_set(0, 'inhibit_charge_minutes', '1')
+      smapi_set(1, 'inhibit_charge_minutes', '0')
 
   def perhaps_inhibit_charge(self):
     should_not_inhibit = (not self.isACConnected() or
