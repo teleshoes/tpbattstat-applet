@@ -179,7 +179,12 @@ class GconfWidget():
       if self.gcType == 'int':
         value = int(val)
       elif self.gcType == 'bool':
-        value = bool(val)
+        if val == 'false':
+          value = False
+        elif val == 'true':
+          value = True
+        else:
+          value = bool(val)
       elif self.gcType == 'float':
         value = float(val)
       elif self.gcType == 'string':
