@@ -77,7 +77,7 @@ class Gconftool():
     gcType = self.get_type(key)
     value = str(value)
     if gcType == 'list':
-      gcTypeList = self.get_list_type()
+      gcTypeList = self.get_list_type(key)
       return self.set(
         '--set', '--type', gcType, '--list-type', gcTypeList, key, value)
     else:
@@ -127,9 +127,9 @@ class GconfWidget():
         self.changeSignal = 'toggled'
       else:
         self.widget = gtk.Entry()
-        self.getValueFct = self.widget.get_text()
+        self.getValueFct = self.widget.get_text
         self.setValueFct = self.widget.set_text
-        self.changeSignal = 'change'
+        self.changeSignal = 'changed'
     else:
       self.widget = gtk.combo_box_new_text()
       self.getValueFct = self.widget.get_active_text
@@ -189,6 +189,8 @@ class GconfWidget():
         value = float(val)
       elif self.gcType == 'string':
         value = str(val)
+      elif self.gcType == 'list':
+        value = str(val)
       else:
         value = None
     except:
@@ -210,6 +212,8 @@ class GconfWidget():
       elif self.gcType == 'float':
         return float(val)
       elif self.gcType == 'string':
+        return str(val)
+      elif self.gcType == 'list':
         return str(val)
       else:
         return None
@@ -241,7 +245,7 @@ class GconfGuiElem():
     self.gconfType = gconftool.get_type(self.gconfKey)
     if self.gconfType == 'list':
       self.gconfListType = gconftool.get_list_type(self.gconfKey)
-      self.gcType = self.gconfListType
+      self.gcType = self.gconfType
     else:
       self.gconfListType = None
       self.gcType = self.gconfType
