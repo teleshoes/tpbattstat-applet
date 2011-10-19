@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 
+die "run as root, please\n" if not `whoami` eq "root\n";
+
 #installs tp-smapi from source, compiles it, and patches it to sorta work on
 # w520, w510, t520, etc.
 # {it aborts loading the module unless its in the whitelist}
