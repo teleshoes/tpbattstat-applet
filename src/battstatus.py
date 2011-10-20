@@ -214,7 +214,7 @@ class BattInfo():
     return self.force_discharge == '1'
   def update(self, prefs):
     self.installed = smapi_get(self.batt_id, 'installed')
-    dischargeStrategy = prefs.charge_strategy
+    dischargeStrategy = prefs.discharge_strategy
     if dischargeStrategy != DischargeStrategy.SYSTEM:
       self.force_discharge = smapi_get(self.batt_id, 'force_discharge')
     else:
