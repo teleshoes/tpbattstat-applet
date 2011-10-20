@@ -25,6 +25,29 @@ from subprocess import Popen, PIPE
 
 SMAPI_BATTACCESS = '/usr/bin/smapi-battaccess'
 
+def acpi_force_discharge(batt_id, val):
+  method = '\_SB.PCI0.LPC.EC.HKEY.BDSS'
+  if val:
+    onbit = '1'
+  else:
+    onbit = '0'
+  
+  if batt_id == 0:
+    arg = '0x90' + onbit
+  else:
+    arg = '0x60' + onbit
+  try:
+    pass
+#    print >> sys.stderr, "calling acpi force discharge: "
+#    print >> sys.stderr, "BAT" + str(batt_id) + "=" + str(val)
+#    p = Popen(['sudo', '/home/wolke/bin/acpi-call', method, arg])
+#    p.wait()
+  except:
+    msg = 'Could not set acpi force discharge' '=' + val + ' on bat ' + str(batt_id)
+    print >> sys.stderr, msg
+
+    
+
 def smapi_get(batt_id, prop):
   try:
     p = Popen([SMAPI_BATTACCESS, '-g', str(batt_id), prop], stdout=PIPE)
@@ -169,6 +192,8 @@ class BattStatus():
     prevforce0 = self.batt0.isForceDischarge()
     prevforce1 = self.batt1.isForceDischarge()
 
+    acpi_force_discharge(0, force0)
+    acpi_force_discharge(1, force1)
     if prevforce0 != force0 or prevforce1 != force1:
       smapi_set(0, 'force_discharge', '1' if force0 else '0')
       smapi_set(1, 'force_discharge', '1' if force1 else '0')
