@@ -21,6 +21,7 @@
 
 from battstatus import State
 from prefs import SCHEMA_DIR
+import inspect
 
 IMAGE_HEIGHT = 36
 IMAGE_WIDTH = 36
@@ -133,10 +134,15 @@ class DzenPrinter():
      + top
      + '^ib(0)'
      )
+  def wrapClick(self, btn, cmd, markup):
+    return "^ca(" + btn + "," + cmd + ")" + markup + "^ca()"
+  def getLeftClickCmd(self):
+    exe=inspect.stack()[-1][1]
+    return exe + " " + "--prefs"
   def getDzenMarkup(self):
     self.counter = self.counter + 1
     
-    return (""
+    return self.wrapClick("1", self.getLeftClickCmd(), ""
       + self.getJointImage()
       + self.getBattImageMarkup(0)
       + self.twoTextRows(""
