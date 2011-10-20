@@ -306,5 +306,5 @@ class GconfGui(gtk.VBox):
       headerLabel = gtk.Label(msg)
       headerLabel.set_selectable(True)
       row = row + 1
-      table.attach(headerLabel, 0, 1, row, row+1)
+      table.attach(headerLabel, 0, 2, row, row+1)
 
