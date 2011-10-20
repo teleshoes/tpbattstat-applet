@@ -289,18 +289,22 @@ class GconfGui(gtk.VBox):
     table = gtk.Table(rows=len(keyInfo), columns=2)
     self.add(table)
     row = 0
+
     for (key, schema, default, description, numCfg, enum) in keyInfo:
       elem = GconfGuiElem(
         keyDir, key, schemaDir, schema, default, description, numCfg, enum)
       row = row + 1
       table.attach(elem.getLabel(), 0, 1, row, row+1)
       table.attach(elem.getWidget(), 1, 2, row, row+1)
+
+    msg = ''
     if keyDir != None:
-      keyLabel = gtk.Label('Keys can be found in ' + keyDir)
-      keyLabel.set_selectable(True)
-      self.add(keyLabel)
+      msg += "\ngconf keys: " + keyDir
     if schemaDir != None:
-      schemaLabel = gtk.Label('Schemas can be found in ' + schemaDir)
-      schemaLabel.set_selectable(True)
-      self.add(schemaLabel)
+      msg += "\ngconf schemas: " + schemaDir
+    if msg != '':
+      headerLabel = gtk.Label(msg)
+      headerLabel.set_selectable(True)
+      row = row + 1
+      table.attach(headerLabel, 0, 1, row, row+1)
 
