@@ -52,8 +52,10 @@ class TPBattStatApplet():
       self.applet.set_background_widget(self.applet)
       self.applet.show_all()
     elif self.mode == "dzen":
-     self.dzenprinter = DzenPrinter(self.prefs, self.battStatus)
-
+      self.dzenprinter = DzenPrinter(self.prefs, self.battStatus)
+      
+  def getGui(self):
+    return self.gui
   def startUpdate(self):
     self.curDelay = -1
     self.update()
@@ -83,23 +85,42 @@ class TPBattStatApplet():
       return True
 
 def TPBattStatAppletFactory(applet, iid):
-  tpbattstat = TPBattStatApplet(applet)
-  tpbattstat.startUpdate()
+  TPBattStatApplet(applet).startUpdate()
   return True
 
+def showAndExit(gtkElem):
+  gtkElem.connect("destroy", gtk.main_quit) 
+  gtkElem.show_all()
+  gtk.main()
+  sys.exit()
+
 def main():
-  if len(sys.argv) == 2 and sys.argv[1] == "run-in-window":
-    print "running in window"
-    main_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    main_window.set_title("TPBattStatApplet")
-    main_window.connect("destroy", gtk.main_quit) 
+  if len(sys.argv) >= 2:
+    arg = sys.argv[1]
+  else:
+    arg = None
+
+  if arg == "-h" or arg == "--help" or arg == "help":
+    print "Usage:"
+    print "  " + sys.argv[0] + " [-h | --help | help]"
+    print "  " + sys.argv[0] + " [-w | --window | window]"
+    print "  " + sys.argv[0] + " [-d | --dzen | dzen] [optional-delay-millis]"
+    print "  " + sys.argv[0] + " [-p | --prefs | prefs]"
+
+  elif arg == "-w" or arg == "--window" or arg == "window":
     applet = gnomeapplet.Applet()
     TPBattStatAppletFactory(applet, None)
-    applet.reparent(main_window)
-    main_window.show_all()
-    gtk.main()
-    sys.exit()
-  elif (len(sys.argv) == 2 or len(sys.argv) == 3) and sys.argv[1] == "--dzen":
+    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window.set_title("TPBattStatApplet")
+    applet.reparent(window)
+    showAndExit(window)
+
+  elif arg == "-p" or arg == "--prefs" or arg == "prefs":
+    applet = gnomeapplet.Applet()
+    prefsDialog = TPBattStatApplet(applet).getGui().getPreferencesDialog()
+    showAndExit(prefsDialog)
+
+  elif arg == "-d" or arg == "--dzen" or arg == "dzen":
     if len(sys.argv) == 3:
       tpbattstat = TPBattStatApplet(None, "dzen", int(sys.argv[2]))
     else:
@@ -107,7 +128,8 @@ def main():
     tpbattstat.startUpdate()
     gtk.main()
     sys.exit()
-  else:
+
+  else: 
     gnomeapplet.bonobo_factory(
       "OAFIID:TPBattStatApplet_Factory", 
       gnomeapplet.Applet.__gtype__, 
