@@ -208,7 +208,7 @@ class Gui():
     dialog.add(label)
     dialog.show_all()
 
-  def showPreferencesDialog(self, *arguments, **keywords):
+  def ensurePreferencesDialog(self):
     if self.gconfGui != None and self.gconfGui.get_window() != None:
       return
     self.gconfGui = GconfGui(self.prefs.gconf_root_key, SCHEMA_DIR,[
@@ -234,10 +234,14 @@ class Gui():
       ('display_blinking_indicator', 'display_blinking_indicator',
         None, None, None, None),
     ])
-    dialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    dialog.set_title('TPBattStatApplet Preferences')
-    dialog.add(self.gconfGui)
-    dialog.show_all()
+    self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    self.prefsDialog.set_title('TPBattStatApplet Preferences')
+    self.prefsDialog.add(self.gconfGui)
+  def getPreferencesDialog(self):
+    self.ensurePreferencesDialog()
+    return self.prefsDialog
+  def showPreferencesDialog(self, *arguments, **keywords):
+    self.getPreferencesDialog().show_all()
 
   def showStatisticsDialog(self, *arguments, **keywords):
     dialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
