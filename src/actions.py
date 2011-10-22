@@ -37,8 +37,8 @@ class Actions():
     newLed = self.calculateLedPattern()
     if self.ledPattern != newLed:
       self.ledPattern = newLed
+      print "using led pattern: " + str(self.ledPattern)
       if self.ledPattern != []:
-
         Popen([LED_BATT_EXEC] + self.ledPattern, stdout=self.nullFile)
   def calculateLedPattern(self):
     if self.battStatus.isEitherCharging():
@@ -57,7 +57,6 @@ class Actions():
       if index < 0:
         index = 0
       pattern = patterns[index]
-      print pattern
     return self.parsePattern(pattern)
   def parsePattern(self, pattern):
     return pattern.split(':')
