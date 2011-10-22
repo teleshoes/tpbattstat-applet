@@ -148,7 +148,7 @@
   <key>/schemas/apps/tpbattstat_applet/prefs/display_only_one_icon</key>
   <owner>tpbattstat_applet</owner>
   <type>bool</type>
-  <default>false</default>
+  <default>true</default>
   <locale name="C">
     <short>Display a single icon with approximate power remaining</short>
     <long>
