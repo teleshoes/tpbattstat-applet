@@ -233,6 +233,12 @@ class Gui():
         None, None, None, None),
       ('display_blinking_indicator', 'display_blinking_indicator',
         None, None, None, None),
+      ('led_patterns_charging', 'led_patterns',
+        None, None, None, None),
+      ('led_patterns_discharging', 'led_patterns',
+        None, None, None, None),
+      ('led_patterns_idle', 'led_patterns',
+        None, None, None, None),
     ])
     self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
     self.prefsDialog.set_title('TPBattStatApplet Preferences')

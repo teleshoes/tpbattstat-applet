@@ -175,6 +175,121 @@
     </long>
   </locale>
 </schema>
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/led_patterns_charging</key>
+  <owner>tpbattstat_applet</owner>
+  <type>list</type>
+  <list_type>string</list_type>
+  <locale name="C">
+    <default_value>
+      <value>
+        <list type="string">  </list>
+      </value>
+    </default_value>
+
+    <short>Patterns for the battery led when charging.</short>
+    <long>
+      A list of led-pattern-strings.
+      An led-pattern-string is a colon-separated list of led-commands
+      There are three lists of led-pattern-strings, one for
+        charging, discharging, and idle.
+      Available led-commands:
+        G : turn green light on
+        g : turn green light off
+        O : turn orange light on
+        o : turn orange light off
+        # : pause for # seconds {e.g.: 0.1 or 60 or 1.2}
+      Patterns are chosen based on the current total remaining battery percent;
+        {the left-most pattern is executed at 0% and the right-most at 100%}.
+
+      examples:
+        1) ["g:O:0.2:o:0.2"]
+          always rapidly blink orange light, and ensure green is off
+        2) ["g:0:2:o:2", "O:G:2:o:g:2", "o:G:2:g:2"]
+           0% -  33% : slowly blink orange lights
+          34% -  66% : slowly blink both lights
+          67% - 100% : slowly blink green light
+          where x is the total remaining percent capacity
+    </long>
+  </locale>
+</schema>
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/led_patterns_discharging</key>
+  <owner>tpbattstat_applet</owner>
+  <type>list</type>
+  <list_type>string</list_type>
+  <locale name="C">
+    <default_value>
+      <value>
+        <list type="string">  </list>
+      </value>
+    </default_value>
+
+    <short>Patterns for the battery led when discharging.</short>
+    <long>
+      A list of led-pattern-strings.
+      An led-pattern-string is a colon-separated list of led-commands
+      There are three lists of led-pattern-strings, one for
+        charging, discharging, and idle.
+      Available led-commands:
+        G : turn green light on
+        g : turn green light off
+        O : turn orange light on
+        o : turn orange light off
+        # : pause for # seconds {e.g.: 0.1 or 60 or 1.2}
+      Patterns are chosen based on the current total remaining battery percent;
+        {the left-most pattern is executed at 0% and the right-most at 100%}.
+
+      examples:
+        1) ["g:O:0.2:o:0.2"]
+          always rapidly blink orange light, and ensure green is off
+        2) ["g:0:2:o:2", "O:G:2:o:g:2", "o:G:2:g:2"]
+           0% -  33% : slowly blink orange lights
+          34% -  66% : slowly blink both lights
+          67% - 100% : slowly blink green light
+          where x is the total remaining percent capacity
+    </long>
+  </locale>
+</schema>
+
+<schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/led_patterns_idle</key>
+  <owner>tpbattstat_applet</owner>
+  <type>list</type>
+  <list_type>string</list_type>
+  <locale name="C">
+    <default_value>
+      <value>
+        <list type="string">  </list>
+      </value>
+    </default_value>
+
+    <short>Patterns for the battery led when idle.</short>
+    <long>
+      A list of led-pattern-strings.
+      An led-pattern-string is a colon-separated list of led-commands
+      There are three lists of led-pattern-strings, one for
+        charging, discharging, and idle.
+      Available led-commands:
+        G : turn green light on
+        g : turn green light off
+        O : turn orange light on
+        o : turn orange light off
+        # : pause for # seconds {e.g.: 0.1 or 60 or 1.2}
+      Patterns are chosen based on the current total remaining battery percent;
+        {the left-most pattern is executed at 0% and the right-most at 100%}.
+
+      examples:
+        1) ["g:O:0.2:o:0.2"]
+          always rapidly blink orange light, and ensure green is off
+        2) ["g:0:2:o:2", "O:G:2:o:g:2", "o:G:2:g:2"]
+           0% -  33% : slowly blink orange lights
+          34% -  66% : slowly blink both lights
+          67% - 100% : slowly blink green light
+          where x is the total remaining percent capacity
+    </long>
+  </locale>
+</schema>
 
 </schemalist>
 </gconfschemafile>

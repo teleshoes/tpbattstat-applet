@@ -26,6 +26,7 @@ from gui import Gui
 from prefs import Prefs, SCHEMA_DIR
 from battstatus import BattStatus
 from dzenprinter import DzenPrinter
+from actions import Actions
 import sys
 import gtk
 import gobject
@@ -45,6 +46,7 @@ class TPBattStatApplet():
       gconf_root_key = self.applet.get_preferences_key()
     self.prefs = Prefs(gconf_root_key)
     self.battStatus = BattStatus(self.prefs)
+    self.actions = Actions(self.prefs, self.battStatus)
     if self.mode == "gtk":
       self.gui = Gui(self.applet, self.prefs, self.battStatus)
       self.applet.add_preferences(SCHEMA_DIR)
@@ -65,6 +67,7 @@ class TPBattStatApplet():
       self.prefs.delay = self.forceDelay
     self.battStatus.update(self.prefs)
 
+    self.actions.performActions()
     if self.mode == "gtk":
       self.gui.update()
     elif self.mode == "dzen":

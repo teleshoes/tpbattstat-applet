@@ -40,7 +40,7 @@ def acpi_force_discharge(batt_id, val):
     pass
 #    print >> sys.stderr, "calling acpi force discharge: "
 #    print >> sys.stderr, "BAT" + str(batt_id) + "=" + str(val)
-#    p = Popen(['sudo', '/home/wolke/bin/acpi-call', method, arg])
+#    p = Popen(['sudo', 'acpi-call', method, arg])
 #    p.wait()
   except:
     msg = 'Could not set acpi force discharge' '=' + val + ' on bat ' + str(batt_id)

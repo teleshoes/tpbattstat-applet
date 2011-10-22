@@ -63,6 +63,12 @@ class Prefs():
         'display_only_one_icon', False)
     self.display_blinking_indicator = self.gconfGetBool(
         'display_blinking_indicator', False)
+    self.ledPatternsCharging = self.gconfGetStringList(
+        'led_patterns_charging', [])
+    self.ledPatternsDischarging = self.gconfGetStringList(
+        'led_patterns_discharging', [])
+    self.ledPatternsIdle = self.gconfGetStringList(
+        'led_patterns_idle', [])
   def gconfGetInt(self, key, default):
     val = self.client.get_int(self.gconf_root_key + '/' + key)
     if val == None:
@@ -78,6 +84,12 @@ class Prefs():
   def gconfGetBool(self, key, default):
     val = self.client.get_bool(self.gconf_root_key + '/' + key)
     if val == None:
+      return default
+    else:
+      return val
+  def gconfGetStringList(self, key, default):
+    val = self.client.get_list(self.gconf_root_key + '/' + key, 'string')
+    if val == None or val == []:
       return default
     else:
       return val
