@@ -47,12 +47,17 @@ class Actions():
       patterns = self.prefs.ledPatternsDischarging
     else:
       patterns = self.prefs.ledPatternsIdle
-    if patterns == []:
-      return []
-    else:
+    length = len(patterns)
+    pattern = ''
+    if length > 0:
       per = self.battStatus.getTotalRemainingPercent()
-      index = int( (len(patterns)-1) * per / 100.0)
+      index = int(length * per / 100.0)
+      if index >= length:
+        index = length - 1
+      if index < 0:
+        index = 0
       pattern = patterns[index]
-      return self.parsePattern(pattern)
+      print pattern
+    return self.parsePattern(pattern)
   def parsePattern(self, pattern):
     return pattern.split(':')
