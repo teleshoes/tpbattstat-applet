@@ -106,8 +106,14 @@ class Gui():
       imgs = self.discharging
     else:
       imgs = self.idle
-    i = percent / 10
-    return imgs[i]
+
+    i = int(percent / 10)
+    if i < 0 or len(imgs) <= 0:
+      return self.none
+    elif i >= len(imgs):
+      return imgs[len(imgs)-1]
+    else:
+      return imgs[i]
   def updateImages(self):
     if self.prefs.display_icons:
       if self.prefs.display_only_one_icon:
