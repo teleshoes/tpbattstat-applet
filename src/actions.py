@@ -23,6 +23,7 @@ from battstatus import State
 from prefs import SCHEMA_DIR
 from subprocess import Popen
 
+LED_EXEC = '/usr/local/sbin/led'
 LED_BATT_EXEC = '/usr/local/sbin/led-batt'
 
 class Actions():
@@ -30,16 +31,24 @@ class Actions():
     self.prefs = prefs
     self.battStatus = battStatus
     self.ledPattern = None
+    self.ledsOk = False
+    try:
+      open(LED_EXEC, 'r').close()
+      open(LED_BATT_EXEC, 'r').close()
+      self.ledsOk = True
+    except:
+      self.ledsOk = False
     self.nullFile = open('/dev/null', 'w')
   def performActions(self):
     self.updateLed()
   def updateLed(self):
-    newLed = self.calculateLedPattern()
-    if self.ledPattern != newLed:
-      self.ledPattern = newLed
-      print "using led pattern: " + str(self.ledPattern)
-      if self.ledPattern != []:
-        Popen([LED_BATT_EXEC] + self.ledPattern, stdout=self.nullFile)
+    if self.ledsOk:
+      newLed = self.calculateLedPattern()
+      if self.ledPattern != newLed:
+        self.ledPattern = newLed
+        print "using led pattern: " + str(self.ledPattern)
+        if self.ledPattern != []:
+          Popen([LED_BATT_EXEC] + self.ledPattern, stdout=self.nullFile)
   def calculateLedPattern(self):
     if self.battStatus.isEitherCharging():
       patterns = self.prefs.ledPatternsCharging
