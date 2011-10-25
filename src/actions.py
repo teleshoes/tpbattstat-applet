@@ -36,7 +36,6 @@ class Actions():
       open(LED_EXEC, 'r').close()
       open(LED_BATT_EXEC, 'r').close()
       self.ledsOk = True
-      self.nullFile = open('/dev/null', 'w')
     except:
       self.ledsOk = False
   def performActions(self):
@@ -47,8 +46,10 @@ class Actions():
       if self.ledPattern != newLed:
         self.ledPattern = newLed
         print "using led pattern: " + str(self.ledPattern)
+        nullFile = open('/dev/null', 'w')
         if self.ledPattern != []:
-          Popen([LED_BATT_EXEC] + self.ledPattern, stdout=self.nullFile)
+          Popen([LED_BATT_EXEC] + self.ledPattern, stdout=nullFile)
+        nullFile.close()
   def calculateLedPattern(self):
     if self.battStatus.isEitherCharging():
       patterns = self.prefs.ledPatternsCharging
