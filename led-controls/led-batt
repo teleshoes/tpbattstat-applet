@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Time::HiRes qw(sleep);
+
+my $pidfile = "/tmp/led-batt-pid";
+system "kill -9 `cat $pidfile`";
+system "echo $$ > $pidfile";
+
+my $usage = "Usage: $0 CMD CMD CMD ....
+   CMDs get performed forever in a loop, left to right
+   Valid CMDs are:
+   G  -  turn ON green led
+   g  -  turn OFF green led
+   O  -  turn ON orange led
+   o  -  turn OFF orange led
+   #  -  pause for '#' seconds {e.g. 0.1, 1.5, 30, 60.0}
+";
+
+die $usage if @ARGV == 0;
+
+
+for my $arg(@ARGV){
+  if($arg !~ /^ o | O | g | G | \d+ | \d*\.\d+ $/x){
+    die $usage;
+  }
+}
+
+while(1){
+  for my $arg(@ARGV){
+    if($arg eq 'G'){
+      print "GREEN ON\n";
+      system "led green:batt 1 > /dev/null";
+    }elsif($arg eq 'g'){
+      print "green off\n";
+      system "led green:batt 0 > /dev/null";
+    }elsif($arg eq 'O'){
+      print "ORANGE ON\n";
+      system "led orange:batt 1 > /dev/null";
+    }elsif($arg eq 'o'){
+      print "orange off\n";
+      system "led orange:batt 0 > /dev/null";
+    }elsif($arg =~ /^(\d+|\d*\.\d+)$/){
+      print "Sleeping for $1 seconds\n";
+      sleep $1;
+    }
+  }
+}

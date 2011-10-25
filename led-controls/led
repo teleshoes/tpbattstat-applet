@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $name = shift;
+$name = '' if not defined $name;
+$name =~ s/^tpacpi://;
+$name = ":$name" if $name !~ /:/;
+$name = "tpacpi:$name";
+
+if($name !~ /^([a-zA-Z0-9:_-]+)$/){
+  die "LED name must be alphanumeric, with colons underscores or hyphens\n";
+}
+$name = $1; #untaint
+
+my $brightness = shift;
+$brightness = 'toggle' if not defined $brightness;
+if($brightness !~ /^(on|off|toggle|\d+)$/i){
+  die "Usage: $0 <led> [<on|off|toggle> | brightness]\n";
+}
+$brightness = $1; #untaint
+
+my $dev = "/sys/devices/platform/thinkpad_acpi/leds/$name/brightness";
+
+if(not -e $dev){
+  die "No led device found at $dev\n";
+}
+
+sub readDev(){
+  open FH, "< $dev";
+  my @out = <FH>;
+  close FH;
+  return join '', @out;
+}
+sub writeDev($){
+  my $val = shift;
+  open FH, "> $dev";
+  print FH "$val\n";
+  close FH;
+}
+
+my $cur = readDev();
+chomp $cur;
+
+
+$brightness = 1 if lc $brightness eq 'on';
+$brightness = 0 if lc $brightness eq 'off';
+$brightness = 1-$cur if lc $brightness eq 'toggle';
+
+
+writeDev $brightness;
+print "LED $name $cur => " . readDev();
+

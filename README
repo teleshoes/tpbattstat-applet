@@ -22,6 +22,9 @@ tp_smapi
   see: http://www.thinkwiki.org/wiki/Tp_smapi#Installation_from_source
        the ubuntu installation script should take care of this for most users.
 
+For led controls, you need to have the thinkpad_acpi module.
+To install led controls, run ./led-controls/install.sh
+This copies the two perl execs and adds setuid to led.
 
 In case anyone feels overwhelmed with an urge to thank me:
 https://flattr.com/thing/289178/ThinkPad-Battery-Status-Applet
