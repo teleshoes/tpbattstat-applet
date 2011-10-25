@@ -36,9 +36,9 @@ class Actions():
       open(LED_EXEC, 'r').close()
       open(LED_BATT_EXEC, 'r').close()
       self.ledsOk = True
+      self.nullFile = open('/dev/null', 'w')
     except:
       self.ledsOk = False
-    self.nullFile = open('/dev/null', 'w')
   def performActions(self):
     self.updateLed()
   def updateLed(self):
