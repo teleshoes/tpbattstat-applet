@@ -53,8 +53,8 @@ class Prefs():
         'charge_brackets_pref_battery', 0)
     self.charge_brackets = self.gconfGetIntList(
         'charge_brackets', [10,20,80,90,95,100])
-    self.display_power_avg = self.gconfGetBool(
-        'display_power_avg', True)
+    self.display_power_usage = self.gconfGetStr(
+        'display_power_usage', 'now')
     self.display_colored_text = self.gconfGetBool(
         'display_colored_text', True)
     self.display_icons = self.gconfGetBool(

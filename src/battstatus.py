@@ -227,6 +227,7 @@ class BattInfo():
       self.inhibit_charge_minutes = 0
     self.remaining_percent = smapi_get(self.batt_id, 'remaining_percent')
     self.power_avg = smapi_get(self.batt_id, 'power_avg')
+    self.power_now = smapi_get(self.batt_id, 'power_now')
     self.remaining_capacity = smapi_get(self.batt_id, 'remaining_capacity')
     self.last_full_capacity = smapi_get(self.batt_id, 'last_full_capacity')
     self.design_capacity = smapi_get(self.batt_id, 'design_capacity')

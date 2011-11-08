@@ -100,17 +100,28 @@ class DzenPrinter():
       color = ''
 
     return '^fg(' + color + ')|^fg()'
-  def getPowerAvgMarkup(self):
-    if not self.prefs.display_power_avg:
-      return ''
-    pow0 = int(self.battStatus.batt0.power_avg)
-    pow1 = int(self.battStatus.batt1.power_avg)
-    if pow0 != 0:
-      powavg = pow0
+  def getPowerMarkup(self):
+    disp = self.prefs.display_power_usage.lower()
+    if disp == 'average':
+      pow0 = int(self.battStatus.batt0.power_avg)
+      pow1 = int(self.battStatus.batt1.power_avg)
+      if pow0 != 0:
+        powavg = pow0
+      else:
+        powavg = pow1
+      powavgW = float(powavg / 100) / 10.0
+      return str(powavgW) + 'W'
+    elif disp == 'now':
+      pow0 = int(self.battStatus.batt0.power_now)
+      pow1 = int(self.battStatus.batt1.power_now)
+      if pow0 != 0:
+        pownow = pow0
+      else:
+        pownow = pow1
+      pownowW = float(pownow / 100) / 10.0
+      return str(pownowW) + 'W'
     else:
-      powavg = pow1
-    powavgW = float(powavg / 100) / 10.0
-    return str(powavgW) + 'W'
+      return ''
   def getTopLength(self):
     bat0 = self.battStatus.getBattInfo(0).remaining_percent
     bat1 = self.battStatus.getBattInfo(1).remaining_percent
@@ -150,7 +161,7 @@ class DzenPrinter():
           + self.getSeparatorMarkup()
           + self.getBattPercentMarkup(1)
           ,
-          self.getPowerAvgMarkup()
+          self.getPowerMarkup()
         )
       + self.getBattImageMarkup(1)
       )

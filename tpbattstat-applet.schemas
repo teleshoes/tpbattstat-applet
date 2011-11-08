@@ -102,18 +102,20 @@
 </schema>
 
 <schema>
-  <key>/schemas/apps/tpbattstat_applet/prefs/display_power_avg</key>
+  <key>/schemas/apps/tpbattstat_applet/prefs/display_power_usage</key>
   <owner>tpbattstat_applet</owner>
-  <type>bool</type>
-  <default>true</default>
+  <type>string</type>
+  <default>now</default>
   <locale name="C">
-    <short>Display power average in watts</short>
+    <short>Display power rate in watts; 'average', 'now', or 'off'</short>
     <long>
-      If true, power draining or charging average over the last minute
-        is displayed in watts. Only one battery can charge or discharge
-        at a time, so the wattage is for the charging/discharging battery,
-        if there is one, or 0.0 if there isnt.
-      If false, power average isnt displayed
+      Controls the display of power in watts (charging or discharging).
+        'average' means average over the last minute.
+        'now' means instantaneous power usage.
+        'off' means no power display at all.
+        Only one battery can charge or discharge at a time,
+        so the wattage is for the charging/discharging battery,
+        if there is one, or 0W if there is no battery [dis]charging.
     </long>
   </locale>
 </schema>

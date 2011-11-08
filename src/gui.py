@@ -172,24 +172,34 @@ class Gui():
     orient = self.applet.get_orient()
     return not (orient == gnomeapplet.ORIENT_UP or
                 orient == gnomeapplet.ORIENT_DOWN)
-  def getPowerAvgMarkup(self):
-    if not self.prefs.display_power_avg:
-      return ''
-    pow0 = int(self.battStatus.batt0.power_avg)
-    pow1 = int(self.battStatus.batt1.power_avg)
-    if pow0 != 0:
-      powavg = pow0
+  def getPowerMarkup(self):
+    disp = self.prefs.display_power_usage.lower()
+    if disp == 'average':
+      pow0 = int(self.battStatus.batt0.power_avg)
+      pow1 = int(self.battStatus.batt1.power_avg)
+      if pow0 != 0:
+        powavg = pow0
+      else:
+        powavg = pow1
+      powavgW = float(powavg / 100) / 10.0
+      return '\n<span size="xx-small">' + str(powavgW) + 'W</span>'
+    elif disp == 'now':
+      pow0 = int(self.battStatus.batt0.power_now)
+      pow1 = int(self.battStatus.batt1.power_now)
+      if pow0 != 0:
+        pownow = pow0
+      else:
+        pownow = pow1
+      pownowW = float(pownow / 100) / 10.0
+      return '\n<span size="xx-small">' + str(pownowW) + 'W</span>'
     else:
-      powavg = pow1
-    powavgW = float(powavg / 100) / 10.0
-    return '\n<span size="xx-small">' + str(powavgW) + 'W</span>'
-
+      return ''
   def updateLabel(self):
     self.label.set_markup(
       self.getBattMarkup(0) +
       self.getSeparatorMarkup() +
       self.getBattMarkup(1) +
-      self.getPowerAvgMarkup())
+      self.getPowerMarkup())
 
   def update(self):
     self.counter = self.counter + 1
@@ -231,7 +241,8 @@ class Gui():
         None, None, None, ['0','1']),
       ('charge_brackets', 'charge_brackets', None, None,
         (0, 100, 5, 20), None),
-      ('display_power_avg', 'display_power_avg', None, None, None, None),
+      ('display_power_usage', 'display_power_usage', None, None, None,
+        ['average', 'now', 'off']),
       ('display_colored_text', 'display_colored_text',
         None, None, None, None),
       ('display_icons', 'display_icons', None, None, None, None),
