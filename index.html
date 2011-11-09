@@ -55,15 +55,18 @@
 
     
       <h2>Dependencies</h2>
-      <p>1) tp_smapi kernel module {for all thinkpads earlier than 2011}
+      <pre>
+1) tp_smapi kernel module {for all thinkpads earlier than 2011}
 2) acpi-call kernel module {for newer thinkpads, e.g.: W520, X220s}
 3) python-gnome2 and python-gnomeapplet are necessary for running in gnome-panel
-4) gconf is unfortunately necessary even in dzen</p>
+4) gconf is unfortunately necessary even in dzen
+</pre>
     
 
     
       <h2>Install</h2>
-      <p>Here is an example script to install on Ubuntu 10.10
+      <pre>
+Here is an example script to install on Ubuntu 10.10
 ##########################################
 echo
 echo building tpsmapi...
@@ -89,7 +92,7 @@ killall gnome-panel
 gnome-panel --replace & #restarts gnome-panel so you can add it to the panel
 sudo /etc/init.d/apparmor reload #loads the smapi-battaccess scripts profile.
 ##########################################
-</p>
+</pre>
     
 
     
