@@ -1,5 +1,5 @@
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=wolke&url=https://github.com/teleshoes/tpbattstat-applet&title=tpbattstat-applet&language=en_GB&tags=github&category=software) 
-{{{
+```
 Copyright 2011 Elliot Wolk
 This project is licensed under the GPLv3. See COPYING for details.
 
@@ -63,4 +63,4 @@ killall gnome-panel
 gnome-panel --replace & #restarts gnome-panel so you can add it to the panel
 sudo /etc/init.d/apparmor reload #loads the smapi-battaccess scripts profile.
 ##########################################
-}}}
+```
