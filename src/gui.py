@@ -24,7 +24,13 @@ from gconfgui import GconfGui
 from prefs import SCHEMA_DIR
 import gtk
 import gtk.gdk
-import gnomeapplet
+
+try:
+  import gnomeapplet
+  gnomeappletOk = True
+except ImportError:
+  gnomeappletOk = False
+  
 
 IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/svg'
 IMAGE_HEIGHT = 24

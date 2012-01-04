@@ -30,7 +30,11 @@ from actions import Actions
 import sys
 import gtk
 import gobject
-import gnomeapplet
+try:
+  import gnomeapplet
+  gnomeappletOk = True
+except ImportError:
+  gnomeappletOk = False 
 import time
 import socket
 
@@ -119,7 +123,10 @@ def main():
     showAndExit(window)
 
   elif arg == "-p" or arg == "--prefs" or arg == "prefs":
-    applet = gnomeapplet.Applet()
+    if gnomeappletOk:
+      applet = gnomeapplet.Applet()
+    else:
+      applet = None
     prefsDialog = TPBattStatApplet(applet).getGui().getPreferencesDialog()
     showAndExit(prefsDialog)
 
@@ -132,7 +139,7 @@ def main():
     gtk.main()
     sys.exit()
 
-  else: 
+  elif gnomeappletOk:
     gnomeapplet.bonobo_factory(
       "OAFIID:TPBattStatApplet_Factory", 
       gnomeapplet.Applet.__gtype__, 
