@@ -14,11 +14,20 @@ s/^tpacpi(::|:)//g foreach @validLeds;
 chomp foreach @validLeds;
 @validLeds = sort @validLeds;
 my $usage = ''
-  . "Usage: $0 <led> [<on|off|toggle> | brightness]\n"
-  . " LED name must be [a-zA-Z0-9:_-]+\n"
-  . " {only letters, numbers, colons, underscores or hyphens}\n"
-  . " tpacpi: is automatically prepended if it is not present\n"
-  . " available LEDs: @validLeds\n"
+  . "Usage: $0 <led-name> [<on|off|toggle> | brightness-integer]\n"
+  . "  led-name must be [a-zA-Z0-9:_-]+\n"
+  . "    {only letters, numbers, colons, underscores or hyphens}\n"
+  . "  LED devices are in $LED_DIR/<led-name>/brightness\n"
+  . "  the prefix 'tpacpi:' is removed from name if present, and either-\n"
+  . "    1) tpacpi:: is prepended if name does NOT have a colon in it\n"
+  . "    2) tpacpi: is prepended if name DOES have a colon in it\n"
+  . "  e.g.:\n"
+  . "    'tpacpi:green:batt'  =>  'tpacpi:green:batt'\n"
+  . "    'green:batt'         =>  'tpacpi:green:batt'\n"
+  . "    'mute_mic'           =>  'tpacpi::mute_mic'\n"
+  . "    'tpacpi:mute_mic'    =>  'tpacpi::mute_mic'\n"
+  . "    'tpacpi::mute_mic'   =>  'tpacpi::mute_mic'\n"
+  . "  available LEDs: @validLeds\n"
 ;
 
 my $name = shift;
@@ -34,12 +43,10 @@ if($name !~ /^([a-zA-Z0-9:_-]+)$/){
 }
 $name = $1; #untaint
 
-my $brightness = shift;
-$brightness = 'toggle' if not defined $brightness;
+my $brightness = shift() || 'toggle';
 if(@ARGV > 0 or $brightness !~ /^(on|off|toggle|\d+)$/i){
   die $usage;
 }
-$brightness = $1; #untaint
 
 my $dev = "$LED_DIR/$name/brightness";
 
