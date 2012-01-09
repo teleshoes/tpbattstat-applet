@@ -2,12 +2,25 @@
 use strict;
 use warnings;
 
+my $LED_DIR = "/sys/devices/platform/thinkpad_acpi/leds";
+
 if(`whoami` ne "root\n"){
   my @cmd = ('sudo', $0, @ARGV);
   exec @cmd;
 }
 
-my $usage = "Usage: $0 <led> [<on|off|toggle> | brightness]\n";
+my @validLeds = `ls $LED_DIR`;
+s/^tpacpi(::|:)//g foreach @validLeds;
+chomp foreach @validLeds;
+@validLeds = sort @validLeds;
+my $usage = ''
+  . "Usage: $0 <led> [<on|off|toggle> | brightness]\n"
+  . " LED name must be [a-zA-Z0-9:_-]+\n"
+  . " {only letters, numbers, colons, underscores or hyphens}\n"
+  . " tpacpi: is automatically prepended if it is not present\n"
+  . " available LEDs: @validLeds\n"
+;
+
 my $name = shift;
 die $usage if not defined $name;
 
@@ -17,7 +30,7 @@ $name = ":$name" if $name !~ /:/;
 $name = "tpacpi:$name";
 
 if($name !~ /^([a-zA-Z0-9:_-]+)$/){
-  die "LED name must be alphanumeric, with colons underscores or hyphens\n";
+  die $usage;
 }
 $name = $1; #untaint
 
@@ -28,7 +41,7 @@ if(@ARGV > 0 or $brightness !~ /^(on|off|toggle|\d+)$/i){
 }
 $brightness = $1; #untaint
 
-my $dev = "/sys/devices/platform/thinkpad_acpi/leds/$name/brightness";
+my $dev = "$LED_DIR/$name/brightness";
 
 if(not -e $dev){
   die "No led device found at $dev\n";
