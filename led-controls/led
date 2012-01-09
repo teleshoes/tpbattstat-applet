@@ -2,7 +2,10 @@
 use strict;
 use warnings;
 
+my $usage = "Usage: $0 <led> [<on|off|toggle> | brightness]\n";
 my $name = shift;
+die $usage if not defined $name;
+
 $name = '' if not defined $name;
 $name =~ s/^tpacpi://;
 $name = ":$name" if $name !~ /:/;
@@ -15,8 +18,8 @@ $name = $1; #untaint
 
 my $brightness = shift;
 $brightness = 'toggle' if not defined $brightness;
-if($brightness !~ /^(on|off|toggle|\d+)$/i){
-  die "Usage: $0 <led> [<on|off|toggle> | brightness]\n";
+if(@ARGV > 0 or $brightness !~ /^(on|off|toggle|\d+)$/i){
+  die $usage;
 }
 $brightness = $1; #untaint
 
