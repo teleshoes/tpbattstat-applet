@@ -2,6 +2,11 @@
 use strict;
 use warnings;
 
+if(`whoami` ne "root\n"){
+  my @cmd = ('sudo', $0, @ARGV);
+  exec @cmd;
+}
+
 my $usage = "Usage: $0 <led> [<on|off|toggle> | brightness]\n";
 my $name = shift;
 die $usage if not defined $name;
