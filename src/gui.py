@@ -53,13 +53,13 @@ class Gui():
     self.create_menu()
 
     self.gconfGui = None
-    self.applet.connect("change-orient", self.resetLayout)
+    if gnomeappletOk:
+      self.applet.connect("change-orient", self.resetLayout)
   def getGtkWidget(self):
     return self.container
   def resetLayout(self):
     if self.box != None:
       self.container.remove(self.box)
-    orient = self.applet.get_orient()
 
     if self.isVertical():
       self.box = gtk.VBox()
@@ -73,6 +73,8 @@ class Gui():
     self.container.add(self.box)
     self.container.show_all()
   def create_menu(self):
+    if not gnomeappletOk:
+      return
     xml="""<popup name="button3">
       <menuitem name="Preferences" verb="Preferences" label="_Preferences"
         pixtype="stock" pixname="gtk-preferences"/>
@@ -175,6 +177,8 @@ class Gui():
     else:
       return sep
   def isVertical(self):
+    if not gnomeappletOk:
+      return False
     orient = self.applet.get_orient()
     return not (orient == gnomeapplet.ORIENT_UP or
                 orient == gnomeapplet.ORIENT_DOWN)

@@ -53,10 +53,11 @@ class TPBattStatApplet():
     self.actions = Actions(self.prefs, self.battStatus)
     if self.mode == "gtk":
       self.gui = Gui(self.applet, self.prefs, self.battStatus)
-      self.applet.add_preferences(SCHEMA_DIR)
-      self.applet.add(self.gui.getGtkWidget())
-      self.applet.set_background_widget(self.applet)
-      self.applet.show_all()
+      if gnomeappletOk:
+        self.applet.add_preferences(SCHEMA_DIR)
+        self.applet.add(self.gui.getGtkWidget())
+        self.applet.set_background_widget(self.applet)
+        self.applet.show_all()
     elif self.mode == "dzen":
       self.dzenprinter = DzenPrinter(self.prefs, self.battStatus)
       
@@ -115,11 +116,15 @@ def main():
     print "  " + sys.argv[0] + " [-p | --prefs | prefs]"
 
   elif arg == "-w" or arg == "--window" or arg == "window":
-    applet = gnomeapplet.Applet()
+    if gnomeappletOk:
+      applet = gnomeapplet.Applet()
+    else:
+      applet = None
     TPBattStatAppletFactory(applet, None)
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     window.set_title("TPBattStatApplet")
-    applet.reparent(window)
+    if gnomeappletOk:
+      applet.reparent(window)
     showAndExit(window)
 
   elif arg == "-p" or arg == "--prefs" or arg == "prefs":
