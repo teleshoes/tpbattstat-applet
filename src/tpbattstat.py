@@ -102,6 +102,11 @@ def showAndExit(gtkElem):
   gtk.main()
   sys.exit()
 
+def prefsClickHandler(widget, event):
+  if event.button == 1:
+    prefsDialog = TPBattStatApplet(None).getGui().getPreferencesDialog()
+    prefsDialog.show_all()
+
 def main():
   if len(sys.argv) >= 2:
     arg = sys.argv[1]
@@ -116,23 +121,16 @@ def main():
     print "  " + sys.argv[0] + " [-p | --prefs | prefs]"
 
   elif arg == "-w" or arg == "--window" or arg == "window":
-    if gnomeappletOk:
-      applet = gnomeapplet.Applet()
-    else:
-      applet = None
-    TPBattStatAppletFactory(applet, None)
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     window.set_title("TPBattStatApplet")
-    if gnomeappletOk:
-      applet.reparent(window)
+    tpbattstat = TPBattStatApplet(None, "gtk")
+    tpbattstat.startUpdate()
+    window.add(tpbattstat.gui.getGtkWidget())
+    window.add_events(gtk.gdk.BUTTON_PRESS_MASK)
+    window.connect("button_press_event", prefsClickHandler)
     showAndExit(window)
-
   elif arg == "-p" or arg == "--prefs" or arg == "prefs":
-    if gnomeappletOk:
-      applet = gnomeapplet.Applet()
-    else:
-      applet = None
-    prefsDialog = TPBattStatApplet(applet).getGui().getPreferencesDialog()
+    prefsDialog = TPBattStatApplet(None).getGui().getPreferencesDialog()
     showAndExit(prefsDialog)
 
   elif arg == "-d" or arg == "--dzen" or arg == "dzen":
