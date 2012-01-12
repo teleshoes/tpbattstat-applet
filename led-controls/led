@@ -43,7 +43,8 @@ if($name !~ /^([a-zA-Z0-9:_-]+)$/){
 }
 $name = $1; #untaint
 
-my $brightness = shift() || 'toggle';
+my $brightness = shift;
+$brightness = 'toggle' if not defined $brightness;
 if(@ARGV > 0 or $brightness !~ /^(on|off|toggle|\d+)$/i){
   die $usage;
 }
