@@ -74,7 +74,7 @@ chomp $cur;
 
 $brightness = 1 if lc $brightness eq 'on';
 $brightness = 0 if lc $brightness eq 'off';
-$brightness = 1-$cur if lc $brightness eq 'toggle';
+$brightness = $cur == 0 ? 1 : 0 if lc $brightness eq 'toggle';
 
 
 writeDev $brightness;
