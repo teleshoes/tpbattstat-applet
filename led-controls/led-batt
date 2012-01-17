@@ -4,7 +4,9 @@ use warnings;
 use Time::HiRes qw(sleep);
 
 my $pidfile = "/tmp/led-batt-pid";
-system "kill -9 `cat $pidfile`";
+if(-e $pidfile){
+  system "kill -9 `cat $pidfile` 2>/dev/null";
+}
 system "echo $$ > $pidfile";
 
 my $usage = "Usage: $0 CMD CMD CMD ....
