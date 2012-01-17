@@ -70,22 +70,21 @@ sub main(@){
   }
 
   if($arg eq '--get'){
-    my $cur = readDev $dev;
-    chomp $cur;
-    print "LED $name: $cur\n";
+    print "LED $name: " . (readDev $dev) . "\n";
   }else{
     sudoRexec();
-    my $cur = readDev $dev;
-    chomp $cur;
-    print "LED $name: $cur\n";
+    
+    my $old = readDev $dev;
+    
     my $brightness;
     $brightness = 1 if $arg eq 'on';
     $brightness = 0 if $arg eq 'off';
-    $brightness = $cur == 0 ? 1 : 0 if lc $arg eq 'toggle';
+    $brightness = $old == 0 ? 1 : 0 if lc $arg eq 'toggle';
     $brightness = $arg if $arg =~ /^\d+$/;
 
     writeDev $dev, $brightness;
-    print "LED $name: $cur => " . readDev($dev);
+    my $new = readDev $dev;
+    print "LED $name: $old => $new\n";
   }
 }
 
@@ -115,7 +114,9 @@ sub readDev($){
   open FH, "< $dev" or die "Could not read $dev: $!\n";
   my @out = <FH>;
   close FH;
-  return join '', @out;
+  my $val = join '', @out;
+  chomp $val;
+  return $val;
 }
 sub writeDev($$){
   my $dev = shift;
