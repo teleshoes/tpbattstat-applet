@@ -19,8 +19,7 @@
 # along with TPBattStatApplet. If not, see <http://www.gnu.org/licenses/>.
 ##########################################################################
 
-from battstatus import State
-from prefs import SCHEMA_DIR
+from prefs import SCHEMA_DIR, State
 from subprocess import Popen
 
 LED_EXEC = '/usr/local/sbin/led'
