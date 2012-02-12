@@ -19,7 +19,7 @@
 # along with TPBattStatApplet. If not, see <http://www.gnu.org/licenses/>.
 ##########################################################################
 
-from prefs import State
+from prefs import State, ChargeStrategy, DischargeStrategy
 from battbalance import BattBalance
 import sys
 import re

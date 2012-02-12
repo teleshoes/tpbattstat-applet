@@ -139,8 +139,6 @@ class BattBalance():
     prevforce0 = b0.isForceDischarge()
     prevforce1 = b1.isForceDischarge()
 
-    acpi_force_discharge(0, force0)
-    acpi_force_discharge(1, force1)
     if prevforce0 != force0 or prevforce1 != force1:
       smapi_set(0, 'force_discharge', '1' if force0 else '0')
       smapi_set(1, 'force_discharge', '1' if force1 else '0')
