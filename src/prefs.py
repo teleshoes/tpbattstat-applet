@@ -43,6 +43,8 @@ class Prefs():
   def update(self):
     self.delay = self.gconfGetInt(
         'delay', 1000)
+    self.use_acpi = self.gconfGetBool(
+        'use_acpi', False)
     self.discharge_strategy = self.gconfGetDischargeStrategy()
     self.discharge_leapfrog_threshold = self.gconfGetInt(
         'discharge_leapfrog_threshold', 5)

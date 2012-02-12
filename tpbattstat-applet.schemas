@@ -12,6 +12,19 @@
 	</locale>
 </schema>
 <schema>
+  <key>/schemas/apps/tpbattstat_applet/prefs/use_acpi</key>
+  <owner>tpbattstat_applet</owner>
+  <type>bool</type>
+  <default>false</default>
+  <locale name="C">
+    <short>Ignore smapi, use /proc/acpi/battery {power_now not in ACPI}</short>
+    <long>
+       Use ACPI interface instead of smapi.
+       NOTE: power_now doesnt work in ACPI.
+    </long>
+  </locale>
+</schema>
+<schema>
   <key>/schemas/apps/tpbattstat_applet/prefs/discharge_strategy</key>
   <owner>tpbattstat_applet</owner>
   <type>string</type>

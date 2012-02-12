@@ -37,10 +37,8 @@ def extractInt(s):
 class BattStatus():
   def __init__(self, prefs):
     self.prefs = prefs
-    self.ac = ACInfoSmapi()
-    self.batt0 = BattInfoSmapi(0)
-    self.batt1 = BattInfoSmapi(1)
     self.battBalance = BattBalance(prefs, self)
+    self.last_acpi = None
   def getBattInfo(self, batt_id):
     if batt_id == 0:
       return self.batt0
@@ -49,6 +47,18 @@ class BattStatus():
     else:
       return None
   def update(self, prefs):
+    if self.last_acpi != self.prefs.use_acpi:
+      if self.prefs.use_acpi:
+        self.last_acpi = True
+        self.ac = ACInfoAcpi()
+        self.batt0 = BattInfoAcpi(0)
+        self.batt1 = BattInfoAcpi(1)
+      else:
+        self.last_acpi = False
+        self.ac = ACInfoSmapi()
+        self.batt0 = BattInfoSmapi(0)
+        self.batt1 = BattInfoSmapi(1)
+
     self.ac.update(prefs)
     self.batt0.update(prefs)
     self.batt1.update(prefs)
@@ -130,4 +140,107 @@ class BattInfoSmapi(InfoSmapi):
       self.state = State.IDLE
     else:
       self.state = None
+
+
+class ACInfoAcpi():
+  def isACConnected(self):
+    return self.ac_connected == '1'
+  def acpiAcPath(self):
+    return '/proc/acpi/ac_adapter/AC/state'
+  def update(self, prefs):
+    if os.path.isfile(self.acpiAcPath()):
+      s = file(self.acpiAcPath()).read()
+      if 'on-line' in s:
+        self.ac_connected = '1'
+      else:
+        self.ac_connected = '0'
+    else:
+        self.ac_connected = '0'
+
+class BattInfoAcpi():
+  def __init__(self, batt_id):
+    self.batt_id = batt_id
+  def isInstalled(self):
+    return self.installed == '1'
+  def isCharging(self):
+    return self.state == State.CHARGING
+  def isDischarging(self):
+    return self.state == State.DISCHARGING
+  def isChargeInhibited(self):
+    return int(self.inhibit_charge_minutes) > 0
+  def isForceDischarge(self):
+    return self.force_discharge == '1'
+  def acpiDir(self):
+    return "/proc/acpi/battery/BAT" + str(self.batt_id)
+  def acpiStatePath(self):
+    return self.acpiDir() + '/state'
+  def acpiInfoPath(self):
+    return self.acpiDir() + '/info'
+  def clear(self):
+    self.installed = '0'
+    self.remaining_percent = '0'
+    self.power_avg = '0'
+    self.power_now = '0'
+    self.remaining_capacity = '0'
+    self.last_full_capacity = '0'
+    self.design_capacity = '0'
+    self.state = None
+    
+    self.force_discharge = '0'
+    self.inhibit_charge_minutes = '0'
+  def parseAcpi(self, fileContent):
+    d = dict()
+    keyValRe = re.compile('([a-z0-9 ]+):\s*([a-z0-9 ]+)')
+    for line in fileContent.splitlines():
+      m = keyValRe.match(line)
+      if m != None:
+        d[m.group(1)] = m.group(2)
+    return d
+  def update(self, prefs):
+    self.clear()
+    statePresent = os.path.isfile(self.acpiStatePath())
+    infoPresent = os.path.isfile(self.acpiInfoPath())
+    if statePresent and infoPresent:
+      self.installed = '1'
+    else:
+      self.installed = '0'
+
+    if self.installed == '1':
+      stateD = self.parseAcpi(file(self.acpiStatePath()).read())
+      infoD = self.parseAcpi(file(self.acpiInfoPath()).read())
+
+      try:
+        remMah = extractInt(stateD['remaining capacity'])
+        lastMah = extractInt(infoD['last full capacity'])
+        designMah = extractInt(infoD['design capacity'])
+        rateMa = extractInt(stateD['present rate'])
+        voltMv = extractInt(stateD['present voltage'])
+        charge = stateD['charging state']
+
+        if (False
+          or remMah < 0
+          or lastMah <= 0
+          or rateMa < 0
+          or voltMv < 0
+          ): return
+
+        if charge == 'charging':
+          self.state = State.CHARGING
+        elif charge == 'discharging':
+          self.state = State.DISCHARGING
+        else:
+          self.state = State.IDLE
+
+        self.remaining_capacity = str(remMah)
+        self.last_full_capacity = str(lastMah)
+        self.design_capacity = str(designMah)
+        self.remaining_percent = str(int(float(remMah) / float(lastMah) * 100.0))
+        power = voltMv * rateMa / 1000 #mW
+        if self.state == State.DISCHARGING and power > 0:
+          self.power_avg = str(0 - power)
+        else:
+          self.power_avg = str(power)
+        self.power_now = str(-1) #unsupported in acpi
+      except:
+        self.clear()
 

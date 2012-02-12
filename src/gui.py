@@ -239,6 +239,8 @@ class Gui():
       return
     self.gconfGui = GconfGui(self.prefs.gconf_root_key, SCHEMA_DIR,[
       ('delay', 'delay', None, None, (0, None, 100, 1000), None),
+      ('use_acpi', 'use_acpi',
+        None, None, None, None),
       ('discharge_strategy', 'discharge_strategy', None, None, None,
         ['system', 'leapfrog', 'chasing']),
       ('discharge_leapfrog_threshold', 'discharge_leapfrog_threshold',
