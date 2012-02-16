@@ -21,25 +21,29 @@
 
 from prefs import SCHEMA_DIR, State
 from subprocess import Popen
+import os
 
 LED_EXEC = '/usr/local/sbin/led'
 LED_BATT_EXEC = '/usr/local/sbin/led-batt'
+LED_DEV_DIR = '/sys/devices/platform/thinkpad_acpi/leds'
+LED_GREEN_DEV = LED_DEV_DIR + '/tpacpi:green:batt/brightness'
+LED_ORANGE_DEV = LED_DEV_DIR + '/tpacpi:orange:batt/brightness'
 
 class Actions():
   def __init__(self, prefs, battStatus):
     self.prefs = prefs
     self.battStatus = battStatus
     self.ledPattern = None
-    self.ledsOk = False
-    try:
-      open(LED_EXEC, 'r').close()
-      open(LED_BATT_EXEC, 'r').close()
-      self.ledsOk = True
-    except:
-      self.ledsOk = False
   def performActions(self):
     self.updateLed()
   def updateLed(self):
+    self.ledsOk = (
+      os.path.isfile(LED_EXEC) and
+      os.path.isfile(LED_BATT_EXEC) and
+      os.path.isfile(LED_GREEN_DEV) and
+      os.path.isfile(LED_ORANGE_DEV)
+    )
+
     if self.ledsOk:
       newLed = self.calculateLedPattern()
       if self.ledPattern != newLed:
