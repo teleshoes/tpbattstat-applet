@@ -4,47 +4,65 @@ use warnings;
 use Time::HiRes qw(sleep);
 
 my $pidfile = "/tmp/led-batt-pid";
-if(-e $pidfile){
-  system "kill -9 `cat $pidfile` 2>/dev/null";
-}
-system "echo $$ > $pidfile";
 
-my $usage = "Usage: $0 CMD CMD CMD ....
-   CMDs get performed forever in a loop, left to right
-   Valid CMDs are:
-   G  -  turn ON green led
-   g  -  turn OFF green led
-   O  -  turn ON orange led
-   o  -  turn OFF orange led
-   #  -  pause for '#' seconds {e.g. 0.1, 1.5, 30, 60.0}
+my $usage = "Usage:
+   $0 --stop
+     kill the currently running pattern
+   $0 CMD CMD CMD ....
+     CMDs get performed forever in a loop
+     Valid CMDs are:
+     G  -  turn ON green led
+     g  -  turn OFF green led
+     O  -  turn ON orange led
+     o  -  turn OFF orange led
+     #  -  pause for '#' seconds {e.g. 0.1, 1.5, 30, 60.0}
+     previous run pattern gets killed first
+     e.g.: blink lights merrily
+     $0 o g 0.1 O 0.1 o G 0.1 g 0.1 O G 0.1
 ";
 
-die $usage if @ARGV == 0;
+sub daemonize(){
+  if(-e $pidfile){
+    system "kill -9 `cat $pidfile` 2>/dev/null";
+  }
+  system "echo $$ > $pidfile";
+}
 
-
-for my $arg(@ARGV){
-  if($arg !~ /^ o | O | g | G | \d+ | \d*\.\d+ $/x){
-    die $usage;
+sub performCmd($){
+  my $cmd = shift;
+  if($cmd eq 'G'){
+    print "GREEN ON\n";
+    system "led green:batt 1 > /dev/null";
+  }elsif($cmd eq 'g'){
+    print "green off\n";
+    system "led green:batt 0 > /dev/null";
+  }elsif($cmd eq 'O'){
+    print "ORANGE ON\n";
+    system "led orange:batt 1 > /dev/null";
+  }elsif($cmd eq 'o'){
+    print "orange off\n";
+    system "led orange:batt 0 > /dev/null";
+  }elsif($cmd =~ /^(\d+|\d*\.\d+)$/){
+    print "Sleeping for $1 seconds\n";
+    sleep $1;
   }
 }
 
-while(1){
-  for my $arg(@ARGV){
-    if($arg eq 'G'){
-      print "GREEN ON\n";
-      system "led green:batt 1 > /dev/null";
-    }elsif($arg eq 'g'){
-      print "green off\n";
-      system "led green:batt 0 > /dev/null";
-    }elsif($arg eq 'O'){
-      print "ORANGE ON\n";
-      system "led orange:batt 1 > /dev/null";
-    }elsif($arg eq 'o'){
-      print "orange off\n";
-      system "led orange:batt 0 > /dev/null";
-    }elsif($arg =~ /^(\d+|\d*\.\d+)$/){
-      print "Sleeping for $1 seconds\n";
-      sleep $1;
-    }
+sub main(@){
+  die $usage if @_ == 0;
+  if(@_ == 1 and $_[0] eq '--stop'){
+    daemonize();
+    exit;
+  }
+
+  for my $cmd(@_){
+    die $usage if $cmd !~ /^ o | O | g | G | \d+ | \d*\.\d+ $/x;
+  }
+
+  daemonize();
+  while(1){
+    performCmd $_ foreach @_;
   }
 }
+
+&main(@ARGV);
