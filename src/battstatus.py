@@ -28,12 +28,6 @@ from subprocess import Popen, PIPE
 
 SMAPI_BATTACCESS = '/usr/bin/smapi-battaccess'
 
-def extractInt(s):
-  try:
-    return int(re.compile('\d+').match(s).group())
-  except:
-    return -1
-
 class BattStatus():
   def __init__(self, prefs):
     self.prefs = prefs
@@ -190,12 +184,30 @@ class BattInfoAcpi():
     self.inhibit_charge_minutes = '0'
   def parseAcpi(self, fileContent):
     d = dict()
-    keyValRe = re.compile('([a-z0-9 ]+):\s*([a-z0-9 ]+)')
+    keyValRe = re.compile('([a-zA-Z0-9 ]+):\s*([a-zA-Z0-9 ]+)')
     for line in fileContent.splitlines():
       m = keyValRe.match(line)
       if m != None:
         d[m.group(1)] = m.group(2)
     return d
+  def getValueAndUnit(self, s):
+    m = re.compile('(\d+)\s*([a-zA-Z]*)').match(s)
+    if m == None:
+      return None
+    else:
+      return [int(m.group(1)), m.group(2)]
+  def extractCurrent(self, info, voltMv):
+    valUnit = self.getValueAndUnit(info)
+    if valUnit == None:
+      return None
+    (val, unit) = valUnit
+
+    if unit == 'mAh' or unit == 'mA':
+      return val
+    elif unit == 'mWh' or unit == 'mW':
+      return val / (voltMv * 1000.0)
+    else:
+      return None
   def update(self, prefs):
     self.clear()
     statePresent = os.path.isfile(self.acpiStatePath())
@@ -210,11 +222,15 @@ class BattInfoAcpi():
       infoD = self.parseAcpi(file(self.acpiInfoPath()).read())
 
       try:
-        remMah = extractInt(stateD['remaining capacity'])
-        lastMah = extractInt(infoD['last full capacity'])
-        designMah = extractInt(infoD['design capacity'])
-        rateMa = extractInt(stateD['present rate'])
-        voltMv = extractInt(stateD['present voltage'])
+        voltValUnit = self.getValueAndUnit(stateD['present voltage'])
+        if voltValUnit == None or voltValUnit[1] != 'mV':
+          return
+        voltMv = voltValUnit[0]
+
+        remMah = self.extractCurrent(stateD['remaining capacity'], voltMv)
+        lastMah = self.extractCurrent(infoD['last full capacity'], voltMv)
+        designMah = self.extractCurrent(infoD['design capacity'], voltMv)
+        rateMa = self.extractCurrent(stateD['present rate'], voltMv)
         charge = stateD['charging state']
 
         if (False
@@ -235,7 +251,7 @@ class BattInfoAcpi():
         self.last_full_capacity = str(lastMah)
         self.design_capacity = str(designMah)
         self.remaining_percent = str(int(float(remMah) / float(lastMah) * 100.0))
-        power = voltMv * rateMa / 1000 #mW
+        power = int(voltMv/1000.0 * rateMa) #mW
         if self.state == State.DISCHARGING and power > 0:
           self.power_avg = str(0 - power)
         else:
