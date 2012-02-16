@@ -205,7 +205,7 @@ class BattInfoAcpi():
     if unit == 'mAh' or unit == 'mA':
       return val
     elif unit == 'mWh' or unit == 'mW':
-      return int(val / (voltMv * 1000.0))
+      return val / (voltMv / 1000.0)
     else:
       return None
   def update(self, prefs):
