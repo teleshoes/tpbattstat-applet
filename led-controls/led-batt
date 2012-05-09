@@ -2,12 +2,45 @@
 use strict;
 use warnings;
 use Time::HiRes qw(sleep);
+use List::Util qw(max);
 
 my $pidfile = "/tmp/led-batt-pid";
+
+my @synonymsArr = (
+  'off' => [qw(o g 60)],
+  'green' => [qw(o G 60)],
+  'orange' => [qw(g O 60)],
+  'both' => [qw(G O 60)],
+
+  'slowblink-green' => [qw(o G 3 g 3)],
+  'blink-green' => [qw(o G 1 g 1)],
+  'fastblink-green' => [qw(o G 0.1 g 0.1)],
+
+  'slowblink-orange' => [qw(g O 3 o 3)],
+  'blink-orange' => [qw(g O 1 o 1)],
+  'fastblink-orange' => [qw(g O 0.1 o 0.1)],
+
+  'slowblink-both' => [qw(G O 3 g o 3)],
+  'blink-both' => [qw(G O 1 g o 1)],
+  'fastblink-both' => [qw(G O 0.1 g o 0.1)],
+);
+my %synonyms = @synonymsArr;
+
+my $synonymUsage = "$0 CMD_LOOP_SYNONYMS\n" .
+  "      single-arg shorthand for a series of commands\n";
+my $maxLen = max(map {length} keys %synonyms);
+for(my $i=0; $i<@synonymsArr; $i+=2){
+  my $name = $synonymsArr[$i];
+  my @cmd = @{$synonyms{$name}};
+  $name .= ' ' x ($maxLen - length $name);
+  $synonymUsage .= "      $name => (@cmd)\n";
+}
 
 my $usage = "Usage:
    $0 --stop
      kill the currently running pattern
+
+   $synonymUsage
    $0 CMD CMD CMD ....
      CMDs get performed forever in a loop
      Valid CMDs are:
@@ -56,14 +89,21 @@ sub main(@){
     killOthers();
     exit;
   }
+  my @cmd;
+  if(@_ == 1 and defined $synonyms{$_[0]}){
+     @cmd = @{$synonyms{$_[0]}};
+     print "$_[0] => @cmd\n";
+  }else{
+    @cmd = @_;
+  }
 
-  for my $cmd(@_){
+  for my $cmd(@cmd){
     die $usage if $cmd !~ /^(o|O|g|G|\d+|\d*\.\d+)$/;
   }
   killOthers();
   savePid();
   while(1){
-    performCmd $_ foreach @_;
+    performCmd $_ foreach @cmd;
   }
 }
 
