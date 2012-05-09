@@ -22,6 +22,7 @@
 from prefs import SCHEMA_DIR, State
 from subprocess import Popen
 import os
+import re
 
 LED_EXEC = '/usr/local/sbin/led'
 LED_BATT_EXEC = '/usr/local/sbin/led-batt'
@@ -72,4 +73,4 @@ class Actions():
       pattern = patterns[index]
     return self.parsePattern(pattern)
   def parsePattern(self, pattern):
-    return pattern.split(':')
+    return filter(None, re.split(' +', pattern))

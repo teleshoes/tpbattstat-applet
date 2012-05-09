@@ -204,27 +204,40 @@
 
     <short>Patterns for the battery led when charging.</short>
     <long>
-      A list of led-pattern-strings.
-      An led-pattern-string is a colon-separated list of led-commands
+      A list of led-pattern-strings to pass to led-batt.
       There are three lists of led-pattern-strings, one for
         charging, discharging, and idle.
-      Available led-commands:
+      Patterns are chosen based on the current total remaining battery percent;
+        The patterns divide up the percentage ranges,
+          based on how many patterns there are.
+        {the left-most pattern is always used at 0% and the right-most at 100%}
+        e.g.: if there are four patterns: 0-24%, 25-49%, 50-74%, 75-100%
+      
+      led-batt accepts either a single keyword arg, or a list of commands.
+      available keywords:
+        green            orange       both
+        slowblink-green  blink-green  fastblink-green
+        slowblink-orange blink-orange fastblink-orange
+        slowblink-both   blink-both   fastblink-both
+        off
+     
+      available led commands:
         G : turn green light on
         g : turn green light off
         O : turn orange light on
         o : turn orange light off
         # : pause for # seconds {e.g.: 0.1 or 60 or 1.2}
-      Patterns are chosen based on the current total remaining battery percent;
-        {the left-most pattern is executed at 0% and the right-most at 100%}.
 
       examples:
-        1) ["g:O:0.2:o:0.2"]
-          always rapidly blink orange light, and ensure green is off
-        2) ["g:0:2:o:2", "O:G:2:o:g:2", "o:G:2:g:2"]
-           0% -  33% : slowly blink orange lights
-          34% -  66% : slowly blink both lights
-          67% - 100% : slowly blink green light
-          where x is the total remaining percent capacity
+        1) [blink-orange, blink-both, blink-green]
+           0% -  33% : blink orange light
+          34% -  66% : blink both lights
+          67% - 100% : blink green light
+        2) [fastblink-orange, both, "o G 5 g O 5", green]
+           0% -  24% : blink orange light quickly
+          25% -  49% : show both lights steady
+          50% -  74% : cycle between orange and green every 5 seconds
+          75% - 100% : show green light steady
     </long>
   </locale>
 </schema>
@@ -242,27 +255,40 @@
 
     <short>Patterns for the battery led when discharging.</short>
     <long>
-      A list of led-pattern-strings.
-      An led-pattern-string is a colon-separated list of led-commands
+      A list of led-pattern-strings to pass to led-batt.
       There are three lists of led-pattern-strings, one for
         charging, discharging, and idle.
-      Available led-commands:
+      Patterns are chosen based on the current total remaining battery percent;
+        The patterns divide up the percentage ranges,
+          based on how many patterns there are.
+        {the left-most pattern is always used at 0% and the right-most at 100%}
+        e.g.: if there are four patterns: 0-24%, 25-49%, 50-74%, 75-100%
+      
+      led-batt accepts either a single keyword arg, or a list of commands.
+      available keywords:
+        green            orange       both
+        slowblink-green  blink-green  fastblink-green
+        slowblink-orange blink-orange fastblink-orange
+        slowblink-both   blink-both   fastblink-both
+        off
+     
+      available led commands:
         G : turn green light on
         g : turn green light off
         O : turn orange light on
         o : turn orange light off
         # : pause for # seconds {e.g.: 0.1 or 60 or 1.2}
-      Patterns are chosen based on the current total remaining battery percent;
-        {the left-most pattern is executed at 0% and the right-most at 100%}.
 
       examples:
-        1) ["g:O:0.2:o:0.2"]
-          always rapidly blink orange light, and ensure green is off
-        2) ["g:0:2:o:2", "O:G:2:o:g:2", "o:G:2:g:2"]
-           0% -  33% : slowly blink orange lights
-          34% -  66% : slowly blink both lights
-          67% - 100% : slowly blink green light
-          where x is the total remaining percent capacity
+        1) [blink-orange, blink-both, blink-green]
+           0% -  33% : blink orange light
+          34% -  66% : blink both lights
+          67% - 100% : blink green light
+        2) [fastblink-orange, both, "o G 5 g O 5", green]
+           0% -  24% : blink orange light quickly
+          25% -  49% : show both lights steady
+          50% -  74% : cycle between orange and green every 5 seconds
+          75% - 100% : show green light steady
     </long>
   </locale>
 </schema>
@@ -281,27 +307,40 @@
 
     <short>Patterns for the battery led when idle.</short>
     <long>
-      A list of led-pattern-strings.
-      An led-pattern-string is a colon-separated list of led-commands
+      A list of led-pattern-strings to pass to led-batt.
       There are three lists of led-pattern-strings, one for
         charging, discharging, and idle.
-      Available led-commands:
+      Patterns are chosen based on the current total remaining battery percent;
+        The patterns divide up the percentage ranges,
+          based on how many patterns there are.
+        {the left-most pattern is always used at 0% and the right-most at 100%}
+        e.g.: if there are four patterns: 0-24%, 25-49%, 50-74%, 75-100%
+      
+      led-batt accepts either a single keyword arg, or a list of commands.
+      available keywords:
+        green            orange       both
+        slowblink-green  blink-green  fastblink-green
+        slowblink-orange blink-orange fastblink-orange
+        slowblink-both   blink-both   fastblink-both
+        off
+     
+      available led commands:
         G : turn green light on
         g : turn green light off
         O : turn orange light on
         o : turn orange light off
         # : pause for # seconds {e.g.: 0.1 or 60 or 1.2}
-      Patterns are chosen based on the current total remaining battery percent;
-        {the left-most pattern is executed at 0% and the right-most at 100%}.
 
       examples:
-        1) ["g:O:0.2:o:0.2"]
-          always rapidly blink orange light, and ensure green is off
-        2) ["g:0:2:o:2", "O:G:2:o:g:2", "o:G:2:g:2"]
-           0% -  33% : slowly blink orange lights
-          34% -  66% : slowly blink both lights
-          67% - 100% : slowly blink green light
-          where x is the total remaining percent capacity
+        1) [blink-orange, blink-both, blink-green]
+           0% -  33% : blink orange light
+          34% -  66% : blink both lights
+          67% - 100% : blink green light
+        2) [fastblink-orange, both, "o G 5 g O 5", green]
+           0% -  24% : blink orange light quickly
+          25% -  49% : show both lights steady
+          50% -  74% : cycle between orange and green every 5 seconds
+          75% - 100% : show green light steady
     </long>
   </locale>
 </schema>
