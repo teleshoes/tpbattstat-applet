@@ -56,7 +56,7 @@ sub main(@){
   }
 
   for my $cmd(@_){
-    die $usage if $cmd !~ /^ o | O | g | G | \d+ | \d*\.\d+ $/x;
+    die $usage if $cmd !~ /^(o|O|g|G|\d+|\d*\.\d+)$/;
   }
 
   daemonize();
