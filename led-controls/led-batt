@@ -21,10 +21,12 @@ my $usage = "Usage:
      $0 o g 0.1 O 0.1 o G 0.1 g 0.1 O G 0.1
 ";
 
-sub daemonize(){
+sub killOthers(){
   if(-e $pidfile){
     system "kill -9 `cat $pidfile` 2>/dev/null";
   }
+}
+sub savePid(){
   system "echo $$ > $pidfile";
 }
 
@@ -51,15 +53,15 @@ sub performCmd($){
 sub main(@){
   die $usage if @_ == 0;
   if(@_ == 1 and $_[0] eq '--stop'){
-    daemonize();
+    killOthers();
     exit;
   }
 
   for my $cmd(@_){
     die $usage if $cmd !~ /^(o|O|g|G|\d+|\d*\.\d+)$/;
   }
-
-  daemonize();
+  killOthers();
+  savePid();
   while(1){
     performCmd $_ foreach @_;
   }
