@@ -40,6 +40,22 @@ class BattStatus():
       return self.batt1
     else:
       return None
+  def getPowerDisplay(self):
+    disp = self.prefs.display_power_usage.lower()
+    if disp == 'average':
+      p0 = int(self.batt0.power_avg)
+      p1 = int(self.batt1.power_avg)
+    elif disp == 'now':
+      p0 = int(self.batt0.power_now)
+      p1 = int(self.batt1.power_now)
+    else:
+      return ''
+
+    if p0 != 0:
+      p = p0
+    else:
+      p = p1
+    return "%3.1fW" % (p/1000.0)
   def update(self, prefs):
     if self.last_acpi != self.prefs.use_acpi:
       if self.prefs.use_acpi:

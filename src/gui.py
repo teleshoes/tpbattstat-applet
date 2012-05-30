@@ -183,27 +183,8 @@ class Gui():
     return not (orient == gnomeapplet.ORIENT_UP or
                 orient == gnomeapplet.ORIENT_DOWN)
   def getPowerMarkup(self):
-    disp = self.prefs.display_power_usage.lower()
-    if disp == 'average':
-      pow0 = int(self.battStatus.batt0.power_avg)
-      pow1 = int(self.battStatus.batt1.power_avg)
-      if pow0 != 0:
-        powavg = pow0
-      else:
-        powavg = pow1
-      powavgW = float(powavg / 100) / 10.0
-      return '\n<span size="xx-small">' + str(powavgW) + 'W</span>'
-    elif disp == 'now':
-      pow0 = int(self.battStatus.batt0.power_now)
-      pow1 = int(self.battStatus.batt1.power_now)
-      if pow0 != 0:
-        pownow = pow0
-      else:
-        pownow = pow1
-      pownowW = float(pownow / 100) / 10.0
-      return '\n<span size="xx-small">' + str(pownowW) + 'W</span>'
-    else:
-      return ''
+    disp = self.battStatus.getPowerDisplay()
+    return '\n<span size="xx-small">' + disp + '</span>'
   def updateLabel(self):
     self.label.set_markup(
       self.getBattMarkup(0) +
