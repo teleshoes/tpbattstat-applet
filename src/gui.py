@@ -183,8 +183,8 @@ class Gui():
     return not (orient == gnomeapplet.ORIENT_UP or
                 orient == gnomeapplet.ORIENT_DOWN)
   def getPowerMarkup(self):
-    disp = self.battStatus.getPowerDisplay()
-    return '\n<span size="xx-small">' + disp + '</span>'
+    powW = self.battStatus.getPowerDisplay()
+    return '\n<span size="xx-small">' + powW + '</span>'
   def updateLabel(self):
     self.label.set_markup(
       self.getBattMarkup(0) +
