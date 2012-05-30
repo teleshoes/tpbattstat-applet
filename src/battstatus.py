@@ -218,20 +218,22 @@ class BattInfoAcpi():
       self.installed = '0'
 
     if self.installed == '1':
-      stateD = self.parseAcpi(file(self.acpiStatePath()).read())
-      infoD = self.parseAcpi(file(self.acpiInfoPath()).read())
+      atts = dict()
+      atts.update(self.parseAcpi(file(self.acpiStatePath()).read()))
+      atts.update(self.parseAcpi(file(self.acpiInfoPath()).read()))
+      print atts['present rate']
 
       try:
-        voltValUnit = self.getValueAndUnit(stateD['present voltage'])
+        voltValUnit = self.getValueAndUnit(atts['present voltage'])
         if voltValUnit == None or voltValUnit[1] != 'mV':
           return
         voltMv = voltValUnit[0]
 
-        remMah = self.extractCurrent(stateD['remaining capacity'], voltMv)
-        lastMah = self.extractCurrent(infoD['last full capacity'], voltMv)
-        designMah = self.extractCurrent(infoD['design capacity'], voltMv)
-        rateMa = self.extractCurrent(stateD['present rate'], voltMv)
-        charge = stateD['charging state']
+        remMah = self.extractCurrent(atts['remaining capacity'], voltMv)
+        lastMah = self.extractCurrent(atts['last full capacity'], voltMv)
+        designMah = self.extractCurrent(atts['design capacity'], voltMv)
+        rateMa = self.extractCurrent(atts['present rate'], voltMv)
+        charge = atts['charging state']
 
         if (False
           or remMah < 0
