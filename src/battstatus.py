@@ -42,7 +42,7 @@ class BattStatus():
       return None
   def getPowerDisplay(self):
     disp = self.prefs.display_power_usage.lower()
-    if disp == 'average':
+    if disp == 'average' or (disp == 'now' and self.prefs.use_acpi):
       p0 = int(self.batt0.power_avg)
       p1 = int(self.batt1.power_avg)
     elif disp == 'now':
@@ -55,7 +55,7 @@ class BattStatus():
       p = p0
     else:
       p = p1
-    return "%3.1fW" % (p/1000.0)
+    return "%.1fW" % (p/1000.0)
   def update(self, prefs):
     if self.last_acpi != self.prefs.use_acpi:
       if self.prefs.use_acpi:
@@ -237,7 +237,6 @@ class BattInfoAcpi():
       atts = dict()
       atts.update(self.parseAcpi(file(self.acpiStatePath()).read()))
       atts.update(self.parseAcpi(file(self.acpiInfoPath()).read()))
-      print atts['present rate']
 
       try:
         voltValUnit = self.getValueAndUnit(atts['present voltage'])
