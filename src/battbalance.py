@@ -65,8 +65,8 @@ class BattBalance():
       not b1.isInstalled())
     charge0 = b0.isCharging()
     charge1 = b1.isCharging()
-    per0 = int(b0.remaining_percent)
-    per1 = int(b1.remaining_percent)
+    per0 = int(float(b0.remaining_percent))
+    per1 = int(float(b1.remaining_percent))
     strategy = self.prefs.charge_strategy
     if should_not_inhibit or strategy == ChargeStrategy.SYSTEM:
       if b0.isChargeInhibited():
@@ -106,8 +106,8 @@ class BattBalance():
       b1.isInstalled())
     dis0 = b0.isDischarging()
     dis1 = b1.isDischarging()
-    per0 = int(b0.remaining_percent)
-    per1 = int(b1.remaining_percent)
+    per0 = int(float(b0.remaining_percent))
+    per1 = int(float(b1.remaining_percent))
     force0 = False
     force1 = False
     strategy = self.prefs.discharge_strategy

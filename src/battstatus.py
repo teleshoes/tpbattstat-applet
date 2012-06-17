@@ -43,11 +43,11 @@ class BattStatus():
   def getPowerDisplay(self):
     disp = self.prefs.display_power_usage.lower()
     if disp == 'average' or (disp == 'now' and self.prefs.use_acpi):
-      p0 = int(self.batt0.power_avg)
-      p1 = int(self.batt1.power_avg)
+      p0 = int(float(self.batt0.power_avg))
+      p1 = int(float(self.batt1.power_avg))
     elif disp == 'now':
-      p0 = int(self.batt0.power_now)
-      p1 = int(self.batt1.power_now)
+      p0 = int(float(self.batt0.power_now))
+      p1 = int(float(self.batt1.power_now))
     else:
       return ''
 
@@ -83,11 +83,11 @@ class BattStatus():
     rem_cap = 0
     max_cap = 0
     if self.batt0.isInstalled():
-      rem_cap = rem_cap + int(self.batt0.remaining_capacity)
-      max_cap = max_cap + int(self.batt0.last_full_capacity)
+      rem_cap = rem_cap + int(float(self.batt0.remaining_capacity))
+      max_cap = max_cap + int(float(self.batt0.last_full_capacity))
     if self.batt1.isInstalled():
-      rem_cap = rem_cap + int(self.batt1.remaining_capacity)
-      max_cap = max_cap + int(self.batt1.last_full_capacity)
+      rem_cap = rem_cap + int(float(self.batt1.remaining_capacity))
+      max_cap = max_cap + int(float(self.batt1.last_full_capacity))
     if max_cap == 0:
       return 0
     return int(100 * (float(rem_cap) / float(max_cap)))
@@ -119,7 +119,7 @@ class BattInfoSmapi(InfoSmapi):
   def isDischarging(self):
     return self.state == State.DISCHARGING
   def isChargeInhibited(self):
-    return int(self.inhibit_charge_minutes) > 0
+    return int(float(self.inhibit_charge_minutes)) > 0
   def isForceDischarge(self):
     return self.force_discharge == '1'
   def update(self, prefs):
@@ -177,7 +177,7 @@ class BattInfoAcpi():
   def isDischarging(self):
     return self.state == State.DISCHARGING
   def isChargeInhibited(self):
-    return int(self.inhibit_charge_minutes) > 0
+    return int(float(self.inhibit_charge_minutes)) > 0
   def isForceDischarge(self):
     return self.force_discharge == '1'
   def acpiDir(self):

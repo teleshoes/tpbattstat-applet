@@ -38,7 +38,7 @@ class DzenPrinter():
   def selectImageByBattId(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
     return self.selectImage(battInfo.isInstalled(), battInfo.state,
-      int(battInfo.remaining_percent))
+      int(float(battInfo.remaining_percent)))
   def selectImage(self, installed, state, percent):
     if not installed:
       return IMAGE_DIR + "/none.xpm"

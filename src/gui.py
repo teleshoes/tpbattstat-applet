@@ -103,7 +103,7 @@ class Gui():
   def selectPixbufByBattId(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
     return self.selectPixbuf(battInfo.isInstalled(), battInfo.state,
-      int(battInfo.remaining_percent))
+      int(float(battInfo.remaining_percent)))
   def selectPixbuf(self, installed, state, percent):
     if not installed:
       return self.none
