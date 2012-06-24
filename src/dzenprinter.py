@@ -98,12 +98,11 @@ class DzenPrinter():
 
     return '^fg(' + color + ')' + percent + '^fg()'
   def getSeparatorMarkup(self):
+    sep = "|"
     if self.prefs.display_blinking_indicator and self.counter % 2 == 0:
-      color = 'blue'
+      return "^fg(blue)" + sep + "^fg()"
     else:
-      color = ''
-
-    return '^fg(' + color + ')|^fg()'
+      return sep
   def getPowerMarkup(self):
     return self.battStatus.getPowerDisplay()
   def getTopLength(self):
