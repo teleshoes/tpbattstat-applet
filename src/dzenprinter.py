@@ -30,6 +30,9 @@ IMAGE_DIR = (
   '/' + str(IMAGE_WIDTH) + 'x' + str(IMAGE_HEIGHT)
   )
 
+CHARGING_COLOR = '#60FF60'
+DISCHARGING_COLOR = '#FF6060'
+
 class DzenPrinter():
   def __init__(self, prefs, battStatus):
     self.prefs = prefs
@@ -85,12 +88,13 @@ class DzenPrinter():
 
     if percent == '100':
       percent = '@@'
+
     if not self.prefs.display_colored_text or battInfo.state == State.IDLE:
       color = ''
     elif battInfo.state == State.CHARGING:
-      color = '#60FF60'
+      color = CHARGING_COLOR
     elif battInfo.state == State.DISCHARGING:
-      color = '#FF6060'
+      color = DISCHARGING_COLOR
 
     return '^fg(' + color + ')' + percent + '^fg()'
   def getSeparatorMarkup(self):
