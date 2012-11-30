@@ -5,6 +5,7 @@ LIB_INSTALL_DIR=/usr/lib/$NAME
 ICON_DIR=/usr/share/pixmaps
 SERVER_DIR=/usr/lib/bonobo/servers
 
+sudo cp tpacpi-bat $LIB_INSTALL_DIR
 cd src
 echo copying $NAME.py to $LIB_INSTALL_DIR
 echo
