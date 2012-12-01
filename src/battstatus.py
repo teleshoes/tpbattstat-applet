@@ -92,7 +92,47 @@ class BattStatus():
       return 0
     return int(100 * (float(rem_cap) / float(max_cap)))
 
-class InfoSmapi():
+class BattInfoBase():
+  def __init__(self, batt_id):
+    self.batt_id = batt_id
+    self.clear()
+  def clear(self):
+    self.installed = '0'
+    self.state = State.IDLE
+    self.remaining_percent = '0'
+    self.power_avg = '0'
+    self.power_now = '0'
+    self.remaining_capacity = '0'
+    self.last_full_capacity = '0'
+    self.design_capacity = '0'
+    self.force_discharge = '0'
+    self.inhibit_charge_minutes = '0'
+  def isInstalled(self):
+    return self.installed == '1'
+  def isCharging(self):
+    return self.state == State.CHARGING
+  def isDischarging(self):
+    return self.state == State.DISCHARGING
+  def isForceDischarge(self):
+    return self.force_discharge == '1'
+  def isChargeInhibited(self):
+    return int(float(self.inhibit_charge_minutes)) > 0
+  def update(self, prefs):
+    raise 'missing impl'
+
+class ACInfoBase():
+  def __init__(self):
+    self.clear()
+  def clear(self):
+    self.ac_connected = 0
+  def isACConnected(self):
+    return self.ac_connected == '1'
+  def update(self, prefs):
+    raise 'missing impl'
+
+
+
+class SmapiReader():
   def smapi_get(self, batt_id, prop):
     try:
       p = Popen([SMAPI_BATTACCESS, '-g', str(batt_id), prop], stdout=PIPE)
@@ -103,26 +143,14 @@ class InfoSmapi():
       print >> sys.stderr, msg
       return -1
 
-class ACInfoSmapi(InfoSmapi):
-  def isACConnected(self):
-    return self.ac_connected == '1'
+class ACInfoSmapi(ACInfoBase, SmapiReader):
   def update(self, prefs):
+    self.clear()
     self.ac_connected = self.smapi_get(-1, 'ac_connected')
     
-class BattInfoSmapi(InfoSmapi):
-  def __init__(self, batt_id):
-    self.batt_id = batt_id
-  def isInstalled(self):
-    return self.installed == '1'
-  def isCharging(self):
-    return self.state == State.CHARGING
-  def isDischarging(self):
-    return self.state == State.DISCHARGING
-  def isChargeInhibited(self):
-    return int(float(self.inhibit_charge_minutes)) > 0
-  def isForceDischarge(self):
-    return self.force_discharge == '1'
+class BattInfoSmapi(BattInfoBase, SmapiReader):
   def update(self, prefs):
+    self.clear()
     self.installed = self.smapi_get(self.batt_id, 'installed')
     dischargeStrategy = prefs.discharge_strategy
     if dischargeStrategy != DischargeStrategy.SYSTEM:
@@ -152,9 +180,7 @@ class BattInfoSmapi(InfoSmapi):
       self.state = None
 
 
-class ACInfoAcpi():
-  def isACConnected(self):
-    return self.ac_connected == '1'
+class ACInfoAcpi(ACInfoBase):
   def acpiAcPath(self):
     return '/proc/acpi/ac_adapter/AC/state'
   def update(self, prefs):
@@ -167,37 +193,13 @@ class ACInfoAcpi():
     else:
         self.ac_connected = '0'
 
-class BattInfoAcpi():
-  def __init__(self, batt_id):
-    self.batt_id = batt_id
-  def isInstalled(self):
-    return self.installed == '1'
-  def isCharging(self):
-    return self.state == State.CHARGING
-  def isDischarging(self):
-    return self.state == State.DISCHARGING
-  def isChargeInhibited(self):
-    return int(float(self.inhibit_charge_minutes)) > 0
-  def isForceDischarge(self):
-    return self.force_discharge == '1'
+class BattInfoAcpi(BattInfoBase):
   def acpiDir(self):
     return "/proc/acpi/battery/BAT" + str(self.batt_id)
   def acpiStatePath(self):
     return self.acpiDir() + '/state'
   def acpiInfoPath(self):
     return self.acpiDir() + '/info'
-  def clear(self):
-    self.installed = '0'
-    self.remaining_percent = '0'
-    self.power_avg = '0'
-    self.power_now = '0'
-    self.remaining_capacity = '0'
-    self.last_full_capacity = '0'
-    self.design_capacity = '0'
-    self.state = None
-    
-    self.force_discharge = '0'
-    self.inhibit_charge_minutes = '0'
   def parseAcpi(self, fileContent):
     d = dict()
     keyValRe = re.compile('([a-zA-Z0-9 ]+):\s*([a-zA-Z0-9 ]+)')
