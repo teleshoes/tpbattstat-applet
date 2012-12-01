@@ -35,11 +35,9 @@ DischargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING')
 ChargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING', 'BRACKETS')
 
 class Prefs():
-  def __init__(self, gconf_root_key):
+  def __init__(self):
     self.client = gconf.client_get_default()
-    self.gconf_root_key = gconf_root_key
-    if self.gconf_root_key == None:
-      self.gconf_root_key = '/apps/tpbattstat_applet/prefs'
+    self.gconf_root_key = '/apps/tpbattstat_applet/prefs'
   def update(self):
     self.delay = self.gconfGetInt(
         'delay', 1000)

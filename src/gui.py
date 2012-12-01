@@ -25,20 +25,12 @@ from prefs import SCHEMA_DIR
 import gtk
 import gtk.gdk
 
-try:
-  import gnomeapplet
-  gnomeappletOk = True
-except ImportError:
-  gnomeappletOk = False
-  
-
 IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/svg'
 IMAGE_HEIGHT = 24
 IMAGE_WIDTH = 24
 
 class Gui():
-  def __init__(self, applet, prefs, battStatus):
-    self.applet = applet
+  def __init__(self, prefs, battStatus, orientation='horizontal'):
     self.prefs = prefs
     self.battStatus = battStatus
     self.label = gtk.Label("<?>")
@@ -46,15 +38,13 @@ class Gui():
     self.batt1img = gtk.Image()
     self.counter = 0
     self.initPixbufs()
+    self.orientation = orientation
     
     self.container = gtk.HBox()
     self.box = None
     self.resetLayout()
-    self.create_menu()
 
     self.gconfGui = None
-    if gnomeappletOk:
-      self.applet.connect("change-orient", self.resetLayout)
   def getGtkWidget(self):
     return self.container
   def resetLayout(self):
@@ -72,20 +62,6 @@ class Gui():
     
     self.container.add(self.box)
     self.container.show_all()
-  def create_menu(self):
-    if not gnomeappletOk:
-      return
-    xml="""<popup name="button3">
-      <menuitem name="Preferences" verb="Preferences" label="_Preferences"
-        pixtype="stock" pixname="gtk-preferences"/>
-      <menuitem name="Statistics" verb="Statistics" label="_Statistics"/>
-      <menuitem name="About" verb="About" label="_About"
-        pixtype="stock" pixname="gtk-about"/>
-      </popup>"""
-    verbs = [("Preferences", self.showPreferencesDialog),
-             ("Statistics", self.showStatisticsDialog),
-             ("About", self.showAboutDialog)]
-    self.applet.setup_menu(xml, verbs, None)
 
   def initPixbufs(self):
     self.none = self.newPixbuf('none.svg')
@@ -177,11 +153,7 @@ class Gui():
     else:
       return sep
   def isVertical(self):
-    if not gnomeappletOk:
-      return False
-    orient = self.applet.get_orient()
-    return not (orient == gnomeapplet.ORIENT_UP or
-                orient == gnomeapplet.ORIENT_DOWN)
+    return self.orientation == "vertical"
   def getPowerMarkup(self):
     powW = self.battStatus.getPowerDisplay()
     return '\n<span size="xx-small">' + powW + '</span>'
@@ -196,24 +168,6 @@ class Gui():
     self.counter = self.counter + 1
     self.updateImages()
     self.updateLabel()
-
-  def showAboutDialog(self, *arguments, **keywords):
-    dialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    dialog.set_title('About TPBattStatApplet')
-    label = gtk.Label()
-    label.set_markup("""
-       <span size='x-large'>TPBattStatApplet v0.1</span>
-       <span size='medium'>Copyright 2011 Elliot Wolk</span>
-       
-       <span size='medium'>ThinkPad Battery Status Applet for Gnome</span>
-
-       TPBattStatApplet is free software: you can redistribute it and/or
-       modify it under the terms of the GNU General Public License as
-       published by the Free Software Foundation, either version 3 of the
-       License, or (at your option) any later version.
-       """)
-    dialog.add(label)
-    dialog.show_all()
 
   def ensurePreferencesDialog(self):
     if self.gconfGui != None and self.gconfGui.get_window() != None:
@@ -258,14 +212,3 @@ class Gui():
     return self.prefsDialog
   def showPreferencesDialog(self, *arguments, **keywords):
     self.getPreferencesDialog().show_all()
-
-  def showStatisticsDialog(self, *arguments, **keywords):
-    dialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    dialog.set_title('tp-smapi info')
-    label = gtk.Label()
-    label.set_markup("""
-       <span size='x-large'>stats arent here yet</span>
-       """)
-    dialog.add(label)
-    dialog.show_all()
-

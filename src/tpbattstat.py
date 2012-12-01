@@ -30,34 +30,17 @@ from actions import Actions
 import sys
 import gtk
 import gobject
-try:
-  import gnomeapplet
-  gnomeappletOk = True
-except ImportError:
-  gnomeappletOk = False 
-import time
-import socket
 
-class TPBattStatApplet():
-  def __init__(self, applet, mode="gtk", forceDelay=None):
-    self.applet = applet
+class TPBattStat():
+  def __init__(self, mode, forceDelay=None):
     self.mode = mode
     self.forceDelay = forceDelay
 
-    if self.applet == None:
-      gconf_root_key = None
-    else:
-      gconf_root_key = self.applet.get_preferences_key()
-    self.prefs = Prefs(gconf_root_key)
+    self.prefs = Prefs()
     self.battStatus = BattStatus(self.prefs)
     self.actions = Actions(self.prefs, self.battStatus)
-    if self.mode == "gtk":
-      self.gui = Gui(self.applet, self.prefs, self.battStatus)
-      if gnomeappletOk:
-        self.applet.add_preferences(SCHEMA_DIR)
-        self.applet.add(self.gui.getGtkWidget())
-        self.applet.set_background_widget(self.applet)
-        self.applet.show_all()
+    if self.mode == "gtk" or self.mode == "prefs":
+      self.gui = Gui(self.prefs, self.battStatus)
     elif self.mode == "dzen":
       self.dzenprinter = DzenPrinter(self.prefs, self.battStatus)
       
@@ -92,10 +75,6 @@ class TPBattStatApplet():
     else:
       return True
 
-def TPBattStatAppletFactory(applet, iid):
-  TPBattStatApplet(applet).startUpdate()
-  return True
-
 def showAndExit(gtkElem):
   gtkElem.connect("destroy", gtk.main_quit) 
   gtkElem.show_all()
@@ -104,8 +83,7 @@ def showAndExit(gtkElem):
 
 def prefsClickHandler(widget, event):
   if event.button == 1:
-    prefsDialog = TPBattStatApplet(None).getGui().getPreferencesDialog()
-    prefsDialog.show_all()
+    prefsDialog = TPBattStat("prefs").getGui().showPreferencesDialog()
 
 def main():
   if len(sys.argv) >= 2:
@@ -113,7 +91,7 @@ def main():
   else:
     arg = None
 
-  if arg == "-h" or arg == "--help" or arg == "help":
+  if arg == None or arg == "-h" or arg == "--help" or arg == "help":
     print "Usage:"
     print "  " + sys.argv[0] + " [-h | --help | help]"
     print "  " + sys.argv[0] + " [-w | --window | window]"
@@ -122,8 +100,8 @@ def main():
 
   elif arg == "-w" or arg == "--window" or arg == "window":
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    window.set_title("TPBattStatApplet")
-    tpbattstat = TPBattStatApplet(None, "gtk")
+    window.set_title("TPBattStat")
+    tpbattstat = TPBattStat("gtk")
     tpbattstat.startUpdate()
     window.add(tpbattstat.gui.getGtkWidget())
     window.add_events(gtk.gdk.BUTTON_PRESS_MASK)
@@ -135,20 +113,12 @@ def main():
 
   elif arg == "-d" or arg == "--dzen" or arg == "dzen":
     if len(sys.argv) == 3:
-      tpbattstat = TPBattStatApplet(None, "dzen", int(sys.argv[2]))
+      tpbattstat = TPBattStat("dzen", int(sys.argv[2]))
     else:
-      tpbattstat = TPBattStatApplet(None, "dzen")
+      tpbattstat = TPBattStat("dzen")
     tpbattstat.startUpdate()
     gtk.main()
     sys.exit()
-
-  elif gnomeappletOk:
-    gnomeapplet.bonobo_factory(
-      "OAFIID:TPBattStatApplet_Factory", 
-      gnomeapplet.Applet.__gtype__, 
-      "ThinkPad Battery Status Applet",
-      "0",
-      TPBattStatAppletFactory)
 
 if __name__ == "__main__":
   sys.exit(main())
