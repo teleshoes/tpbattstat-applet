@@ -19,7 +19,7 @@
 # along with TPBattStatApplet. If not, see <http://www.gnu.org/licenses/>.
 ##########################################################################
 
-from prefs import SCHEMA_DIR, State
+from prefs import State
 from subprocess import Popen
 import os
 import re
@@ -56,11 +56,11 @@ class Actions():
         nullFile.close()
   def calculateLedPattern(self):
     if self.battStatus.isEitherCharging():
-      patterns = self.prefs.ledPatternsCharging
+      patterns = self.prefs['ledPatternsCharging']
     elif self.battStatus.isEitherDischarging():
-      patterns = self.prefs.ledPatternsDischarging
+      patterns = self.prefs['ledPatternsDischarging']
     else:
-      patterns = self.prefs.ledPatternsIdle
+      patterns = self.prefs['ledPatternsIdle']
     length = len(patterns)
     pattern = ''
     if length > 0:

@@ -21,7 +21,6 @@
 
 from battstatus import State
 from gconfgui import GconfGui
-from prefs import SCHEMA_DIR
 import gtk
 import gtk.gdk
 
@@ -99,8 +98,8 @@ class Gui():
     else:
       return imgs[i]
   def updateImages(self):
-    if self.prefs.display_icons:
-      if self.prefs.display_only_one_icon:
+    if self.prefs['displayIcons']:
+      if self.prefs['displayOnlyOneIcon']:
         installed = self.battStatus.isEitherInstalled()
         percent = self.battStatus.getTotalRemainingPercent()
         if self.battStatus.isEitherCharging():
@@ -133,7 +132,7 @@ class Gui():
     else:
       size = ' size="small" '
 
-    if not self.prefs.display_colored_text or battInfo.state == State.IDLE:
+    if not self.prefs['displayColoredText'] or battInfo.state == State.IDLE:
       color = ''
     elif battInfo.state == State.CHARGING:
       color = ' foreground="#60FF60" '
@@ -142,7 +141,7 @@ class Gui():
 
     return '<b><span' + size + color + '>' + percent + '</span></b>'
   def getSeparatorMarkup(self):
-    if self.prefs.display_blinking_indicator and self.counter % 2 == 0:
+    if self.prefs['displayBlinkingIndicator'] and self.counter % 2 == 0:
       color = ' foreground="blue" '
     else:
       color = ''

@@ -19,7 +19,7 @@
 # along with TPBattStatApplet. If not, see <http://www.gnu.org/licenses/>.
 ##########################################################################
 
-from prefs import State, ChargeStrategy, DischargeStrategy
+from prefs import State, ChargeStrategy, DischargeStrategy, Interface
 from battbalance import BattBalance
 import sys
 import re
@@ -32,7 +32,7 @@ class BattStatus():
   def __init__(self, prefs):
     self.prefs = prefs
     self.battBalance = BattBalance(prefs, self)
-    self.last_acpi = None
+    self.last_interface = None
   def getBattInfo(self, batt_id):
     if batt_id == 0:
       return self.batt0
@@ -41,8 +41,11 @@ class BattStatus():
     else:
       return None
   def getPowerDisplay(self):
-    disp = self.prefs.display_power_usage.lower()
-    if disp == 'average' or (disp == 'now' and self.prefs.use_acpi):
+    disp = self.prefs['displayPowerUsage'].lower()
+    if disp == 'now' and self.prefs['interface'] != Interface.SMAPI:
+      disp = 'average'
+
+    if disp == 'average':
       p0 = int(float(self.batt0.power_avg))
       p1 = int(float(self.batt1.power_avg))
     elif disp == 'now':
@@ -57,17 +60,16 @@ class BattStatus():
       p = p1
     return "%.1fW" % (p/1000.0)
   def update(self, prefs):
-    if self.last_acpi != self.prefs.use_acpi:
-      if self.prefs.use_acpi:
-        self.last_acpi = True
-        self.ac = ACInfoAcpi()
-        self.batt0 = BattInfoAcpi(0)
-        self.batt1 = BattInfoAcpi(1)
-      else:
-        self.last_acpi = False
+    if self.last_interface != self.prefs['interface']:
+      self.last_interface = self.prefs['interface']
+      if self.prefs['interface'] == Interface.SMAPI:
         self.ac = ACInfoSmapi()
         self.batt0 = BattInfoSmapi(0)
         self.batt1 = BattInfoSmapi(1)
+      elif self.prefs['interface'] == Interface.ACPI:
+        self.ac = ACInfoAcpi()
+        self.batt0 = BattInfoAcpi(0)
+        self.batt1 = BattInfoAcpi(1)
 
     self.ac.update(prefs)
     self.batt0.update(prefs)
@@ -152,12 +154,12 @@ class BattInfoSmapi(BattInfoBase, SmapiReader):
   def update(self, prefs):
     self.clear()
     self.installed = self.smapi_get(self.batt_id, 'installed')
-    dischargeStrategy = prefs.discharge_strategy
+    dischargeStrategy = prefs['dischargeStrategy']
     if dischargeStrategy != DischargeStrategy.SYSTEM:
       self.force_discharge = self.smapi_get(self.batt_id, 'force_discharge')
     else:
       self.force_discharge = 0
-    chargeStrategy = prefs.charge_strategy
+    chargeStrategy = prefs['chargeStrategy']
     if chargeStrategy != ChargeStrategy.SYSTEM:
       self.inhibit_charge_minutes = self.smapi_get(
         self.batt_id, 'inhibit_charge_minutes')
@@ -178,7 +180,6 @@ class BattInfoSmapi(BattInfoBase, SmapiReader):
       self.state = State.IDLE
     else:
       self.state = None
-
 
 class ACInfoAcpi(ACInfoBase):
   def acpiAcPath(self):
@@ -357,4 +358,3 @@ class BattInfoAcpiOld(BattInfoBase):
         self.power_now = str(-1) #unsupported in acpi
       except:
         self.clear()
-

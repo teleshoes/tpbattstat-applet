@@ -20,7 +20,6 @@
 ##########################################################################
 
 from battstatus import State
-from prefs import SCHEMA_DIR
 import inspect
 
 IMAGE_HEIGHT = 36
@@ -57,7 +56,7 @@ class DzenPrinter():
     img = img + "/" + str(percent / 10 * 10) + ".xpm"
     return img
   def getJointImage(self):
-    if self.prefs.display_icons and self.prefs.display_only_one_icon:
+    if self.prefs['displayIcons'] and self.prefs['displayOnlyOneIcon']:
       installed = self.battStatus.isEitherInstalled()
       percent = self.battStatus.getTotalRemainingPercent()
       if self.battStatus.isEitherCharging():
@@ -70,7 +69,7 @@ class DzenPrinter():
     else:
       return ''
   def getBattImageMarkup(self, batt_id):
-    if self.prefs.display_icons and not self.prefs.display_only_one_icon:
+    if self.prefs['displayIcons'] and not self.prefs['displayOnlyOneIcon']:
       return self.getImageMarkup(self.selectImageByBattId(batt_id))
     else:
       return ''
@@ -89,7 +88,7 @@ class DzenPrinter():
     if percent == '100':
       percent = '@@'
 
-    if not self.prefs.display_colored_text or battInfo.state == State.IDLE:
+    if not self.prefs['displayColoredText'] or battInfo.state == State.IDLE:
       color = ''
     elif battInfo.state == State.CHARGING:
       color = CHARGING_COLOR
@@ -99,7 +98,7 @@ class DzenPrinter():
     return '^fg(' + color + ')' + percent + '^fg()'
   def getSeparatorMarkup(self):
     sep = "|"
-    if self.prefs.display_blinking_indicator and self.counter % 2 == 0:
+    if self.prefs['displayBlinkingIndicator'] and self.counter % 2 == 0:
       return "^fg(blue)" + sep + "^fg()"
     else:
       return sep

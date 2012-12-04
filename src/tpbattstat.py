@@ -22,8 +22,8 @@
 import pygtk
 pygtk.require('2.0')
 
+from prefs import Prefs
 from gui import Gui
-from prefs import Prefs, SCHEMA_DIR
 from battstatus import BattStatus
 from dzenprinter import DzenPrinter
 from actions import Actions
@@ -52,7 +52,7 @@ class TPBattStat():
   def update(self):
     self.prefs.update()
     if self.forceDelay != None:
-      self.prefs.delay = self.forceDelay
+      self.prefs['delay'] = self.forceDelay
     self.battStatus.update(self.prefs)
 
     self.actions.performActions()
@@ -66,8 +66,8 @@ class TPBattStat():
         print >> sys.stderr, "STDOUT is broken, assuming dzen is dead"
         sys.exit(1)
 
-    if self.prefs.delay != self.curDelay:
-      self.curDelay = self.prefs.delay
+    if self.prefs['delay'] != self.curDelay:
+      self.curDelay = self.prefs['delay']
       if self.curDelay <= 0:
         self.curDelay = 1000
       gobject.timeout_add(self.curDelay, self.update)

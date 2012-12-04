@@ -67,16 +67,16 @@ class BattBalance():
     charge1 = b1.isCharging()
     per0 = int(float(b0.remaining_percent))
     per1 = int(float(b1.remaining_percent))
-    strategy = self.prefs.charge_strategy
+    strategy = self.prefs['chargeStrategy']
     if should_not_inhibit or strategy == ChargeStrategy.SYSTEM:
       if b0.isChargeInhibited():
         smapi_set(0, 'inhibit_charge_minutes', '0')
       if b1.isChargeInhibited():
         smapi_set(1, 'inhibit_charge_minutes', '0')
     elif strategy == ChargeStrategy.LEAPFROG:
-      if per1 - per0 > self.prefs.charge_leapfrog_threshold:
+      if per1 - per0 > self.prefs['chargeLeapfrogThreshold']:
         self.ensure_charging(1)
-      elif per0 - per1 > self.prefs.charge_leapfrog_threshold:
+      elif per0 - per1 > self.prefs['chargeLeapfrogThreshold']:
         self.ensure_charging(0)
     elif strategy == ChargeStrategy.CHASING:
       if per1 > per0:
@@ -84,11 +84,11 @@ class BattBalance():
       elif per0 > per1:
         ensure_charging(1)
     elif strategy == ChargeStrategy.BRACKETS:
-      prefBat = self.prefs.charge_brackets_pref_battery
+      prefBat = self.prefs['chargeBracketsPrefBattery']
       unprefBat = 1 - prefBat
       percentPref = per0 if prefBat == 0 else per1
       percentUnpref = per0 if unprefBat == 0 else per1
-      for bracket in self.prefs.charge_brackets:
+      for bracket in self.prefs['chargeBrackets']:
         if percentPref < bracket:
           self.ensure_charging(prefBat)
           break
@@ -110,12 +110,12 @@ class BattBalance():
     per1 = int(float(b1.remaining_percent))
     force0 = False
     force1 = False
-    strategy = self.prefs.discharge_strategy
+    strategy = self.prefs['dischargeStrategy']
     if not should_force or strategy == DischargeStrategy.SYSTEM:
       force0 = False
       force1 = False
     elif strategy == DischargeStrategy.LEAPFROG:
-      leapfrogThreshold = self.prefs.discharge_leapfrog_threshold
+      leapfrogThreshold = self.prefs['dischargeLeapfrogThreshold']
       if dis0:
         if per1 - per0 > leapfrogThreshold:
           force1 = True
