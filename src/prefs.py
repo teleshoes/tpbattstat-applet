@@ -172,6 +172,8 @@ class Prefs():
       return enumVals.valueOf[valStr]
     elif valType[:5] == "list-":
       listType = valType[5:]
+      if valStr == '':
+        valStr = '[]'
       if valStr[0] == '[' and valStr[-1] == ']':
         valStr = valStr[1:-1]
       else:
