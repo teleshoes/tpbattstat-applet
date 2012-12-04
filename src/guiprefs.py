@@ -31,7 +31,7 @@ class GuiPrefs(gtk.VBox):
     self.prefs = prefs
 
     align = gtk.Alignment(0, 0.5, 0, 0)
-    self.table = gtk.Table(rows=len(self.prefs.names), columns=2)
+    self.table = gtk.Table(rows=len(self.prefs.prefsArr), columns=2)
     self.add(self.table)
     self.curRow = -1
     self.curCol = -1
@@ -45,16 +45,8 @@ class GuiPrefs(gtk.VBox):
     self.addCell(self.messageLabel, 2)
     self.prefRows = []
 
-    for pref in self.prefs.names:
-      prefRow = PrefRow(
-        prefs,
-        pref,
-        self.prefs.types[pref],
-        self.prefs.defaults[pref],
-        self.prefs.enums[pref],
-        self.prefs.shortDescs[pref],
-        self.prefs.longDescs.get(pref),
-        self.messageLabel)
+    for pref in self.prefs.prefsArr:
+      prefRow = PrefRow(pref, prefs, self.messageLabel)
       self.prefRows.append(prefRow)
       self.nextRow()
       prefRow.getLabel().set_alignment(0, 0)
@@ -94,16 +86,9 @@ class GuiPrefs(gtk.VBox):
     self.messageLabel.set_text('')
 
 class PrefRow():
-  def __init__(self, prefs, key, valType, default, enum, shortDesc, longDesc,
-    messageLabel):
+  def __init__(self, pref, prefs, messageLabel):
+    self.pref = pref
     self.prefs = prefs
-
-    self.key = key
-    self.valType = valType
-    self.default = default
-    self.enum = enum
-    self.shortDesc = shortDesc
-    self.longDesc = longDesc
     self.messageLabel = messageLabel
 
     self.label = gtk.Label()
@@ -115,36 +100,36 @@ class PrefRow():
     self.prefWidget.changeSignal, self.savePref)
     self.error = None
   def getLabelMarkup(self):
-    return (self.key + '\n'
-      + self.smallText(self.valType + ' - ' + self.shortDesc))
+    return (self.pref.name + '\n'
+      + self.smallText(self.pref.valType + ' - ' + self.pref.shortDesc))
   def savePref(self, w):
     try:
       self.prefs.readPrefsFile()
     except:
       pass
     try:
-      self.prefs[self.key] = self.prefWidget.getValueFct()
+      self.prefs[self.pref.name] = self.prefWidget.getValueFct()
       self.prefs.writePrefsFile()
       self.prefs.readPrefsFile()
-      self.messageLabel.set_markup('saved ' + self.key)
+      self.messageLabel.set_markup('saved ' + self.pref.name)
     except Exception as e:
       self.messageLabel.set_text('ERROR: ' + e.message)
 
   def smallText(self, msg):
     return '<span size="small">' + msg + '</span>'
   def getTooltipMarkup(self):
-    if self.longDesc != None:
-      return self.longDesc
+    if self.pref.longDesc != None:
+      return self.pref.longDesc
     else:
-      return self.shortDesc
+      return self.pref.shortDesc
   def getLabel(self):
     return self.label
   def getWidget(self):
     return self.prefWidget.widget
   def buildWidget(self):
-    return PrefWidget(self.valType, self.enum)
+    return PrefWidget(self.pref.valType, self.pref.enum)
   def update(self):
-    self.prefWidget.setValueFct(self.prefs[self.key])
+    self.prefWidget.setValueFct(self.prefs[self.pref.name])
 
 class GconfRadioButton(gtk.RadioButton):
   def __init__(self, value, group=None, label=None, use_underline=True):

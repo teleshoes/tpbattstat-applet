@@ -39,61 +39,71 @@ PowerUsage = enum('NOW', 'AVERAGE', 'OFF')
 
 def getPrefs():
   return [
-  "delay", ["int", 1000,
-    "Delay in ms between updates", None],
-  "interface", ["enum", "SMAPI",
+  Pref("delay", "int", 1000,
+    "Delay in ms between updates"),
+  Pref("interface", "enum", "SMAPI",
     "Battery info interface (smapi/acpi)",
-    Interface],
+    Interface),
 
-  "dischargeStrategy", ["enum", "LEAPFROG",
+  Pref("dischargeStrategy", "enum", "LEAPFROG",
     "Strategy for selecting battery to discharge",
-    DischargeStrategy],
-  "dischargeLeapfrogThreshold", ["int", 5,
-    "Threshold to justify switching currently discharging battery", None],
-  "chargeStrategy", ["enum", "BRACKETS",
+    DischargeStrategy),
+  Pref("dischargeLeapfrogThreshold", "int", 5,
+    "Threshold to justify switching currently discharging battery"),
+  Pref("chargeStrategy", "enum", "BRACKETS",
     "Strategy for selecting battery to charge",
-    ChargeStrategy],
-  "chargeLeapfrogThreshold", ["int", 10,
-    "Threshold to justify switching currently charging battery", None],
-  "chargeBrackets", ["list-int", [10, 20, 80, 90, 95, 100],
-    "Brackets to ensure even charge in charge_strategy=brackets.", None],
-  "chargeBracketsPrefBattery", ["int", 0,
-    "Battery to charge when both batteries are in the same bracket", None],
+    ChargeStrategy),
+  Pref("chargeLeapfrogThreshold", "int", 10,
+    "Threshold to justify switching currently charging battery"),
+  Pref("chargeBrackets", "list-int", [10, 20, 80, 90, 95, 100],
+    "Brackets to ensure even charge in charge_strategy=brackets."),
+  Pref("chargeBracketsPrefBattery", "int", 0,
+    "Battery to charge when both batteries are in the same bracket"),
 
-  "displayPowerUsage", ["enum", "NOW",
+  Pref("displayPowerUsage", "enum", "NOW",
     "Display power rate in watts, instantaneous or average over the last 60s",
-    PowerUsage],
-  "displayColoredText", ["bool", True,
-    "Green/red for charging/discharging", None],
-  "displayIcons", ["bool", True,
-    "Show battery icon(s)", None],
-  "displayOnlyOneIcon", ["bool", True,
-    "Show one icon with the sum of remaining charge of both batteries", None],
-  "displayBlinkingIndicator", ["bool", True,
-    "Alternate separator color every time the display updates", None],
-  "ledPatternsCharging", ["list-string", [],
-    "Patterns for the battery LED when charging", None],
-  "ledPatternsDischarging", ["list-string", [],
-    "Patterns for the battery LED when charging", None],
-  "ledPatternsIdle", ["list-string", [],
-    "Patterns for the battery LED when idle", None]
+    PowerUsage),
+  Pref("displayColoredText", "bool", True,
+    "Green/red for charging/discharging"),
+  Pref("displayIcons", "bool", True,
+    "Show battery icon(s)"),
+  Pref("displayOnlyOneIcon", "bool", True,
+    "Show one icon with the sum of remaining charge of both batteries"),
+  Pref("displayBlinkingIndicator", "bool", True,
+    "Alternate separator color every time the display updates"),
+  Pref("ledPatternsCharging", "list-string", [],
+    "Patterns for the battery LED when charging"),
+  Pref("ledPatternsDischarging", "list-string", [],
+    "Patterns for the battery LED when charging"),
+  Pref("ledPatternsIdle", "list-string", [],
+    "Patterns for the battery LED when idle")
   ]
- 
+
+class Pref():
+  def __init__(self, name, valType, default, shortDesc, enum=None):
+    self.name = name
+    self.valType = valType
+    self.default = default
+    self.shortDesc = shortDesc
+    self.enum = enum
+    self.longDesc = None
+
 class Prefs():
   def __init__(self):
     self.prefsDir = os.environ['HOME'] + '/' + '.config'
     self.prefsFile = self.prefsDir + '/' + 'tpbattstat.conf'
 
-    prefsArr = getPrefs()
-    self.prefs = dict(zip(prefsArr[0::2], prefsArr[1::2]))
-    self.names = prefsArr[0::2]
-    self.types = dict([(k, v[0]) for (k, v) in self.prefs.iteritems()])
-    self.defaults = dict([(k, v[1]) for (k, v) in self.prefs.iteritems()])
-    self.enums = dict([(k, v[3]) for (k, v) in self.prefs.iteritems()])
-    self.shortDescs = dict([(k, v[2]) for (k, v) in self.prefs.iteritems()])
-    self.longDescs = getPrefsLongDescriptions()
+    self.prefsArr = getPrefs()
+    self.prefNames = map(lambda p: p.name, self.prefsArr)
+    self.prefsByName = dict(zip(self.prefNames, self.prefsArr))
+    defVals = map(lambda p: p.default, self.prefsArr)
+    self.defaultPrefs = dict(zip(self.prefNames, defVals))
 
-    self.curPrefs = dict(self.defaults)
+    longDescs = getPrefsLongDescriptions()
+    for (k, v) in longDescs.iteritems():
+      self.prefsByName[k].longDesc = v
+
+    self.curPrefs = dict(self.defaultPrefs)
     self.lastMod = -1
   def __getitem__(self, pref):
     if pref not in self.curPrefs:
@@ -105,9 +115,9 @@ class Prefs():
     self.curPrefs[pref] = val
   def getDefaultPrefsFile(self):
     s = ''
-    for key in self.names:
-      s += key + " = " + str(self.defaults[key])
-      s += ' #' + self.shortDescs[key] + "\n"
+    for p in self.prefsArr:
+      s += p.name + " = " + str(p.default)
+      s += ' #' + p.shortDesc + "\n"
     return s
   def ensurePrefsFile(self):
     self.getDefaultPrefsFile()
@@ -125,7 +135,7 @@ class Prefs():
     return False
   def readPrefsFile(self):
     self.ensurePrefsFile()
-    d = dict(self.defaults)
+    d = dict(self.defaultPrefs)
     for line in file(self.prefsFile).readlines():
       line = line.partition('#')[0]
       line = line.strip()
@@ -135,15 +145,16 @@ class Prefs():
           raise Exception("Error parsing config line: " + line)
         key = keyVal[0].strip()
         val = keyVal[1].strip()
-        if key not in self.prefs:
+        if key not in self.prefNames:
           raise Exception("Unknown pref: " + key)
-        d[key] = self.readVal(key, self.types[key], val, self.enums[key])
+        p = self.prefsByName[key]
+        d[key] = self.readVal(key, p.valType, val, p.enum)
     return d
   def writePrefsFile(self):
     s = ''
-    for key in self.names:
-      val = self.curPrefs[key]
-      if val != self.defaults[key]:
+    for name in self.prefNames:
+      val = self.curPrefsByName[name]
+      if val != self.defaultPrefs[name]:
         s += key + " = " + str(val) + "\n"
     file(self.prefsFile, 'w').write(s)
   def readVal(self, key, valType, valStr, enumVals):
