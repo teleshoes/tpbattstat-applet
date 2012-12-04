@@ -155,7 +155,7 @@ class Prefs():
     for name in self.prefNames:
       val = self.curPrefs[name]
       if val != self.defaultPrefs[name]:
-        s += key + " = " + str(val) + "\n"
+        s += name + " = " + str(val) + "\n"
     file(self.prefsFile, 'w').write(s)
   def readVal(self, key, valType, valStr, enumVals):
     valStr = valStr.strip()
