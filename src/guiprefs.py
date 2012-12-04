@@ -97,7 +97,8 @@ class PrefRow():
     self.prefWidget.widget.connect(
     self.prefWidget.changeSignal, self.savePref)
   def getLabelMarkup(self):
-    return self.key
+    return (self.key + '\n'
+      + self.smallText(self.valType + ' - ' + self.shortDesc))
   def savePref(self, val):
     pass
   def smallText(self, msg):
