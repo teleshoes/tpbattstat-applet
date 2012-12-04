@@ -60,12 +60,25 @@ class GuiPrefs(gtk.VBox):
   def nextRow(self):
     self.curCol = -1
     self.curRow += 1
+  def rowColor(self):
+    if self.curRow % 2 == 0:
+      return (self.colors['lightgrey'], self.colors['darkgrey'])
+    else:
+      return (self.colors['darkgrey'], self.colors['lightgrey'])
   def addBanner(self, w):
     self.table.attach(w, 0, 2, self.curRow, self.curRow+1)
   def addCell(self, w, colWidth):
     self.curCol += 1
+    eb = gtk.EventBox()
+    (bgColor, fgColor) = self.rowColor()
+    if bgColor != None:
+      eb.modify_bg(gtk.STATE_NORMAL, bgColor)
+    if fgColor != None:
+      eb.modify_fg(gtk.STATE_NORMAL, fgColor)
+    w.modify_fg(gtk.STATE_NORMAL, fgColor)
+    eb.add(w)
     (col, row) = (self.curCol, self.curRow)
-    self.table.attach(w, col, col+colWidth, row, row+1)
+    self.table.attach(eb, col, col+colWidth, row, row+1)
 
 class PrefRow():
   def __init__(self, key, valType, default, enum, shortDesc, longDesc):
