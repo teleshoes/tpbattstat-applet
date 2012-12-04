@@ -42,6 +42,7 @@ class GuiPrefs(gtk.VBox):
 
     for pref in self.prefs.names:
       prefRow = PrefRow(
+        prefs,
         pref,
         self.prefs.types[pref],
         self.prefs.defaults[pref],
@@ -81,7 +82,9 @@ class GuiPrefs(gtk.VBox):
     self.table.attach(eb, col, col+colWidth, row, row+1)
 
 class PrefRow():
-  def __init__(self, key, valType, default, enum, shortDesc, longDesc):
+  def __init__(self, prefs, key, valType, default, enum, shortDesc, longDesc,
+    self.prefs = prefs
+
     self.key = key
     self.valType = valType
     self.default = default
@@ -99,8 +102,10 @@ class PrefRow():
   def getLabelMarkup(self):
     return (self.key + '\n'
       + self.smallText(self.valType + ' - ' + self.shortDesc))
-  def savePref(self, val):
-    pass
+  def savePref(self, w):
+    self.prefs[self.key] = self.prefWidget.getValueFct()
+      self.prefs.writePrefsFile()
+      self.prefs.update()
   def smallText(self, msg):
     return '<span size="small">' + msg + '</span>'
   def getTooltipMarkup(self):
