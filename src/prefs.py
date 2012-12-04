@@ -125,7 +125,7 @@ class Prefs():
     return False
   def readPrefsFile(self):
     self.ensurePrefsFile()
-    d = dict()
+    d = dict(self.defaults)
     for line in file(self.prefsFile).readlines():
       line = line.partition('#')[0]
       line = line.strip()
