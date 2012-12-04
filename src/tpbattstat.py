@@ -111,7 +111,7 @@ def main():
     window.connect("button_press_event", prefsClickHandler)
     showAndExit(window)
   elif arg == "-p" or arg == "--prefs" or arg == "prefs":
-    prefsDialog = TPBattStatApplet(None).getGui().getPreferencesDialog()
+    prefsDialog = TPBattStat("prefs").getGui().getPreferencesDialog()
     showAndExit(prefsDialog)
 
   elif arg == "-d" or arg == "--dzen" or arg == "dzen":
