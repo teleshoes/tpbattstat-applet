@@ -118,10 +118,12 @@ class PrefRow():
   def smallText(self, msg):
     return '<span size="small">' + msg + '</span>'
   def getTooltipMarkup(self):
+    msg = '(default=' + str(self.pref.default) + ')\n'
     if self.pref.longDesc != None:
-      return self.pref.longDesc
+      msg += self.pref.longDesc
     else:
-      return self.pref.shortDesc
+      msg += self.pref.shortDesc
+    return msg
   def getLabel(self):
     return self.label
   def getWidget(self):
