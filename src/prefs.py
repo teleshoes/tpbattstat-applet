@@ -90,8 +90,8 @@ class Prefs():
     self.types = dict([(k, v[0]) for (k, v) in self.prefs.iteritems()])
     self.defaults = dict([(k, v[1]) for (k, v) in self.prefs.iteritems()])
     self.enums = dict([(k, v[3]) for (k, v) in self.prefs.iteritems()])
-    self.descShort = dict([(k, v[2]) for (k, v) in self.prefs.iteritems()])
-    self.descLong = getPrefsLongDescriptions()
+    self.shortDescs = dict([(k, v[2]) for (k, v) in self.prefs.iteritems()])
+    self.longDescs = getPrefsLongDescriptions()
 
     self.curPrefs = dict(self.defaults)
     self.lastMod = -1
@@ -107,7 +107,7 @@ class Prefs():
     s = ''
     for key in self.names:
       s += key + " = " + str(self.defaults[key])
-      s += ' #' + self.descShort[key] + "\n"
+      s += ' #' + self.shortDescs[key] + "\n"
     return s
   def ensurePrefsFile(self):
     self.getDefaultPrefsFile()

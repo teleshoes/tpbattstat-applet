@@ -20,7 +20,7 @@
 ##########################################################################
 
 from battstatus import State
-#from gconfgui import GconfGui
+from guiprefs import GuiPrefs
 import gtk
 import gtk.gdk
 
@@ -43,7 +43,7 @@ class Gui():
     self.box = None
     self.resetLayout()
 
-    self.gconfGui = None
+    self.guiPrefs = None
   def getGtkWidget(self):
     return self.container
   def resetLayout(self):
@@ -169,14 +169,12 @@ class Gui():
     self.updateLabel()
 
   def ensurePreferencesDialog(self):
-    pass
-#    if self.gconfGui != None and self.gconfGui.get_window() != None:
-#      return
-#      ('discharge_leapfrog_threshold', 'discharge_leapfrog_threshold',
-#        None, None, (0, 100, 5, 20), None),
-#    self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
-#    self.prefsDialog.set_title('TPBattStatApplet Preferences')
-#    self.prefsDialog.add(self.gconfGui)
+    if self.guiPrefs != None and self.guiPrefs.get_window() != None:
+      return
+    self.guiPrefs = GuiPrefs(self.prefs)
+    self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    self.prefsDialog.set_title('TPBattStat Preferences')
+    self.prefsDialog.add(self.guiPrefs)
   def getPreferencesDialog(self):
     self.ensurePreferencesDialog()
     return self.prefsDialog

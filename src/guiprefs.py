@@ -25,66 +25,81 @@ from subprocess import Popen, PIPE
 import gconf
 import gtk
 
+class GuiPrefs(gtk.VBox):
+  def __init__(self, prefs):
+    super(GuiPrefs, self).__init__()
+    self.prefs = prefs
 
-class Gconftool():
-  def __init__(self):
-    self.gconftool = 'gconftool'
-  def get(self, *args):
-    args = [self.gconftool] + list(args)
-    try:
-      (stdout, _) = Popen(args, stdout=PIPE).communicate()
-      return stdout.rstrip()
-    except:
-      print >> sys.stderr, 'Could not exec gconftool with args=' + str(args)
-      return None
-  def set(self, *args):
-    args = [self.gconftool] + list(args)
-    try:
-      Popen(args).wait()
-    except:
-      print >> sys.stderr, 'Could not exec gconftool with args=' + str(args)
-  def long_docs(self, key):
-    return self.get('--long-docs', key)
-  def get_type(self, key):
-    return self.get('--get-type', key)
-  def get_list_type(self, key):
-    try:
-      #may i add that this is ridiculous. where is this option??!
-      m = re.match('(.*)/([^/]*)', key)
-      keyDir = m.group(1)
-      keyName = m.group(2)
-      dirDump = self.get('--dump', keyDir)
-      m = re.search(
-        '<key>' + keyName + '</key>' + '.*?' + '<list type="([a-zA-Z]*)">',
-        dirDump,
-        flags=re.DOTALL)
-      return m.group(1)
-    except:
-      return None
-  def ls_dir(self, keydir):
-    try:
-      keys = []
-      for line in self.get('--all-entries', keydir).split('\n'):
-        m = re.match('^ ([a-zA-Z0-9_\-:\^@*]+) = .*$', line)
-        if m:
-          keys.append(m.group(1))
-      return keys
-    except:
-      return []
-  def get_value(self, key):
-    return self.get('--get', key)
-  def set_value(self, key, value):
-    gcType = self.get_type(key)
-    value = str(value)
-    if gcType == 'list':
-      gcTypeList = self.get_list_type(key)
-      return self.set(
-        '--set', '--type', gcType, '--list-type', gcTypeList, key, value)
+    align = gtk.Alignment(0, 0.5, 0, 0)
+    self.table = gtk.Table(rows=len(self.prefs.names), columns=2)
+    self.add(self.table)
+    self.curRow = -1
+    self.curCol = -1
+    self.colors = {
+      'lightgrey': gtk.gdk.Color(10000, 10000, 10000),
+      'darkgrey': gtk.gdk.Color(50000, 50000, 50000)
+    }
+
+    for pref in self.prefs.names:
+      prefRow = PrefRow(
+        pref,
+        self.prefs.types[pref],
+        self.prefs.defaults[pref],
+        self.prefs.enums[pref],
+        self.prefs.shortDescs[pref],
+        self.prefs.longDescs.get(pref))
+      self.nextRow()
+      prefRow.getLabel().set_alignment(0, 0)
+      self.addCell(prefRow.getLabel(), 1)
+      self.addCell(prefRow.getWidget(), 1)
+
+    msg = '{you can also edit the conf file at: ' + self.prefs.prefsFile + '}'
+    if msg != '':
+      self.nextRow()
+      self.addCell(gtk.Label(msg), 2)
+  def nextRow(self):
+    self.curCol = -1
+    self.curRow += 1
+  def addBanner(self, w):
+    self.table.attach(w, 0, 2, self.curRow, self.curRow+1)
+  def addCell(self, w, colWidth):
+    self.curCol += 1
+    (col, row) = (self.curCol, self.curRow)
+    self.table.attach(w, col, col+colWidth, row, row+1)
+
+class PrefRow():
+  def __init__(self, key, valType, default, enum, shortDesc, longDesc):
+    self.key = key
+    self.valType = valType
+    self.default = default
+    self.enum = enum
+    self.shortDesc = shortDesc
+    self.longDesc = longDesc
+
+    self.label = gtk.Label()
+    self.label.set_markup(self.getLabelMarkup())
+    self.label.set_tooltip_markup(self.getTooltipMarkup())
+    self.prefWidget = self.buildWidget()
+
+    self.prefWidget.widget.connect(
+    self.prefWidget.changeSignal, self.savePref)
+  def getLabelMarkup(self):
+    return self.key
+  def savePref(self, val):
+    pass
+  def smallText(self, msg):
+    return '<span size="small">' + msg + '</span>'
+  def getTooltipMarkup(self):
+    if self.longDesc != None:
+      return self.longDesc
     else:
-      return self.set('--set', '--type', gcType, key, value)
-
-
-gconftool = Gconftool()
+      return self.shortDesc
+  def getLabel(self):
+    return self.label
+  def getWidget(self):
+    return self.prefWidget.widget
+  def buildWidget(self):
+    return PrefWidget(self.valType, self.enum)
 
 class GconfRadioButton(gtk.RadioButton):
   def __init__(self, value, group=None, label=None, use_underline=True):
@@ -93,50 +108,39 @@ class GconfRadioButton(gtk.RadioButton):
   def getValue(self):
     return self.value
 
-class GconfWidget():
-  def __init__(self, gcType, numCfg, enum):
-    self.gcType = gcType
+class PrefWidget():
+  def __init__(self, valType, enum):
+    self.valType = valType
     self.enum = enum
-    if enum == None:
-      if gcType == 'int':
-        if numCfg == None:
-          numCfg = (None, None, None, None)
-        (minval, maxval, step, page) = numCfg
-        spinAdj = self.intAdj(minval, maxval, step, page)
-        if step == None:
-          step = 1
-        self.widget = gtk.SpinButton(spinAdj, float(step), 0)
-        self.getValueFct = self.widget.get_value_as_int
-        self.setValueFct = self.setSpinButtonValue
-        self.changeSignal = 'value-changed'
-      elif gcType == 'float':
-        if numCfg == None:
-          numCfg = (None, None, None, None)
-        (minval, maxval, step, page) = numCfg
-        spinAdj = self.floatAdj(minval, maxval, step, page)
-        if step == None:
-          step = 0.1
-        self.widget = gtk.SpinButton(spinAdj, step, 3)
-        self.getValueFct = self.widget.get_value
-        self.setValueFct = self.setSpinButtonValue
-        self.changeSignal = 'value-changed'
-      elif gcType == 'bool':
-        self.widget = gtk.CheckButton()
-        self.getValueFct = self.widget.get_active
-        self.setValueFct = self.widget.set_active
-        self.changeSignal = 'toggled'
-      else:
-        self.widget = gtk.Entry()
-        self.getValueFct = self.widget.get_text
-        self.setValueFct = self.widget.set_text
-        self.changeSignal = 'changed'
-    else:
+    (minval, maxval, step, page) = (None, None, 5, 20)
+    spinAdj = self.intAdj(minval, maxval, step, page)
+    if valType == 'int':
+      self.widget = gtk.SpinButton(spinAdj, float(step), 0)
+      self.getValueFct = self.widget.get_value_as_int
+      self.setValueFct = self.setSpinButtonValue
+      self.changeSignal = 'value-changed'
+    elif valType == 'float':
+      self.widget = gtk.SpinButton(spinAdj, step, 3)
+      self.getValueFct = self.widget.get_value
+      self.setValueFct = self.setSpinButtonValue
+      self.changeSignal = 'value-changed'
+    elif valType == 'bool':
+      self.widget = gtk.CheckButton()
+      self.getValueFct = self.widget.get_active
+      self.setValueFct = self.widget.set_active
+      self.changeSignal = 'toggled'
+    elif valType == 'enum':
       self.widget = gtk.combo_box_new_text()
       self.getValueFct = self.widget.get_active_text
       self.setValueFct = self.setComboBoxValue
       self.changeSignal = 'changed'
-      for value in enum:
-        self.widget.append_text(value)
+      for name in enum.names:
+        self.widget.append_text(name)
+    else:
+      self.widget = gtk.Entry()
+      self.getValueFct = self.widget.get_text
+      self.setValueFct = self.widget.set_text
+      self.changeSignal = 'changed'
   def setSpinButtonValue(self, value):
     if value == None:
       self.widget.set_value(-1.0)
@@ -176,20 +180,20 @@ class GconfWidget():
     return gtk.Adjustment(initial, minval, maxval, step, page, 0.0)
   def setValue(self, val):
     try:
-      if self.gcType == 'int':
+      if self.valType == 'int':
         value = int(val)
-      elif self.gcType == 'bool':
+      elif self.valType == 'bool':
         if val == 'false':
           value = False
         elif val == 'true':
           value = True
         else:
           value = bool(val)
-      elif self.gcType == 'float':
+      elif self.valType == 'float':
         value = float(val)
-      elif self.gcType == 'string':
+      elif self.valType == 'string':
         value = str(val)
-      elif self.gcType == 'list':
+      elif self.valType == 'list':
         value = str(val)
       else:
         value = None
@@ -200,111 +204,22 @@ class GconfWidget():
   def getValue(self):
     try:
       val = self.getValueFct()
-      if self.gcType == 'int':
+      if self.valType == 'int':
         return int(val)
-      elif self.gcType == 'bool':
+      elif self.valType == 'bool':
         if val == 'false':
           value = False
         elif val == 'true':
           value = True
         else:
           return bool(val)
-      elif self.gcType == 'float':
+      elif self.valType == 'float':
         return float(val)
-      elif self.gcType == 'string':
+      elif self.valType == 'string':
         return str(val)
-      elif self.gcType == 'list':
+      elif self.valType == 'list':
         return str(val)
       else:
         return None
     except:
-      return None
-    
- 
-  
-class GconfGuiElem():
-  def __init__(self, keyDir, key, schemaDir, schema, default, description,
-    numCfg, enum):
-    self.keyDir = keyDir
-    self.key = key
-    self.schemaDir = schemaDir
-    self.schema = schema
-    self.description = description
-    self.default = default
-    self.numCfg = numCfg
-    self.enum = enum
-
-    self.gconfKey = self.key
-    if self.keyDir != None and self.gconfKey != None:
-      self.gconfKey = self.keyDir + '/' + self.gconfKey
-    if schemaDir != None and schema != None:
-      schema = schemaDir + '/' + schema
-    
-    if self.description == None:
-      self.description = gconftool.long_docs(self.gconfKey)
-    self.gconfType = gconftool.get_type(self.gconfKey)
-    if self.gconfType == 'list':
-      self.gconfListType = gconftool.get_list_type(self.gconfKey)
-      self.gcType = self.gconfType
-    else:
-      self.gconfListType = None
-      self.gcType = self.gconfType
-
-    self.label = gtk.Label(self.key)
-    self.label.set_tooltip_markup(self.getTooltipMarkup())
-    self.gconfWidget = self.buildWidget()
-    self.loadFromGconf()
-    
-    self.gconfWidget.widget.connect(
-      self.gconfWidget.changeSignal, self.saveToGconf)
-    
-  def loadFromGconf(self):
-    self.gconfWidget.setValue(gconftool.get_value(self.gconfKey))
-  def saveToGconf(self, event):
-    gconftool.set_value(self.gconfKey, self.gconfWidget.getValue())
-    
-  def getTooltipMarkup(self):
-    tt = ''
-    if self.description != None:
-      tt = tt + self.description.strip() + '\n'
-    key = self.key
-    if self.keyDir != None:
-      key = self.keyDir + '/' + key
-    tt = tt + '<span size="small">' + key + '</span>\n'
-    schema = self.schema
-    if self.schemaDir != None:
-      schema = self.schemaDir + '/' + schema
-    tt = tt + '<span size="small">' + schema + '</span>\n'
-    return tt
-  def getLabel(self):
-    return self.label
-  def getWidget(self):
-    return self.gconfWidget.widget
-  def buildWidget(self):
-    return GconfWidget(self.gcType, self.numCfg, self.enum)
-
-class GconfGui(gtk.VBox):
-  def __init__(self, keyDir, schemaDir, keyInfo):
-    super(GconfGui, self).__init__()
-    table = gtk.Table(rows=len(keyInfo), columns=2)
-    self.add(table)
-    row = 0
-
-    for (key, schema, default, description, numCfg, enum) in keyInfo:
-      elem = GconfGuiElem(
-        keyDir, key, schemaDir, schema, default, description, numCfg, enum)
-      row = row + 1
-      table.attach(elem.getLabel(), 0, 1, row, row+1)
-      table.attach(elem.getWidget(), 1, 2, row, row+1)
-
-    msg = ''
-    if keyDir != None:
-      msg += "\ngconf keys: " + keyDir
-    if schemaDir != None:
-      msg += "\ngconf schemas: " + schemaDir
-    if msg != '':
-      headerLabel = gtk.Label(msg)
-      headerLabel.set_selectable(True)
-      row = row + 1
-      table.attach(headerLabel, 0, 2, row, row+1)
-
+      return None 
