@@ -43,6 +43,7 @@ class GuiPrefs(gtk.VBox):
     self.messageLabel = gtk.Label()
     self.nextRow()
     self.addCell(self.messageLabel, 2)
+    self.prefRows = []
 
     for pref in self.prefs.names:
       prefRow = PrefRow(
@@ -54,6 +55,7 @@ class GuiPrefs(gtk.VBox):
         self.prefs.shortDescs[pref],
         self.prefs.longDescs.get(pref),
         self.messageLabel)
+      self.prefRows.append(prefRow)
       self.nextRow()
       prefRow.getLabel().set_alignment(0, 0)
       self.addCell(prefRow.getLabel(), 1)
@@ -85,6 +87,11 @@ class GuiPrefs(gtk.VBox):
     eb.add(w)
     (col, row) = (self.curCol, self.curRow)
     self.table.attach(eb, col, col+colWidth, row, row+1)
+  def update(self):
+    self.prefs.update()
+    for prefRow in self.prefRows:
+      prefRow.update()
+    self.messageLabel.set_text('')
 
 class PrefRow():
   def __init__(self, prefs, key, valType, default, enum, shortDesc, longDesc,
@@ -111,10 +118,14 @@ class PrefRow():
     return (self.key + '\n'
       + self.smallText(self.valType + ' - ' + self.shortDesc))
   def savePref(self, w):
-    self.prefs[self.key] = self.prefWidget.getValueFct()
     try:
+      self.prefs.readPrefsFile()
+    except:
+      pass
+    try:
+      self.prefs[self.key] = self.prefWidget.getValueFct()
       self.prefs.writePrefsFile()
-      self.prefs.update()
+      self.prefs.readPrefsFile()
       self.messageLabel.set_markup('saved ' + self.key)
     except Exception as e:
       self.messageLabel.set_text('ERROR: ' + e.message)
@@ -132,6 +143,8 @@ class PrefRow():
     return self.prefWidget.widget
   def buildWidget(self):
     return PrefWidget(self.valType, self.enum)
+  def update(self):
+    self.prefWidget.setValueFct(self.prefs[self.key])
 
 class GconfRadioButton(gtk.RadioButton):
   def __init__(self, value, group=None, label=None, use_underline=True):
@@ -170,8 +183,8 @@ class PrefWidget():
         self.widget.append_text(name)
     else:
       self.widget = gtk.Entry()
-      self.getValueFct = self.widget.get_text
-      self.setValueFct = self.widget.set_text
+      self.getValueFct = lambda: str(self.widget.get_text())
+      self.setValueFct = lambda x: self.widget.set_text(str(x))
       self.changeSignal = 'changed'
   def setSpinButtonValue(self, value):
     if value == None:
@@ -180,11 +193,12 @@ class PrefWidget():
       self.widget.set_value(float(value))
   def setComboBoxValue(self, value):
     index = -1
-    value = str(value)
-    for i in range(0, len(self.enum)):
-      if self.enum[i] == value:
+    i = 0
+    for name in self.enum.names:
+      if str(name) == str(value):
         index = i
         break
+      i += 1
     self.widget.set_active(index)
   def intAdj(self, minval, maxval, step, page):
     if minval == None:
@@ -210,48 +224,3 @@ class PrefWidget():
       page = 1.0
     initial = 0.0
     return gtk.Adjustment(initial, minval, maxval, step, page, 0.0)
-  def setValue(self, val):
-    try:
-      if self.valType == 'int':
-        value = int(val)
-      elif self.valType == 'bool':
-        if val == 'false':
-          value = False
-        elif val == 'true':
-          value = True
-        else:
-          value = bool(val)
-      elif self.valType == 'float':
-        value = float(val)
-      elif self.valType == 'string':
-        value = str(val)
-      elif self.valType == 'list':
-        value = str(val)
-      else:
-        value = None
-    except:
-      value = None
-    self.setValueFct(value)
- 
-  def getValue(self):
-    try:
-      val = self.getValueFct()
-      if self.valType == 'int':
-        return int(val)
-      elif self.valType == 'bool':
-        if val == 'false':
-          value = False
-        elif val == 'true':
-          value = True
-        else:
-          return bool(val)
-      elif self.valType == 'float':
-        return float(val)
-      elif self.valType == 'string':
-        return str(val)
-      elif self.valType == 'list':
-        return str(val)
-      else:
-        return None
-    except:
-      return None 

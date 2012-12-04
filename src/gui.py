@@ -169,12 +169,12 @@ class Gui():
     self.updateLabel()
 
   def ensurePreferencesDialog(self):
-    if self.guiPrefs != None and self.guiPrefs.get_window() != None:
-      return
-    self.guiPrefs = GuiPrefs(self.prefs)
-    self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    self.prefsDialog.set_title('TPBattStat Preferences')
-    self.prefsDialog.add(self.guiPrefs)
+    if self.guiPrefs == None or self.guiPrefs.get_window() == None:
+      self.guiPrefs = GuiPrefs(self.prefs)
+      self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
+      self.prefsDialog.set_title('TPBattStat Preferences')
+      self.prefsDialog.add(self.guiPrefs)
+    self.guiPrefs.update()
   def getPreferencesDialog(self):
     self.ensurePreferencesDialog()
     return self.prefsDialog
