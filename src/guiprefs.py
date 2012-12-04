@@ -181,11 +181,24 @@ class PrefWidget():
       self.changeSignal = 'changed'
       for name in enum.names:
         self.widget.append_text(name)
-    else:
+    elif valType == 'string':
       self.widget = gtk.Entry()
-      self.getValueFct = lambda: str(self.widget.get_text())
-      self.setValueFct = lambda x: self.widget.set_text(str(x))
+      self.getValueFct = self.widget.get_text
+      self.setValueFct = self.widget.set_text
       self.changeSignal = 'changed'
+    elif valType[:5] == 'list-':
+      self.widget = gtk.Entry()
+      self.getValueFct = self.widget.get_text
+      self.setValueFct = self.setListValue
+      self.changeSignal = 'changed'
+  def setListValue(self, vals):
+    s = '['
+    for i in range(len(vals)):
+      s += str(vals[i])
+      if i != len(vals)-1:
+        s += ','
+    s += ']'
+    self.widget.set_text(s)
   def setSpinButtonValue(self, value):
     if value == None:
       self.widget.set_value(-1.0)
