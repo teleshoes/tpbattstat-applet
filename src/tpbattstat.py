@@ -52,8 +52,9 @@ class TPBattStat():
   def update(self):
     try:
       self.prefs.update()
-    except Exception:
+    except Exception as e:
       print 'ignoring prefs'
+      print e.message
     if self.forceDelay != None:
       self.prefs['delay'] = self.forceDelay
     self.battStatus.update(self.prefs)
