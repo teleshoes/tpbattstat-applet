@@ -182,6 +182,85 @@ class BattInfoSmapi(BattInfoBase, SmapiReader):
 
 class ACInfoAcpi(ACInfoBase):
   def acpiAcPath(self):
+    return '/sys/class/power_supply/AC/online'
+  def update(self, prefs):
+    if os.path.isfile(self.acpiAcPath()):
+      s = file(self.acpiAcPath()).read()
+    else:
+      s = "unknown"
+    if s == "1\n":
+      self.ac_connected = '1'
+    else:
+      self.ac_connected = '0'
+
+class BattInfoAcpi(BattInfoBase):
+  def acpiDir(self):
+    return "/sys/class/power_supply/BAT" + str(self.batt_id)
+  def readStr(self, field):
+    f = self.acpiDir() + "/" + field
+    if os.path.isfile(f):
+      return file(f).read().strip()
+    else:
+      return ""
+  def readInt(self, field):
+    try:
+      return int(self.readStr(field))
+    except ValueError:
+      return -1
+  def getChargeValue(self, voltage, chargeField, energyField):
+    charge = self.readInt(chargeField)
+    if charge < 0:
+      energy = self.readInt(energyField)
+      charge = energy / voltage
+    return charge
+  def update(self, prefs):
+    self.clear()
+    if self.readInt('present') == 1:
+      self.installed = '1'
+    else:
+      self.installed = '0'
+
+    if self.installed != '1':
+      return
+
+    status = self.readStr('status')
+
+    if status == 'Charging':
+      self.state = State.CHARGING
+    elif status == 'Discharging':
+      self.state = State.DISCHARGING
+    else:
+      self.state = State.IDLE
+
+    microVolts = self.readInt('voltage_now')
+    if microVolts < 0:
+      return
+    voltage = microVolts / (10**6)
+
+    remMah = 10**-3 * self.getChargeValue(voltage,
+      'charge_now', 'energy_now')
+    lastMah = 10**-3 * self.getChargeValue(voltage,
+      'charge_full', 'energy_full')
+    designMah = 10**-3 * self.getChargeValue(voltage,
+      'charge_full_design', 'energy_full_design')
+    rateAvgMa = 10**-3 * self.getChargeValue(voltage,
+      'current_now', 'power_now')
+
+    if self.state == State.DISCHARGING and rateAvgMa > 0:
+      rateAvgMa *= -1
+
+    self.remaining_capacity = str(remMah)
+    self.last_full_capacity = str(lastMah)
+    self.design_capacity = str(designMah)
+    self.remaining_percent = str(int(100.0 * remMah / lastMah))
+    self.power_avg = str(int(voltage * rateAvgMa)) #mW
+    self.power_now = str(-1) #unsupported in acpi
+
+
+
+
+class ACInfoAcpiOld(ACInfoBase):
+  def acpiAcPath(self):
     return '/proc/acpi/ac_adapter/AC/state'
   def update(self, prefs):
     if os.path.isfile(self.acpiAcPath()):
@@ -193,7 +272,7 @@ class ACInfoAcpi(ACInfoBase):
     else:
         self.ac_connected = '0'
 
-class BattInfoAcpi(BattInfoBase):
+class BattInfoAcpiOld(BattInfoBase):
   def acpiDir(self):
     return "/proc/acpi/battery/BAT" + str(self.batt_id)
   def acpiStatePath(self):
