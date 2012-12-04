@@ -73,7 +73,7 @@ def getPrefs():
     "Alternate separator color every time the display updates", None],
   "ledPatternsCharging", ["list-string", [],
     "Patterns for the battery LED when charging", None],
-  "ledPatternsDisharging", ["list-string", [],
+  "ledPatternsDischarging", ["list-string", [],
     "Patterns for the battery LED when charging", None],
   "ledPatternsIdle", ["list-string", [],
     "Patterns for the battery LED when idle", None]
