@@ -99,6 +99,10 @@ class Prefs():
     if pref not in self.curPrefs:
       raise Exception("Unknown preference requested: " + pref)
     return self.curPrefs[pref]
+  def __setitem__(self, pref, val):
+    if pref not in self.curPrefs:
+      raise Exception("Unknown preference requested: " + pref)
+    self.curPrefs[pref] = val
   def getDefaultPrefsFile(self):
     s = ''
     for key in self.names:
