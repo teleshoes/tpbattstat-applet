@@ -40,6 +40,10 @@ class GuiPrefs(gtk.VBox):
       'darkgrey': gtk.gdk.Color(50000, 50000, 50000)
     }
 
+    self.messageLabel = gtk.Label()
+    self.nextRow()
+    self.addCell(self.messageLabel, 2)
+
     for pref in self.prefs.names:
       prefRow = PrefRow(
         prefs,
@@ -48,7 +52,8 @@ class GuiPrefs(gtk.VBox):
         self.prefs.defaults[pref],
         self.prefs.enums[pref],
         self.prefs.shortDescs[pref],
-        self.prefs.longDescs.get(pref))
+        self.prefs.longDescs.get(pref),
+        self.messageLabel)
       self.nextRow()
       prefRow.getLabel().set_alignment(0, 0)
       self.addCell(prefRow.getLabel(), 1)
@@ -83,6 +88,7 @@ class GuiPrefs(gtk.VBox):
 
 class PrefRow():
   def __init__(self, prefs, key, valType, default, enum, shortDesc, longDesc,
+    messageLabel):
     self.prefs = prefs
 
     self.key = key
@@ -91,6 +97,7 @@ class PrefRow():
     self.enum = enum
     self.shortDesc = shortDesc
     self.longDesc = longDesc
+    self.messageLabel = messageLabel
 
     self.label = gtk.Label()
     self.label.set_markup(self.getLabelMarkup())
@@ -99,13 +106,19 @@ class PrefRow():
 
     self.prefWidget.widget.connect(
     self.prefWidget.changeSignal, self.savePref)
+    self.error = None
   def getLabelMarkup(self):
     return (self.key + '\n'
       + self.smallText(self.valType + ' - ' + self.shortDesc))
   def savePref(self, w):
     self.prefs[self.key] = self.prefWidget.getValueFct()
+    try:
       self.prefs.writePrefsFile()
       self.prefs.update()
+      self.messageLabel.set_markup('saved ' + self.key)
+    except Exception as e:
+      self.messageLabel.set_text('ERROR: ' + e.message)
+
   def smallText(self, msg):
     return '<span size="small">' + msg + '</span>'
   def getTooltipMarkup(self):
