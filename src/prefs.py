@@ -158,29 +158,29 @@ class Prefs():
       if val != self.defaultPrefs[name]:
         s += name + " = " + str(val) + "\n"
     file(self.prefsFile, 'w').write(s)
-  def readVal(self, key, valType, valStr, enumVals):
+  def readVal(self, prefName, valType, valStr, enumVals):
     valStr = valStr.strip()
     if valType == 'int':
       try:
         return int(valStr)
       except ValueError:
-        raise Exception("%s must be an integer: %s" % (key, valStr))
+        raise Exception("%s must be an integer: %s" % (prefName, valStr))
     elif valType == 'bool':
       if valStr.lower() == "true":
         return True
       elif valStr.lower() == "false":
         return False
       else:
-        raise Exception("%s must be true/false: %s" % (key, valStr))
+        raise Exception("%s must be true/false: %s" % (prefName, valStr))
     elif valType == 'string':
       return valStr
     elif valType == 'enum':
       if enumVals == None:
-        raise Exception("No enum defined for pref " + key)
+        raise Exception("No enum defined for pref " + prefName)
       valStr = valStr.upper()
       if valStr.upper() not in enumVals.names:
         raise Exception("%s must be one of (%s): %s" %
-          (key, str(enumVals.names), valStr))
+          (prefName, str(enumVals.names), valStr))
       return enumVals.valueOf[valStr]
     elif valType[:5] == "list-":
       listType = valType[5:]
@@ -189,12 +189,13 @@ class Prefs():
       if valStr[0] == '[' and valStr[-1] == ']':
         valStr = valStr[1:-1]
       else:
-        raise Exception("%s must be a list (e.g.:[v, v]): %s'" % (key, valStr))
+        raise Exception("%s must be a list (e.g.:[v, v]): %s'" %
+          (prefName, valStr))
       valList = []
       if len(valStr) > 0:
         for val in valStr.split(','):
           val = val.strip()
-          valList.append(self.readVal(key, listType, val, enumVals))
+          valList.append(self.readVal(prefName, listType, val, enumVals))
       return valList
   def update(self):
     if self.checkPrefsFileChanged():
