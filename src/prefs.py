@@ -105,14 +105,15 @@ class Prefs():
 
     self.curPrefs = dict(self.defaultPrefs)
     self.lastMod = -1
-  def __getitem__(self, pref):
-    if pref not in self.curPrefs:
-      raise Exception("Unknown preference requested: " + pref)
-    return self.curPrefs[pref]
-  def __setitem__(self, pref, val):
-    if pref not in self.curPrefs:
-      raise Exception("Unknown preference requested: " + pref)
-    self.curPrefs[pref] = val
+  def __getitem__(self, prefName):
+    if prefName not in self.curPrefs:
+      raise Exception("Unknown preference requested: " + prefName)
+    return self.curPrefs[prefName]
+  def __setitem__(self, prefName, val):
+    if prefName not in self.curPrefs:
+      raise Exception("Unknown preference requested: " + prefName)
+    p = self.prefsByName[prefName]
+    self.curPrefs[prefName] = self.readVal(p.name, p.valType, str(val), p.enum)
   def getDefaultPrefsFile(self):
     s = ''
     for p in self.prefsArr:
@@ -148,7 +149,7 @@ class Prefs():
         if key not in self.prefNames:
           raise Exception("Unknown pref: " + key)
         p = self.prefsByName[key]
-        d[key] = self.readVal(key, p.valType, val, p.enum)
+        d[p.name] = self.readVal(p.name, p.valType, val, p.enum)
     return d
   def writePrefsFile(self):
     s = ''
