@@ -20,7 +20,7 @@
 ##########################################################################
 
 from battstatus import State
-from gconfgui import GconfGui
+#from gconfgui import GconfGui
 import gtk
 import gtk.gdk
 
@@ -169,43 +169,14 @@ class Gui():
     self.updateLabel()
 
   def ensurePreferencesDialog(self):
-    if self.gconfGui != None and self.gconfGui.get_window() != None:
-      return
-    self.gconfGui = GconfGui(self.prefs.gconf_root_key, SCHEMA_DIR,[
-      ('delay', 'delay', None, None, (0, None, 100, 1000), None),
-      ('use_acpi', 'use_acpi',
-        None, None, None, None),
-      ('discharge_strategy', 'discharge_strategy', None, None, None,
-        ['system', 'leapfrog', 'chasing']),
-      ('discharge_leapfrog_threshold', 'discharge_leapfrog_threshold',
-        None, None, (0, 100, 5, 20), None),
-      ('charge_strategy', 'charge_strategy', None, None, None,
-        ['system', 'leapfrog', 'chasing', 'brackets']),
-      ('charge_leapfrog_threshold', 'charge_leapfrog_threshold',
-        None, None, (0, 100, 5, 20), None),
-      ('charge_brackets_pref_battery', 'charge_brackets_pref_battery',
-        None, None, None, ['0','1']),
-      ('charge_brackets', 'charge_brackets', None, None,
-        (0, 100, 5, 20), None),
-      ('display_power_usage', 'display_power_usage', None, None, None,
-        ['average', 'now', 'off']),
-      ('display_colored_text', 'display_colored_text',
-        None, None, None, None),
-      ('display_icons', 'display_icons', None, None, None, None),
-      ('display_only_one_icon', 'display_only_one_icon',
-        None, None, None, None),
-      ('display_blinking_indicator', 'display_blinking_indicator',
-        None, None, None, None),
-      ('led_patterns_charging', 'led_patterns',
-        None, None, None, None),
-      ('led_patterns_discharging', 'led_patterns',
-        None, None, None, None),
-      ('led_patterns_idle', 'led_patterns',
-        None, None, None, None),
-    ])
-    self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    self.prefsDialog.set_title('TPBattStatApplet Preferences')
-    self.prefsDialog.add(self.gconfGui)
+    pass
+#    if self.gconfGui != None and self.gconfGui.get_window() != None:
+#      return
+#      ('discharge_leapfrog_threshold', 'discharge_leapfrog_threshold',
+#        None, None, (0, 100, 5, 20), None),
+#    self.prefsDialog = gtk.Window(gtk.WINDOW_TOPLEVEL)
+#    self.prefsDialog.set_title('TPBattStatApplet Preferences')
+#    self.prefsDialog.add(self.gconfGui)
   def getPreferencesDialog(self):
     self.ensurePreferencesDialog()
     return self.prefsDialog
