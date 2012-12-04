@@ -34,7 +34,7 @@ def enum(*sequential, **named):
 State = enum('CHARGING', 'DISCHARGING', 'IDLE')
 DischargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING')
 ChargeStrategy = enum('SYSTEM', 'LEAPFROG', 'CHASING', 'BRACKETS')
-Interface = enum('SMAPI', 'ACPI')
+Interface = enum('SMAPI', 'ACPI', 'ACPI_OLD')
 PowerUsage = enum('NOW', 'AVERAGE', 'OFF')
 
 def getPrefs():
@@ -229,10 +229,11 @@ def getPrefsLongDescriptions():
   return {
     "interface": """
       Interface for obtaining battery information.
-      Valid values include: "smapi", and "acpi"
       smapi:
         read values from /sys/devices/platform/smapi
       acpi:
+        read values from /sys/class/power_supply
+      acpi_old:
         read values from /proc/acpi/battery
       NOTE: power_now only works in smapi
     """,

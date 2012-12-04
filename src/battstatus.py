@@ -70,6 +70,10 @@ class BattStatus():
         self.ac = ACInfoAcpi()
         self.batt0 = BattInfoAcpi(0)
         self.batt1 = BattInfoAcpi(1)
+      elif self.prefs['interface'] == Interface.ACPI_OLD:
+        self.ac = ACInfoAcpiOld()
+        self.batt0 = BattInfoAcpiOld(0)
+        self.batt1 = BattInfoAcpiOld(1)
 
     self.ac.update(prefs)
     self.batt0.update(prefs)
