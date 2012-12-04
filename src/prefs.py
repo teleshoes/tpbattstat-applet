@@ -153,7 +153,7 @@ class Prefs():
   def writePrefsFile(self):
     s = ''
     for name in self.prefNames:
-      val = self.curPrefsByName[name]
+      val = self.curPrefs[name]
       if val != self.defaultPrefs[name]:
         s += key + " = " + str(val) + "\n"
     file(self.prefsFile, 'w').write(s)
