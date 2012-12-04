@@ -50,7 +50,10 @@ class TPBattStat():
     self.curDelay = -1
     self.update()
   def update(self):
-    self.prefs.update()
+    try:
+      self.prefs.update()
+    except Exception:
+      print 'ignoring prefs'
     if self.forceDelay != None:
       self.prefs['delay'] = self.forceDelay
     self.battStatus.update(self.prefs)
