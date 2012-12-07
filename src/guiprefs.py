@@ -79,10 +79,10 @@ class GuiPrefs(gtk.VBox):
     eb.add(w)
     (col, row) = (self.curCol, self.curRow)
     self.table.attach(eb, col, col+colWidth, row, row+1)
-  def update(self):
+  def update(self, quiet=True):
     self.prefs.update()
     for prefRow in self.prefRows:
-      prefRow.update()
+      prefRow.update(quiet)
     self.messageLabel.set_text('')
 
 class PrefRow():
@@ -96,13 +96,17 @@ class PrefRow():
     self.label.set_tooltip_markup(self.getTooltipMarkup())
     self.prefWidget = self.buildWidget()
 
-    self.prefWidget.widget.connect(
-    self.prefWidget.changeSignal, self.savePref)
+    self.ignoreChanges = False
+    self.prefWidget.widget.connect(self.prefWidget.changeSignal, self.savePref)
     self.error = None
   def getLabelMarkup(self):
     return (self.pref.name + '\n'
       + self.smallText(self.pref.valType + ' - ' + self.pref.shortDesc))
   def savePref(self, w):
+    if self.ignoreChanges:
+      return
+    print '..saving prefs'
+
     try:
       self.prefs.readPrefsFile()
     except:
@@ -112,8 +116,10 @@ class PrefRow():
       self.prefs.writePrefsFile()
       self.prefs.readPrefsFile()
       self.messageLabel.set_markup('saved ' + self.pref.name)
+      print 'saved!'
     except Exception as e:
       self.messageLabel.set_text('ERROR: ' + e.message)
+      print 'prefs not saved: ' + e.message
 
   def smallText(self, msg):
     return '<span size="small">' + msg + '</span>'
@@ -130,8 +136,11 @@ class PrefRow():
     return self.prefWidget.widget
   def buildWidget(self):
     return PrefWidget(self.pref.valType, self.pref.enum)
-  def update(self):
+  def update(self, quiet):
+    if quiet:
+      self.ignoreChanges = True
     self.prefWidget.setValueFct(self.prefs[self.pref.name])
+    self.ignoreChanges = False
 
 class GconfRadioButton(gtk.RadioButton):
   def __init__(self, value, group=None, label=None, use_underline=True):
