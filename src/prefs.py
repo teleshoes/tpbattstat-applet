@@ -156,8 +156,14 @@ class Prefs():
     for name in self.prefNames:
       val = self.curPrefs[name]
       if val != self.defaultPrefs[name]:
-        s += name + " = " + str(val) + "\n"
+        if self.prefsByName[name].valType[:5] == "list-":
+          val = self.listToString(val)
+        else:
+          val = str(val)
+        s += name + " = " + val + "\n"
     file(self.prefsFile, 'w').write(s)
+  def listToString(self, xs):
+    return '[' + ','.join(map(str, xs)) + ']'
   def readVal(self, prefName, valType, valStr, enumVals):
     valStr = valStr.strip()
     if valType == 'int':
