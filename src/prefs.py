@@ -121,7 +121,6 @@ class Prefs():
       s += ' #' + p.shortDesc + "\n"
     return s
   def ensurePrefsFile(self):
-    self.getDefaultPrefsFile()
     if not os.path.isdir(self.prefsDir):
       os.makedirs(self.prefsDir, 0755)
     if not os.path.isfile(self.prefsFile):
