@@ -58,7 +58,7 @@ class JsonMarkupBuilder(MarkupBuilder):
   def append(self, name, value):
     if value:
       value = self.escapeMarkup(value)
-      self.items.append(name: \"" + value + "\"")
+      self.items.append("\"" + name + "\": \"" + value + "\"")
   def escapeMarkup(self, m):
     return m.replace('\\', '\\\\').replace('"', '""').replace('\n', '\\n')
 
