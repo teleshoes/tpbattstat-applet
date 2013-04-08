@@ -89,20 +89,39 @@ def prefsClickHandler(widget, event):
   if event.button == 1:
     prefsDialog = TPBattStat("prefs").getGui().showPreferencesDialog()
 
+def formatCmd(cmdArr):
+  return "[" + " | ".join(cmdArr) + "]"
+def usage(name, cmds):
+  return ("Usage:\n"
+    + " " + name + " " + formatCmd(cmds['help']) + "\n"
+    + " " + name + " " + formatCmd(cmds['window']) + "\n"
+    + " " + name + " " + formatCmd(cmds['dzen']) + " [optional-delay-millis]\n"
+    + " " + name + " " + formatCmd(cmds['prefs']) + "\n"
+    )
+def getCommand(arg, commands):
+  for key in commands:
+    if arg in commands[key]:
+      return key
+
+
 def main():
-  if len(sys.argv) >= 2:
-    arg = sys.argv[1]
-  else:
+  commands = {
+    "help": ["-h", "--help", "help"],
+    "window": ["-w", "--window", "window"],
+    "dzen": ["-d", "--dzen", "dzen"],
+    "prefs": ["-p", "--prefs", "prefs"]
+  }
+
+  if len(sys.argv) == 3:
+    cmd = getCommand(sys.argv[1], commands)
+    arg = sys.argv[2]
+  elif len(sys.argv) == 2:
+    cmd = getCommand(sys.argv[1], commands)
     arg = None
+  else:
+    print usage(sys.argv[0], commands)
 
-  if arg == None or arg == "-h" or arg == "--help" or arg == "help":
-    print "Usage:"
-    print "  " + sys.argv[0] + " [-h | --help | help]"
-    print "  " + sys.argv[0] + " [-w | --window | window]"
-    print "  " + sys.argv[0] + " [-d | --dzen | dzen] [optional-delay-millis]"
-    print "  " + sys.argv[0] + " [-p | --prefs | prefs]"
-
-  elif arg == "-w" or arg == "--window" or arg == "window":
+  if cmd == 'window' and arg == None:
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     window.set_title("TPBattStat")
     tpbattstat = TPBattStat("gtk")
@@ -111,18 +130,19 @@ def main():
     window.add_events(gtk.gdk.BUTTON_PRESS_MASK)
     window.connect("button_press_event", prefsClickHandler)
     showAndExit(window)
-  elif arg == "-p" or arg == "--prefs" or arg == "prefs":
+  elif cmd == 'prefs' and arg == None:
     prefsDialog = TPBattStat("prefs").getGui().getPreferencesDialog()
     showAndExit(prefsDialog)
-
-  elif arg == "-d" or arg == "--dzen" or arg == "dzen":
-    if len(sys.argv) == 3:
-      tpbattstat = TPBattStat("dzen", int(sys.argv[2]))
+  elif cmd == 'dzen':
+    if arg != None:
+      tpbattstat = TPBattStat(cmd, int(arg))
     else:
-      tpbattstat = TPBattStat("dzen")
+      tpbattstat = TPBattStat(cmd)
     tpbattstat.startUpdate()
     gtk.main()
     sys.exit()
+  else:
+    print usage(sys.argv[0], commands)
 
 if __name__ == "__main__":
   sys.exit(main())
