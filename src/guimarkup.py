@@ -41,6 +41,26 @@ class MarkupBuilder():
   def toString(self): pass
 
 
+class JsonMarkupBuilder(MarkupBuilder):
+  def __init__(self):
+    self.items = []
+  def fg(self, color, markup):
+    return "<span foreground=\"" + color + "\">" + markup + "</span>"
+  def appendImage(self, image):
+    if image:
+      self.items.append("  image: \"" + self.escapeMarkup(image) + "\"")
+  def appendLabel(self, text):
+    if text:
+      self.items.append("  label: \"" + self.escapeMarkup(text) + "\"")
+  def setClickCmd(self, clickCmd):
+    if clickCmd:
+      self.items.insert(0, "  click: \"" + self.escapeMarkup(clickCmd) + "\"")
+  def toString(self):
+    return "{\n" + ',\n'.join(self.items) + "\n}\n"
+
+  def escapeMarkup(self, m):
+    return m.replace('\\', '\\\\').replace('"', '""').replace('\n', '\\n')
+
 class DzenMarkupBuilder(MarkupBuilder):
   def __init__(self):
     self.markup = ""
@@ -161,6 +181,9 @@ class GuiMarkupPrinter():
   def getLeftClickCmd(self):
     exe=inspect.stack()[-1][1]
     return exe + " " + "--prefs"
+  def getMarkupJson(self):
+    self.markupBuilder = JsonMarkupBuilder()
+    return self.getGuiMarkup()
   def getMarkupDzen(self):
     self.markupBuilder = DzenMarkupBuilder()
     return self.getGuiMarkup()

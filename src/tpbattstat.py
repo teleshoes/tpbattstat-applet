@@ -41,7 +41,7 @@ class TPBattStat():
     self.actions = Actions(self.prefs, self.battStatus)
     if self.mode == "gtk" or self.mode == "prefs":
       self.gui = Gui(self.prefs, self.battStatus)
-    elif self.mode == "dzen":
+    elif self.mode == "json" or self.mode == "dzen":
       self.guiMarkupPrinter = GuiMarkupPrinter(self.prefs, self.battStatus)
       
   def getGui(self):
@@ -62,9 +62,12 @@ class TPBattStat():
     self.actions.performActions()
     if self.mode == "gtk":
       self.gui.update()
-    elif self.mode == "dzen":
+    elif self.mode == "json" or self.mode == "dzen":
       try:
-        markup = self.guiMarkupPrinter.getMarkupDzen()
+        if self.mode == "json":
+          markup = self.guiMarkupPrinter.getMarkupJson()
+        elif self.mode == "dzen":
+          markup = self.guiMarkupPrinter.getMarkupDzen()
         print markup
         sys.stdout.flush()
       except IOError, e:
@@ -96,6 +99,7 @@ def usage(name, cmds):
   return ("Usage:\n"
     + " " + name + " " + formatCmd(cmds['help']) + "\n"
     + " " + name + " " + formatCmd(cmds['window']) + "\n"
+    + " " + name + " " + formatCmd(cmds['json']) + " [optional-delay-millis]\n"
     + " " + name + " " + formatCmd(cmds['dzen']) + " [optional-delay-millis]\n"
     + " " + name + " " + formatCmd(cmds['prefs']) + "\n"
     )
@@ -109,6 +113,7 @@ def main():
   commands = {
     "help": ["-h", "--help", "help"],
     "window": ["-w", "--window", "window"],
+    "json": ["-j", "--json", "json"],
     "dzen": ["-d", "--dzen", "dzen"],
     "prefs": ["-p", "--prefs", "prefs"]
   }
@@ -134,7 +139,7 @@ def main():
   elif cmd == 'prefs' and arg == None:
     prefsDialog = TPBattStat("prefs").getGui().getPreferencesDialog()
     showAndExit(prefsDialog)
-  elif cmd == 'dzen':
+  elif cmd == 'dzen' or cmd == 'json':
     if arg != None:
       tpbattstat = TPBattStat(cmd, int(arg))
     else:
