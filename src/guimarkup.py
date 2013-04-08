@@ -48,15 +48,15 @@ class JsonMarkupBuilder(MarkupBuilder):
     return "<span foreground=\"" + color + "\">" + markup + "</span>"
   def appendImage(self, image):
     if image:
-      self.items.append("  image: \"" + self.escapeMarkup(image) + "\"")
+      self.items.append("image: \"" + self.escapeMarkup(image) + "\"")
   def appendLabel(self, text):
     if text:
-      self.items.append("  label: \"" + self.escapeMarkup(text) + "\"")
+      self.items.append("label: \"" + self.escapeMarkup(text) + "\"")
   def setClickCmd(self, clickCmd):
     if clickCmd:
-      self.items.insert(0, "  click: \"" + self.escapeMarkup(clickCmd) + "\"")
+      self.items.insert(0, "click: \"" + self.escapeMarkup(clickCmd) + "\"")
   def toString(self):
-    return "{\n" + ',\n'.join(self.items) + "\n}\n"
+    return "{" + ', '.join(self.items) + "}"
 
   def escapeMarkup(self, m):
     return m.replace('\\', '\\\\').replace('"', '""').replace('\n', '\\n')
