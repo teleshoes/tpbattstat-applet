@@ -25,7 +25,7 @@ pygtk.require('2.0')
 from prefs import Prefs
 from gui import Gui
 from battstatus import BattStatus
-from dzenprinter import DzenPrinter
+from guimarkup import DzenPrinter
 from actions import Actions
 import sys
 import gtk
