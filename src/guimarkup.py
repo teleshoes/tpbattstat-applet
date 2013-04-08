@@ -21,6 +21,7 @@
 
 from battstatus import State
 import inspect
+import re
 
 IMAGE_HEIGHT = 36
 IMAGE_WIDTH = 36
@@ -32,7 +33,68 @@ IMAGE_DIR = (
 CHARGING_COLOR = '#60FF60'
 DISCHARGING_COLOR = '#FF6060'
 
-class DzenPrinter():
+class MarkupBuilder():
+  def fg(self, color, markup): pass
+  def appendImage(self, image): pass
+  def appendLabel(self, text): pass
+  def setClickCmd(self, clickCmd): pass
+  def toString(self): pass
+
+
+class DzenMarkupBuilder(MarkupBuilder):
+  def __init__(self):
+    self.markup = ""
+  def fg(self, color, markup):
+    return "^fg(" + color + ")" + markup + "^fg()"
+  def appendImage(self, image):
+    if image:
+      self.markup += "^p(;-8)" + "^i(" + image + ")" + "^p(;8)"
+  def appendLabel(self, text):
+    lines = text.split("\n")
+    self.markup += self.getLinesMarkup(lines)
+  def setClickCmd(self, clickCmd):
+    self.markup = self.wrapClickMarkup(1, clickCmd, self.markup)
+  def toString(self):
+    return self.markup
+
+  def estimateLen(self, m):
+    return len(self.stripMarkup(m))
+  def stripMarkup(self, m):
+    return re.sub('\\^[a-z]+\\(.*?\\)', '', m)
+  def getLinesMarkup(self, lines):
+    if len(lines) == 0:
+      return ''
+    elif len(lines) == 1:
+      return lines[0]
+    else:
+      top = lines[0]
+      bot = ' '.join(lines[1:])
+      return self.twoTextRows(top, bot)
+  def wrapClickMarkup(self, btn, cmd, markup):
+    return "^ca(" + str(btn) + "," + cmd + ")" + markup + "^ca()"
+  def raiseMarkup(self, markup):
+    return "^p(;-10)" + markup + "^p(;10)"
+  def lowerMarkup(self, markup):
+    return "^p(;6)" + markup + "^p(;-6)"
+  def twoTextRows(self, top, bot):
+    if len(bot) == 0:
+      return top
+    topLen = self.estimateLen(top)
+    for i in range(0, 6-topLen):
+      top += ' '
+    top = self.raiseMarkup(top)
+    bot = self.lowerMarkup(bot)
+    return (''
+     + '^ib(1)'
+     + '^p(_LOCK_X)'
+     + bot
+     + '^p(_UNLOCK_X)'
+     + top
+     + '^ib(0)'
+     )
+
+
+class GuiMarkupPrinter():
   def __init__(self, prefs, battStatus):
     self.prefs = prefs
     self.battStatus = battStatus
@@ -65,20 +127,14 @@ class DzenPrinter():
         state = State.DISCHARGING
       else:
         state = State.IDLE
-      return self.getImageMarkup(self.selectImage(installed, state, percent))
+      return self.selectImage(installed, state, percent)
     else:
-      return ''
-  def getBattImageMarkup(self, batt_id):
+      return None
+  def getBattImage(self, batt_id):
     if self.prefs['displayIcons'] and not self.prefs['displayOnlyOneIcon']:
-      return self.getImageMarkup(self.selectImageByBattId(batt_id))
+      return self.selectImageByBattId(batt_id)
     else:
-      return ''
-  def getImageMarkup(self, img):
-    return (""
-      + "^p(;-8)"
-      + "^i(" + img + ")"
-      + "^p(;8)"
-      )
+      return None
   def getBattPercentMarkup(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
     if not battInfo.isInstalled():
@@ -89,62 +145,37 @@ class DzenPrinter():
       percent = '@@'
 
     if not self.prefs['displayColoredText'] or battInfo.state == State.IDLE:
-      color = ''
+      return percent
     elif battInfo.state == State.CHARGING:
-      color = CHARGING_COLOR
+      return self.markupBuilder.fg(CHARGING_COLOR, percent)
     elif battInfo.state == State.DISCHARGING:
-      color = DISCHARGING_COLOR
-
-    return '^fg(' + color + ')' + percent + '^fg()'
+      return self.markupBuilder.fg(DISCHARGING_COLOR, percent)
   def getSeparatorMarkup(self):
     sep = "|"
     if self.prefs['displayBlinkingIndicator'] and self.counter % 2 == 0:
-      return "^fg(blue)" + sep + "^fg()"
+      return self.markupBuilder.fg("blue",  sep)
     else:
       return sep
   def getPowerMarkup(self):
     return self.battStatus.getPowerDisplay()
-  def getTopLength(self):
-    bat0 = self.battStatus.getBattInfo(0).remaining_percent
-    bat1 = self.battStatus.getBattInfo(1).remaining_percent
-    return len(bat0) + len(bat1) + 1
-  def raiseMarkup(self, markup):
-    return "^p(;-10)" + markup + "^p(;10)"
-  def lowerMarkup(self, markup):
-    return "^p(;6)" + markup + "^p(;-6)"
-  def twoTextRows(self, top, bot):
-    if len(bot) == 0:
-      return top
-    for i in range(0, 6-self.getTopLength()):
-      top = top + ' '
-    top = self.raiseMarkup(top)
-    bot = self.lowerMarkup(bot)
-    return (''
-     + '^ib(1)'
-     + '^p(_LOCK_X)'
-     + bot
-     + '^p(_UNLOCK_X)'
-     + top
-     + '^ib(0)'
-     )
-  def wrapClick(self, btn, cmd, markup):
-    return "^ca(" + btn + "," + cmd + ")" + markup + "^ca()"
   def getLeftClickCmd(self):
     exe=inspect.stack()[-1][1]
     return exe + " " + "--prefs"
-  def getDzenMarkup(self):
+  def getMarkupDzen(self):
+    self.markupBuilder = DzenMarkupBuilder()
+    return self.getGuiMarkup()
+  def getGuiMarkup(self):
     self.counter = self.counter + 1
-    
-    return self.wrapClick("1", self.getLeftClickCmd(), ""
-      + self.getJointImage()
-      + self.getBattImageMarkup(0)
-      + self.twoTextRows(""
+
+    self.markupBuilder.appendImage(self.getJointImage())
+    self.markupBuilder.appendImage(self.getBattImage(0))
+    self.markupBuilder.appendLabel(''
           + self.getBattPercentMarkup(0)
           + self.getSeparatorMarkup()
           + self.getBattPercentMarkup(1)
-          ,
-          self.getPowerMarkup()
-        )
-      + self.getBattImageMarkup(1)
-      )
-
+          + "\n"
+          + self.getPowerMarkup()
+          )
+    self.markupBuilder.appendImage(self.getBattImage(1))
+    self.markupBuilder.setClickCmd(self.getLeftClickCmd())
+    return self.markupBuilder.toString()

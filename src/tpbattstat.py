@@ -25,7 +25,7 @@ pygtk.require('2.0')
 from prefs import Prefs
 from gui import Gui
 from battstatus import BattStatus
-from guimarkup import DzenPrinter
+from guimarkup import GuiMarkupPrinter
 from actions import Actions
 import sys
 import gtk
@@ -42,7 +42,7 @@ class TPBattStat():
     if self.mode == "gtk" or self.mode == "prefs":
       self.gui = Gui(self.prefs, self.battStatus)
     elif self.mode == "dzen":
-      self.dzenprinter = DzenPrinter(self.prefs, self.battStatus)
+      self.guiMarkupPrinter = GuiMarkupPrinter(self.prefs, self.battStatus)
       
   def getGui(self):
     return self.gui
@@ -64,10 +64,11 @@ class TPBattStat():
       self.gui.update()
     elif self.mode == "dzen":
       try:
-        print self.dzenprinter.getDzenMarkup()
+        markup = self.guiMarkupPrinter.getMarkupDzen()
+        print markup
         sys.stdout.flush()
       except IOError, e:
-        print >> sys.stderr, "STDOUT is broken, assuming dzen is dead"
+        print >> sys.stderr, "STDOUT is broken, assuming external gui is dead"
         sys.exit(1)
 
     if self.prefs['delay'] != self.curDelay:
