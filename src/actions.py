@@ -23,6 +23,7 @@ from prefs import State
 from subprocess import Popen
 import os
 import re
+import sys
 
 LED_EXEC = '/usr/local/sbin/led'
 LED_BATT_EXEC = '/usr/local/sbin/led-batt'
@@ -49,7 +50,7 @@ class Actions():
       newLed = self.calculateLedPattern()
       if self.ledPattern != newLed:
         self.ledPattern = newLed
-        print "using led pattern: " + str(self.ledPattern)
+        print >> sys.stderr, "using led pattern: " + str(self.ledPattern)
         nullFile = open('/dev/null', 'w')
         if self.ledPattern != []:
           Popen([LED_BATT_EXEC] + self.ledPattern, stdout=nullFile)
