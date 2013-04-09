@@ -38,7 +38,16 @@ class MarkupBuilder():
   def appendImage(self, image): pass
   def appendLabel(self, text): pass
   def setClickCmd(self, clickCmd): pass
+  def stripMarkup(self, text): pass
   def toString(self): pass
+
+  def estimateLength(self, text):
+    return len(self.stripMarkup(text))
+  def pad(self, text, length):
+    curLen = self.estimateLength(text)
+    for i in range(0, length-curLen):
+      text += ' '
+    return text
 
 
 class JsonMarkupBuilder(MarkupBuilder):
@@ -52,6 +61,8 @@ class JsonMarkupBuilder(MarkupBuilder):
     self.append("label", text)
   def setClickCmd(self, clickCmd):
     self.append("click", clickCmd)
+  def stripMarkup(self, m):
+    return re.sub('<[^>]*>', '', m)
   def toString(self):
     return "{" + ', '.join(self.items) + "}"
 
@@ -77,11 +88,9 @@ class DzenMarkupBuilder(MarkupBuilder):
     self.markup = self.wrapClickMarkup(1, clickCmd, self.markup)
   def toString(self):
     return self.markup
-
-  def estimateLen(self, m):
-    return len(self.stripMarkup(m))
   def stripMarkup(self, m):
     return re.sub('\\^[a-z]+\\(.*?\\)', '', m)
+
   def getLinesMarkup(self, lines):
     if len(lines) == 0:
       return ''
@@ -100,9 +109,6 @@ class DzenMarkupBuilder(MarkupBuilder):
   def twoTextRows(self, top, bot):
     if len(bot) == 0:
       return top
-    topLen = self.estimateLen(top)
-    for i in range(0, 6-topLen):
-      top += ' '
     top = self.raiseMarkup(top)
     bot = self.lowerMarkup(bot)
     return (''
@@ -182,6 +188,12 @@ class GuiMarkupPrinter():
   def getLeftClickCmd(self):
     exe=inspect.stack()[-1][1]
     return exe + " " + "--prefs"
+  def getBattLabelMarkup(self):
+    return (''
+          + self.getBattPercentMarkup(0)
+          + self.getSeparatorMarkup()
+          + self.getBattPercentMarkup(1)
+          )
   def getMarkupJson(self):
     self.markupBuilder = JsonMarkupBuilder()
     return self.getGuiMarkup()
@@ -194,11 +206,9 @@ class GuiMarkupPrinter():
     self.markupBuilder.appendImage(self.getJointImage())
     self.markupBuilder.appendImage(self.getBattImage(0))
     self.markupBuilder.appendLabel(''
-          + self.getBattPercentMarkup(0)
-          + self.getSeparatorMarkup()
-          + self.getBattPercentMarkup(1)
+          + self.markupBuilder.pad(self.getBattLabelMarkup(), 6)
           + "\n"
-          + self.getPowerMarkup()
+          + self.markupBuilder.pad(self.getPowerMarkup(), 6)
           )
     self.markupBuilder.appendImage(self.getBattImage(1))
     self.markupBuilder.setClickCmd(self.getLeftClickCmd())
