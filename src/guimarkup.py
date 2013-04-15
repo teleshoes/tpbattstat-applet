@@ -117,16 +117,20 @@ class DzenMarkupBuilder(MarkupBuilder):
 
 
 class GuiMarkupPrinter():
-  def __init__(self, prefs, battStatus):
+  def __init__(self, prefs, battStatus, forceIconSize):
     self.prefs = prefs
     self.battStatus = battStatus
     self.counter = 0
+    self.forceIconSize = forceIconSize
   def selectImageByBattId(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
     return self.selectImage(battInfo.isInstalled(), battInfo.state,
       int(float(battInfo.remaining_percent)))
   def imageDir(self):
-    return IMAGE_DIR + '/' + self.prefs['iconSize']
+    size = self.forceIconSize
+    if size == None:
+      size = self.prefs['iconSize']
+    return IMAGE_DIR + '/' + size
   def selectImage(self, installed, state, percent):
     if not installed:
       return self.imageDir() + "/none.xpm"

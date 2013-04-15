@@ -32,7 +32,7 @@ import gtk
 import gobject
 
 class TPBattStat():
-  def __init__(self, mode, forceDelay=None):
+  def __init__(self, mode, forceDelay=None, forceIconSize=None):
     self.mode = mode
     self.forceDelay = forceDelay
 
@@ -42,7 +42,8 @@ class TPBattStat():
     if self.mode == "gtk" or self.mode == "prefs":
       self.gui = Gui(self.prefs, self.battStatus)
     elif self.mode == "json" or self.mode == "dzen":
-      self.guiMarkupPrinter = GuiMarkupPrinter(self.prefs, self.battStatus)
+      self.guiMarkupPrinter = GuiMarkupPrinter(
+        self.prefs, self.battStatus, forceIconSize)
       
   def getGui(self):
     return self.gui
@@ -99,11 +100,12 @@ def usage(name, cmds):
   return ("Usage:\n"
     + " " + name + " " + formatCmd(cmds['help']) + "\n"
     + " " + name + " " + formatCmd(cmds['window']) + "\n"
-    + " " + name + " " + formatCmd(cmds['json']) + " [delay-ms]\n"
-    + " " + name + " " + formatCmd(cmds['dzen']) + " [delay-ms]\n"
+    + " " + name + " " + formatCmd(cmds['json']) + " [delay-ms] [icon-size]\n"
+    + " " + name + " " + formatCmd(cmds['dzen']) + " [delay-ms] [icon-size]\n"
     + " " + name + " " + formatCmd(cmds['prefs']) + "\n"
     + "\n"
     + "   delay-ms: override the delay in prefs\n"
+    + "   icon-size: override the icon-size in prefs\n"
     )
 def getCommand(arg, commands):
   for key in commands:
@@ -120,16 +122,13 @@ def main():
     "prefs": ["-p", "--prefs", "prefs"]
   }
 
-  if len(sys.argv) == 3:
+  if len(sys.argv) >= 2:
     cmd = getCommand(sys.argv[1], commands)
-    arg = sys.argv[2]
-  elif len(sys.argv) == 2:
-    cmd = getCommand(sys.argv[1], commands)
-    arg = None
+    args = sys.argv[2:]
   else:
     print usage(sys.argv[0], commands)
 
-  if cmd == 'window' and arg == None:
+  if cmd == 'window' and len(args) == 0:
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     window.set_title("TPBattStat")
     tpbattstat = TPBattStat("gtk")
@@ -138,14 +137,19 @@ def main():
     window.add_events(gtk.gdk.BUTTON_PRESS_MASK)
     window.connect("button_press_event", prefsClickHandler)
     showAndExit(window)
-  elif cmd == 'prefs' and arg == None:
+  elif cmd == 'prefs' and len(args) == 0:
     prefsDialog = TPBattStat("prefs").getGui().getPreferencesDialog()
     showAndExit(prefsDialog)
-  elif cmd == 'dzen' or cmd == 'json':
-    if arg != None:
-      tpbattstat = TPBattStat(cmd, int(arg))
-    else:
-      tpbattstat = TPBattStat(cmd)
+  elif cmd == 'dzen' or cmd == 'json' and 0 <= len(args) and len(args) <= 2:
+    delay = None
+    iconSize = None
+
+    if len(args) > 0:
+      delay = args[0]
+    if len(args) > 1:
+      iconSize = args[1]
+
+    tpbattstat = TPBattStat(cmd, forceDelay=delay, forceIconSize=iconSize)
     tpbattstat.startUpdate()
     gtk.main()
     sys.exit()
