@@ -23,10 +23,9 @@ from battstatus import State
 from guiprefs import GuiPrefs
 import gtk
 import gtk.gdk
+import re
 
 IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/svg'
-IMAGE_HEIGHT = 24
-IMAGE_WIDTH = 24
 
 class Gui():
   def __init__(self, prefs, battStatus, orientation='horizontal'):
@@ -36,9 +35,9 @@ class Gui():
     self.batt0img = gtk.Image()
     self.batt1img = gtk.Image()
     self.counter = 0
-    self.initPixbufs()
     self.orientation = orientation
-    
+    self.pixbufSize = None
+
     self.container = gtk.HBox()
     self.box = None
     self.resetLayout()
@@ -62,19 +61,27 @@ class Gui():
     self.container.add(self.box)
     self.container.show_all()
 
-  def initPixbufs(self):
-    self.none = self.newPixbuf('none.svg')
+  def parseSize(self, size):
+    size = re.match('^(\\d+)x(\\d+)$', size)
+    if size != None:
+      return(int(size.group(1)), int(size.group(2)))
+    else:
+      return (36, 36)
+  def initPixbufs(self, size):
+    (w, h) = self.parseSize(size)
+    self.none = self.newPixbuf(w, h, 'none.svg')
     self.idle = []
     self.charging = []
     self.discharging = []
     for i in [0,10,20,30,40,50,60,70,80,90,100]:
       img = str(i) + '.svg'
-      self.idle.append(self.newPixbuf('idle/' + img))
-      self.charging.append(self.newPixbuf('charging/' + img))
-      self.discharging.append(self.newPixbuf('discharging/' + img))
-  def newPixbuf(self, filename):
+      self.idle.append(self.newPixbuf(w, h, 'idle/' + img))
+      self.charging.append(self.newPixbuf(w, h, 'charging/' + img))
+      self.discharging.append(self.newPixbuf(w, h, 'discharging/' + img))
+
+  def newPixbuf(self, w, h, filename):
     return gtk.gdk.pixbuf_new_from_file_at_size(
-      IMAGE_DIR + '/' + filename, IMAGE_WIDTH, IMAGE_HEIGHT)
+      IMAGE_DIR + '/' + filename, w, h)
   def selectPixbufByBattId(self, batt_id):
     battInfo = self.battStatus.getBattInfo(batt_id)
     return self.selectPixbuf(battInfo.isInstalled(), battInfo.state,
@@ -98,6 +105,11 @@ class Gui():
     else:
       return imgs[i]
   def updateImages(self):
+    size = self.prefs['iconSize']
+    if self.pixbufSize == None or self.pixbufSize != size:
+      self.initPixbufs(size)
+      self.pixbufSize = size
+
     if self.prefs['displayIcons']:
       if self.prefs['displayOnlyOneIcon']:
         installed = self.battStatus.isEitherInstalled()
