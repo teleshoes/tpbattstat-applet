@@ -23,12 +23,7 @@ from battstatus import State
 import inspect
 import re
 
-IMAGE_HEIGHT = 36
-IMAGE_WIDTH = 36
-IMAGE_DIR = (
-  '/usr/share/pixmaps/tpbattstat-applet/xpm' + 
-  '/' + str(IMAGE_WIDTH) + 'x' + str(IMAGE_HEIGHT)
-  )
+IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/xpm'
 
 CHARGING_COLOR = '#60FF60'
 DISCHARGING_COLOR = '#FF6060'
@@ -130,11 +125,13 @@ class GuiMarkupPrinter():
     battInfo = self.battStatus.getBattInfo(batt_id)
     return self.selectImage(battInfo.isInstalled(), battInfo.state,
       int(float(battInfo.remaining_percent)))
+  def imageDir(self):
+    return IMAGE_DIR + '/' + self.prefs['iconSize']
   def selectImage(self, installed, state, percent):
     if not installed:
-      return IMAGE_DIR + "/none.xpm"
+      return self.imageDir() + "/none.xpm"
 
-    img = IMAGE_DIR
+    img = self.imageDir()
     if state == State.CHARGING:
       img = img + "/charging"
     elif state == State.DISCHARGING:
