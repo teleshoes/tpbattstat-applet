@@ -94,14 +94,16 @@ def prefsClickHandler(widget, event):
     prefsDialog = TPBattStat("prefs").getGui().showPreferencesDialog()
 
 def formatCmd(cmdArr):
-  return "[" + " | ".join(cmdArr) + "]"
+  return "|".join(cmdArr)
 def usage(name, cmds):
   return ("Usage:\n"
     + " " + name + " " + formatCmd(cmds['help']) + "\n"
     + " " + name + " " + formatCmd(cmds['window']) + "\n"
-    + " " + name + " " + formatCmd(cmds['json']) + " [optional-delay-millis]\n"
-    + " " + name + " " + formatCmd(cmds['dzen']) + " [optional-delay-millis]\n"
+    + " " + name + " " + formatCmd(cmds['json']) + " [delay-ms]\n"
+    + " " + name + " " + formatCmd(cmds['dzen']) + " [delay-ms]\n"
     + " " + name + " " + formatCmd(cmds['prefs']) + "\n"
+    + "\n"
+    + "   delay-ms: override the delay in prefs\n"
     )
 def getCommand(arg, commands):
   for key in commands:
