@@ -23,7 +23,7 @@ from battstatus import State
 import inspect
 import re
 
-IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/xpm'
+IMAGE_DIR = '/usr/share/pixmaps/tpbattstat-applet/'
 
 CHARGING_COLOR = '#60FF60'
 DISCHARGING_COLOR = '#FF6060'
@@ -34,6 +34,7 @@ class MarkupBuilder():
   def appendLabel(self, text): pass
   def setClickCmd(self, clickCmd): pass
   def stripMarkup(self, text): pass
+  def imageExtension(self): pass
   def toString(self): pass
 
   def estimateLength(self, text):
@@ -58,6 +59,8 @@ class JsonMarkupBuilder(MarkupBuilder):
     self.append("click", clickCmd)
   def stripMarkup(self, m):
     return re.sub('<[^>]*>', '', m)
+  def imageExtension(self):
+    return 'png'
   def toString(self):
     return "{" + ', '.join(self.items) + "}"
 
@@ -81,10 +84,12 @@ class DzenMarkupBuilder(MarkupBuilder):
     self.markup += self.getLinesMarkup(lines)
   def setClickCmd(self, clickCmd):
     self.markup = self.wrapClickMarkup(1, clickCmd, self.markup)
-  def toString(self):
-    return self.markup
   def stripMarkup(self, m):
     return re.sub('\\^[a-z]+\\(.*?\\)', '', m)
+  def imageExtension(self):
+    return 'xpm'
+  def toString(self):
+    return self.markup
 
   def getLinesMarkup(self, lines):
     if len(lines) == 0:
@@ -126,16 +131,17 @@ class GuiMarkupPrinter():
     battInfo = self.battStatus.getBattInfo(batt_id)
     return self.selectImage(battInfo.isInstalled(), battInfo.state,
       int(float(battInfo.remaining_percent)))
-  def imageDir(self):
+  def imageDir(self, ext):
     size = self.forceIconSize
     if size == None:
       size = self.prefs['iconSize']
-    return IMAGE_DIR + '/' + size
+    return IMAGE_DIR + '/' + ext + '/' + size
   def selectImage(self, installed, state, percent):
+    ext = self.markupBuilder.imageExtension()
     if not installed:
-      return self.imageDir() + "/none.xpm"
+      return self.imageDir(ext) + "/none." + ext
 
-    img = self.imageDir()
+    img = self.imageDir(ext)
     if state == State.CHARGING:
       img = img + "/charging"
     elif state == State.DISCHARGING:
@@ -143,7 +149,7 @@ class GuiMarkupPrinter():
     else:
       img = img + "/idle"
 
-    img = img + "/" + str(percent / 10 * 10) + ".xpm"
+    img = img + "/" + str(percent / 10 * 10) + "." + ext
     return img
   def getJointImage(self):
     if self.prefs['displayIcons'] and self.prefs['displayOnlyOneIcon']:
