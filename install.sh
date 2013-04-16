@@ -4,6 +4,12 @@ NAME=tpbattstat-applet
 LIB_INSTALL_DIR=/usr/lib/$NAME
 ICON_DIR=/usr/share/pixmaps
 
+if [ ! -e "icons/png" ]; then
+  echo Converting icons- necessary for dzen/json but not for anything else
+  echo "You need rsvg {librsvg2-bin} and convert {imagemagick}"
+  perl convert-icons.pl
+fi
+
 cd src
 echo copying $NAME.py to $LIB_INSTALL_DIR
 echo
