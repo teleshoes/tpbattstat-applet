@@ -23,7 +23,6 @@ import os
 import sys
 import re
 from subprocess import Popen, PIPE
-import gconf
 
 def enum(*sequential, **named):
   enums = dict(zip(sequential, sequential), **named)

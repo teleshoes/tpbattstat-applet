@@ -22,7 +22,6 @@
 import sys
 import re
 from subprocess import Popen, PIPE
-import gconf
 import gtk
 
 class GuiPrefs(gtk.VBox):
